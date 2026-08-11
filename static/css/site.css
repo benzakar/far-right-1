@@ -701,8 +701,15 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
 .cinema__line[data-cine="line1"] {
   right: clamp(1.2rem, 6vw, 7rem);
   left: auto;
-  inset-block-start: 37%;
-  max-inline-size: min(14ch, 36vw);
+  inset-block-start: 27%;
+  max-inline-size: min(18ch, 42vw);
+}
+
+@media (min-width: 821px) {
+  .cinema__line[data-cine="line1"] {
+    font-size: clamp(1.55rem, 1rem + 2.2vw, 3.1rem);
+    line-height: 1.32;
+  }
 }
 
 .cinema__line[data-cine="line2"] {
