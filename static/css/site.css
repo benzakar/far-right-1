@@ -686,10 +686,9 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
   opacity: var(--dim, 0);
 }
 
-/* The two Darija lines sit on the right — the inline start in RTL. */
+/* Each title slide owns a physical side of the frame. */
 .cinema__line {
   position: absolute;
-  inset-inline-start: clamp(1.2rem, 6vw, 7rem);
   inset-block-start: 50%;
   z-index: 3;
   margin: 0;
@@ -703,7 +702,21 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
   text-shadow: 0 2px 26px rgba(16, 11, 3, 0.85), 0 0 3px rgba(16, 11, 3, 0.6);
   opacity: var(--o, 0);
   will-change: transform, opacity;
-  transform: translate3d(0, calc(-50% + var(--y, 0) * 1px), 0);
+  transform: translate3d(calc(var(--x, 0) * 1px), calc(-50% + var(--y, 0) * 1px), 0);
+}
+
+.cinema__line[data-cine="line1"] {
+  right: clamp(1.2rem, 6vw, 7rem);
+  left: auto;
+  inset-block-start: 37%;
+  max-inline-size: min(14ch, 36vw);
+}
+
+.cinema__line[data-cine="line2"] {
+  left: clamp(1.2rem, 6vw, 7rem);
+  right: auto;
+  inset-block-start: 50%;
+  max-inline-size: min(15ch, 38vw);
 }
 
 /* a soft pool of shade so the line reads before the scene is dimmed */
@@ -720,20 +733,18 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
   opacity: calc(1 - var(--dim, 0));
 }
 
-/* Centred with auto margins rather than the inset+translate trick: in
-   RTL, inset-inline-start resolves to `right`, so translateX(-50%)
-   shifts the layer a second time and drags it off the frame. */
+/* The rival marks sit under the first title so both read as one slide. */
 .cinema__parties {
   position: absolute;
-  inset-inline: 0;
-  margin-inline: auto;
-  inset-block-start: 50%;
+  right: clamp(0.5rem, 2vw, 2rem);
+  left: auto;
+  inset-block-start: 62%;
   z-index: 2;
-  inline-size: min(74vw, 980px);
+  inline-size: min(50vw, 720px);
   block-size: auto;
   opacity: var(--o, 0);
   will-change: transform, opacity;
-  transform: translate3d(calc(var(--x, 0) * 1%), calc(-50% + var(--y, 0) * 1px), 0);
+  transform: translate3d(calc(var(--x, 0) * 1px), calc(-50% + var(--y, 0) * 1px), 0);
   filter: drop-shadow(0 10px 18px rgba(251, 247, 239, 0.34));
 }
 
@@ -796,6 +807,32 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
       linear-gradient(to bottom, var(--ivory-2) 0%, var(--ivory-1) 52%, var(--ivory-2) 100%);
   }
 
+  /* `contain` preserves both portraits on a narrow screen, so the source
+     image's crack stops with the image plate. Continue it behind the mobile
+     sequence until it meets the jagged first green section. */
+  .cinema__stage::after {
+    content: "";
+    position: absolute;
+    inset-block: 29% 0;
+    left: 50%;
+    z-index: 1;
+    inline-size: clamp(12px, 4vw, 18px);
+    background: linear-gradient(90deg, #154b36, #1d674a 48%, #123f2e);
+    clip-path: polygon(
+      28% 0, 72% 0,
+      100% 4%, 58% 9%, 88% 15%, 42% 21%,
+      76% 28%, 34% 36%, 82% 44%, 48% 53%,
+      94% 61%, 38% 70%, 70% 79%, 24% 88%,
+      64% 94%, 40% 100%, 60% 100%, 100% 94%,
+      68% 87%, 96% 79%, 54% 70%, 90% 62%,
+      46% 53%, 86% 44%, 50% 36%, 92% 28%,
+      52% 20%, 94% 13%, 60% 7%, 78% 0
+    );
+    transform: translateX(-50%);
+    opacity: 0.96;
+    pointer-events: none;
+  }
+
   .cinema__bg {
     object-fit: contain;
     object-position: center 22%;
@@ -804,20 +841,35 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
   /* The copy sits on ivory here rather than on the picture, so it is set
      in ink and needs no pool of shade behind it. */
   .cinema__line {
-    max-inline-size: min(15ch, 78vw);
-    inset-block-start: 66%;
-    font-size: clamp(1.35rem, 1rem + 3.4vw, 2.1rem);
+    max-inline-size: min(15ch, 82vw);
+    font-size: clamp(1.08rem, 4.8vw, 1.45rem);
     color: var(--ink);
     text-shadow: none;
   }
   .cinema__line::before { display: none; }
 
+  .cinema__line[data-cine="line1"] {
+    right: 5vw;
+    left: auto;
+    inset-block-start: 60%;
+    max-inline-size: 44vw;
+  }
+
+  .cinema__line[data-cine="line2"] {
+    left: 5vw;
+    right: auto;
+    inset-block-start: 61%;
+    max-inline-size: 44vw;
+  }
+
   .cinema__slogan { color: var(--green); text-shadow: none; }
   .cinema__slogan::before { display: none; }
 
   .cinema__parties {
-    inline-size: 88vw;
-    inset-block-start: 30%;
+    right: 0;
+    left: auto;
+    inline-size: 50vw;
+    inset-block-start: 81%;
   }
 
   .cinema__logo { inset-block-start: 62%; inline-size: min(94vw, 680px); }
@@ -961,6 +1013,35 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
 .bay--greenback::before {
   background-color: var(--green-deep);
   background-image: url("../img/greenback-2560.jpg");
+}
+
+/* The first green plane rises into the hero as a jagged continuation of
+   the central green crack, avoiding a flat horizontal seam. */
+.bay--crack-join {
+  --crack-join-depth: clamp(3.5rem, 6vw, 5.5rem);
+  margin-block-start: calc(0rem - var(--crack-join-depth));
+  padding-block-start: calc(var(--bay) + var(--crack-join-depth));
+  clip-path: polygon(
+    0 var(--crack-join-depth),
+    41% var(--crack-join-depth),
+    43.5% calc(var(--crack-join-depth) - 1.5rem),
+    45.5% calc(var(--crack-join-depth) - 0.7rem),
+    47.2% 1rem,
+    48.4% 2.2rem,
+    49.4% 0,
+    50.5% 2rem,
+    51.7% 0.7rem,
+    53.2% calc(var(--crack-join-depth) - 0.8rem),
+    55% calc(var(--crack-join-depth) - 1.8rem),
+    58% var(--crack-join-depth),
+    100% var(--crack-join-depth),
+    100% 100%,
+    0 100%
+  );
+}
+
+@media (max-width: 820px) {
+  .bay--crack-join { --crack-join-depth: 3.25rem; }
 }
 
 .bay--redback::before {

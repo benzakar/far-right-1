@@ -45,12 +45,11 @@
    * which is why the whole thing scrubs cleanly in both directions and
    * can rest at any point.
    *
-   *   0.00 .. 0.07   the image alone
-   *   0.07 .. 0.36   first line in, holds, out
-   *   0.34 .. 0.68   scene washes pale; rival marks enter, cross, leave
-   *   0.68 .. 0.92   second line in, holds, out
-   *   0.86 .. 0.95   party mark rises from below and settles
-   *   0.95 .. 1.00   slogan appears beneath it
+   *   0.00 .. 0.05   the image alone
+   *   0.05 .. 0.35   first line and rival marks share the right-hand slide
+   *   0.36 .. 0.68   second line enters and holds on the left
+   *   0.69 .. 0.88   party mark rises into the centre
+   *   0.88 .. 1.00   centred slogan appears beneath it
    */
   var cine = {};
   if (cinema) {
@@ -70,39 +69,41 @@
     set(cine.bg, "--bg-scale", (1 + p * bgZoom).toFixed(4));
     set(cine.bg, "--bg-rise", (p * bgTravel).toFixed(1));
 
-    /* line one */
-    var in1 = ease(seg(p, 0.07, 0.19));
-    var out1 = ease(seg(p, 0.29, 0.37));
+    /* line one and the rival marks form one right-hand title slide */
+    var in1 = ease(seg(p, 0.05, 0.13));
+    var out1 = ease(seg(p, 0.29, 0.35));
     set(cine.line1, "--o", (in1 * (1 - out1)).toFixed(3));
-    set(cine.line1, "--y", lerp(46, -46, ease(seg(p, 0.07, 0.37))).toFixed(1));
+    set(cine.line1, "--x", lerp(28, 0, ease(seg(p, 0.05, 0.14))).toFixed(1));
+    set(cine.line1, "--y", lerp(34, -24, ease(seg(p, 0.05, 0.35))).toFixed(1));
 
     /* the pale contrast wash that lets the dark uploaded marks read */
-    var dimIn = ease(seg(p, 0.34, 0.43));
-    var dimOut = ease(seg(p, 0.60, 0.69));
+    var dimIn = ease(seg(p, 0.05, 0.12));
+    var dimOut = ease(seg(p, 0.29, 0.35));
     set(cine.dim, "--dim", (dimIn * (1 - dimOut)).toFixed(3));
 
-    /* rival marks: in, travel across and up, out */
-    var pIn = ease(seg(p, 0.36, 0.45));
-    var pOut = ease(seg(p, 0.58, 0.67));
-    var travel = ease(seg(p, 0.36, 0.67));
+    /* rival marks share the first line's entrance, hold and exit */
+    var pIn = ease(seg(p, 0.06, 0.14));
+    var pOut = ease(seg(p, 0.29, 0.35));
+    var travel = ease(seg(p, 0.06, 0.35));
     set(cine.parties, "--o", (pIn * (1 - pOut)).toFixed(3));
-    set(cine.parties, "--x", lerp(16, -16, travel).toFixed(2));
-    set(cine.parties, "--y", lerp(40, -70, travel).toFixed(1));
+    set(cine.parties, "--x", lerp(24, 0, ease(seg(p, 0.06, 0.15))).toFixed(2));
+    set(cine.parties, "--y", lerp(24, -18, travel).toFixed(1));
 
-    /* line two */
-    var in2 = ease(seg(p, 0.70, 0.80));
-    var out2 = ease(seg(p, 0.86, 0.92));
+    /* line two has a clean, separate left-hand title slide */
+    var in2 = ease(seg(p, 0.36, 0.45));
+    var out2 = ease(seg(p, 0.61, 0.68));
     set(cine.line2, "--o", (in2 * (1 - out2)).toFixed(3));
-    set(cine.line2, "--y", lerp(46, -46, ease(seg(p, 0.70, 0.92))).toFixed(1));
+    set(cine.line2, "--x", lerp(-28, 0, ease(seg(p, 0.36, 0.46))).toFixed(1));
+    set(cine.line2, "--y", lerp(34, -24, ease(seg(p, 0.36, 0.68))).toFixed(1));
 
     /* the party mark rises from below the frame and settles in the middle */
-    var rise = ease(seg(p, 0.86, 0.95));
-    set(cine.logo, "--o", ease(seg(p, 0.86, 0.91)).toFixed(3));
+    var rise = ease(seg(p, 0.69, 0.79));
+    set(cine.logo, "--o", ease(seg(p, 0.69, 0.76)).toFixed(3));
     set(cine.logo, "--y", lerp(62, 0, rise).toFixed(2));
     set(cine.logo, "--s", lerp(0.92, 1, rise).toFixed(4));
 
     /* and only then, the slogan */
-    var sl = ease(seg(p, 0.95, 1));
+    var sl = ease(seg(p, 0.88, 0.97));
     set(cine.slogan, "--o", sl.toFixed(3));
     set(cine.slogan, "--y", lerp(26, 0, sl).toFixed(1));
   }
