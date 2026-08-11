@@ -950,8 +950,9 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
 .bay--deep .label::before { background: var(--gold); }
 
 /* Homepage leather backdrops.
-   The image lives on an oversized layer instead of on the section itself,
-   which gives motion.js room to move it independently of the copy. */
+   One lightweight neutral tile is reused for both colours. It repeats on an
+   oversized layer, so motion.js can move it without exposing an edge and the
+   browser downloads the leather grain only once for the whole homepage. */
 .bay--greenback,
 .bay--redback {
   isolation: isolate;
@@ -984,8 +985,10 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
   inset-block: -9rem;
   z-index: 0;
   background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
+  background-repeat: repeat;
+  background-size: 512px 512px;
+  background-image: url("../img/leather-tile.webp");
+  background-blend-mode: soft-light;
   transform: translate3d(0, var(--backdrop-y, 0px), 0) scale(1.045);
   transform-origin: center;
   will-change: transform;
@@ -993,12 +996,10 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
 
 .bay--greenback::before {
   background-color: var(--green-deep);
-  background-image: url("../img/greenback-2560.jpg");
 }
 
 .bay--redback::before {
   background-color: #5f1713;
-  background-image: url("../img/redback-2560.jpg");
 }
 
 .bay--greenback::after,

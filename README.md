@@ -88,10 +88,11 @@ scrolling is never intercepted — there is no wheel or touch handler, and
 the only pinning is `position: sticky`.
 
 The opening image moves on a slower plane than its foreground beats. After
-the opening sequence, the supplied green and red leather images alternate
-by section, beginning with green on the Morocco Bus. Their oversized image
-layers travel independently as each section crosses the viewport, creating
-the section-level parallax without `background-attachment: fixed`.
+the opening sequence, one neutral seamless WebP leather tile is tinted green
+or red and alternates by section, beginning with green on the Morocco Bus.
+Its repeating oversized layers travel independently as each section crosses
+the viewport, creating section-level parallax without loading separate large
+background photographs or using `background-attachment: fixed`.
 
 Motion runs through the same transform-only engine on desktop and mobile.
 If JavaScript is unavailable, the `no-js` fallback resolves the opening
