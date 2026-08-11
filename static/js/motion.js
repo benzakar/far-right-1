@@ -67,7 +67,14 @@
     var bgTravel = narrow.matches ? 46 : 116;
     var bgZoom = narrow.matches ? 0.07 : 0.12;
     set(cine.bg, "--bg-scale", (1 + p * bgZoom).toFixed(4));
-    set(cine.bg, "--bg-rise", (p * bgTravel).toFixed(1));
+
+    /* Travel strongly through the sequence, then settle before the stage
+       releases. The previous linear finish left the image 116px above its
+       own bottom edge and exposed an ivory strip before the green section. */
+    var bgPhase = p < 0.82
+      ? p / 0.82
+      : lerp(1, 0.38, ease(seg(p, 0.82, 1)));
+    set(cine.bg, "--bg-rise", (bgPhase * bgTravel).toFixed(1));
 
     /* line one and the rival marks form one right-hand title slide */
     var in1 = ease(seg(p, 0.05, 0.13));

@@ -249,7 +249,7 @@ def cinema_block():
 
   </div>
 </section>
-""".format(src=asset("/img/main-hero-1920.jpg"), ss=srcset("main-hero"),
+""".format(src=asset("/img/hero2-1920.jpg"), ss=srcset("hero2"),
            hero_alt=esc(CINEMA["hero_alt"]),
            line1=esc(CINEMA["line_1"]), line2=esc(CINEMA["line_2"]),
            parties=asset("/img/darklogos.png"),
@@ -267,7 +267,7 @@ BUS_SVG = """<svg class="road__bus" viewBox="0 0 80 34" fill="none" aria-hidden=
 </svg>"""
 
 
-def bus_block(full=False, backdrop=None, crack_join=False):
+def bus_block(full=False, backdrop=None):
     stages = []
     for st in BUS["stages"]:
         reqs = "\n        ".join("<li>{}</li>".format(esc(r)) for r in st["requirements"])
@@ -291,10 +291,9 @@ def bus_block(full=False, backdrop=None, crack_join=False):
             '<a class="btn btn--ghost" href="{}">قرا القصة كاملة</a></p>'.format(url("bus/")))
 
     backdrop_class = " bay--{}back".format(backdrop) if backdrop else ""
-    crack_class = " bay--crack-join" if crack_join else ""
     backdrop_attr = " data-parallax-bg" if backdrop else ""
 
-    return """<section class="bay bus{backdrop_class}{crack_class}" data-progress{backdrop_attr}>
+    return """<section class="bay bus{backdrop_class}" data-progress{backdrop_attr}>
   <div class="bus__sky" aria-hidden="true"></div>
   <div class="bus__sun" aria-hidden="true"></div>
   <div class="shell bus__inner">
@@ -322,8 +321,7 @@ def bus_block(full=False, backdrop=None, crack_join=False):
     {more}
   </div>
 </section>
-""".format(backdrop_class=backdrop_class, crack_class=crack_class,
-           backdrop_attr=backdrop_attr,
+""".format(backdrop_class=backdrop_class, backdrop_attr=backdrop_attr,
            label=esc(BUS["label"]), title=esc(BUS["title"]), lead=esc(BUS["lead"]),
            bus_svg=BUS_SVG, stages="\n      ".join(stages),
            note_title=esc(BUS["note_title"]), note_body=esc(BUS["note_body"]),
@@ -402,7 +400,7 @@ def home():
     # The homepage alternates the two supplied leather backdrops after the
     # opening sequence. The Morocco Bus is the first section after the hero,
     # so it deliberately starts the sequence in green.
-    parts = [cinema_block(), bus_block(backdrop="green", crack_join=True)]
+    parts = [cinema_block(), bus_block(backdrop="green")]
 
     parts.append("""<section class="bay bay--redback" data-parallax-bg>
   <div class="shell">
