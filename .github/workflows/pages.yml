@@ -31,11 +31,14 @@ jobs:
         with:
           python-version: "3.11"
 
+      # The repository carries a CNAME, so the site is served from the
+      # domain root. No BASE_PATH — adding one would point every link at
+      # a sub-directory that does not exist on the domain.
       - name: Build
-        env:
-          BASE_PATH: /${{ github.event.repository.name }}
-          SITE_ORIGIN: https://${{ github.repository_owner }}.github.io
-        run: python3 build.py
+        run: |
+          DOMAIN="$(cat CNAME | tr -d '[:space:]')"
+          SITE_ORIGIN="https://$DOMAIN" python3 build.py
+          cp CNAME dist/CNAME
 
       - name: Disable Jekyll processing
         run: touch dist/.nojekyll

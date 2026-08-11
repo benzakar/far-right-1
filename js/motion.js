@@ -21,6 +21,7 @@
   var hero = document.querySelector("[data-hero]");
   var heroContent = document.querySelector("[data-hero-content]");
   var heroImages = Array.prototype.slice.call(document.querySelectorAll("[data-hero-img]"));
+  var cinema = document.querySelector("[data-cinema]");
   var risers = Array.prototype.slice.call(document.querySelectorAll("[data-rise]"));
   var progressors = Array.prototype.slice.call(document.querySelectorAll("[data-progress]"));
 
@@ -29,6 +30,81 @@
   var ticking = false;
 
   function clamp(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+
+  /* Progress through the window [a,b] of an overall 0..1 timeline. */
+  function seg(p, a, b) { return clamp((p - a) / (b - a)); }
+
+  /* Ease so layers arrive and leave without a mechanical linear feel.
+     Symmetric, so scrubbing backwards mirrors scrubbing forwards. */
+  function ease(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  /* ---- the opening sequence ----
+   *
+   * One pinned stage, one timeline. Each layer is a pure function of p,
+   * which is why the whole thing scrubs cleanly in both directions and
+   * can rest at any point.
+   *
+   *   0.00 .. 0.07   the image alone
+   *   0.07 .. 0.36   first line in, holds, out
+   *   0.34 .. 0.68   scene dims; rival marks enter, cross, leave
+   *   0.68 .. 0.92   second line in, holds, out
+   *   0.86 .. 0.95   party mark rises from below and settles
+   *   0.95 .. 1.00   slogan appears beneath it
+   */
+  var cine = {};
+  if (cinema) {
+    ["bg", "dim", "line1", "parties", "line2", "logo", "slogan"].forEach(function (k) {
+      cine[k] = cinema.querySelector('[data-cine="' + k + '"]');
+    });
+  }
+
+  function set(el, prop, val) { if (el) el.style.setProperty(prop, val); }
+
+  function playCinema(p) {
+    /* background drifts and swells very slightly for the whole sequence */
+    set(cine.bg, "--bg-scale", (1 + p * 0.07).toFixed(4));
+    set(cine.bg, "--bg-rise", (p * 46).toFixed(1));
+
+    /* line one */
+    var in1 = ease(seg(p, 0.07, 0.19));
+    var out1 = ease(seg(p, 0.29, 0.37));
+    set(cine.line1, "--o", (in1 * (1 - out1)).toFixed(3));
+    set(cine.line1, "--y", lerp(46, -46, ease(seg(p, 0.07, 0.37))).toFixed(1));
+
+    /* the dim that lets the near-white marks read */
+    var dimIn = ease(seg(p, 0.34, 0.43));
+    var dimOut = ease(seg(p, 0.60, 0.69));
+    set(cine.dim, "--dim", (dimIn * (1 - dimOut)).toFixed(3));
+
+    /* rival marks: in, travel across and up, out */
+    var pIn = ease(seg(p, 0.36, 0.45));
+    var pOut = ease(seg(p, 0.58, 0.67));
+    var travel = ease(seg(p, 0.36, 0.67));
+    set(cine.parties, "--o", (pIn * (1 - pOut)).toFixed(3));
+    set(cine.parties, "--x", lerp(16, -16, travel).toFixed(2));
+    set(cine.parties, "--y", lerp(40, -70, travel).toFixed(1));
+
+    /* line two */
+    var in2 = ease(seg(p, 0.70, 0.80));
+    var out2 = ease(seg(p, 0.86, 0.92));
+    set(cine.line2, "--o", (in2 * (1 - out2)).toFixed(3));
+    set(cine.line2, "--y", lerp(46, -46, ease(seg(p, 0.70, 0.92))).toFixed(1));
+
+    /* the party mark rises from below the frame and settles in the middle */
+    var rise = ease(seg(p, 0.86, 0.95));
+    set(cine.logo, "--o", ease(seg(p, 0.86, 0.91)).toFixed(3));
+    set(cine.logo, "--y", lerp(62, 0, rise).toFixed(2));
+    set(cine.logo, "--s", lerp(0.92, 1, rise).toFixed(4));
+
+    /* and only then, the slogan */
+    var sl = ease(seg(p, 0.95, 1));
+    set(cine.slogan, "--o", sl.toFixed(3));
+    set(cine.slogan, "--y", lerp(26, 0, sl).toFixed(1));
+  }
 
   /* ---- reveal on entry (independent of the rise engine) ---- */
 
@@ -82,6 +158,13 @@
     var doc = document.documentElement;
     var max = doc.scrollHeight - vh;
     root.style.setProperty("--scroll", max > 0 ? clamp(window.scrollY / max).toFixed(4) : "0");
+
+    /* the opening sequence */
+    if (cinema) {
+      var span = cinema.offsetHeight - vh;
+      var top = cinema.getBoundingClientRect().top;
+      playCinema(span > 0 ? clamp(-top / span) : 0);
+    }
 
     /* hero: images hold, content lifts away */
     if (hero && !narrow.matches) {

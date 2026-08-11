@@ -236,10 +236,9 @@ body[data-hero-page] .masthead:not(.is-stuck)::before {
 .wordmark__text {
   font-family: var(--util);
   font-weight: 700;
-  font-size: var(--step--1);
+  font-size: var(--step-0);
   letter-spacing: 0;
   text-transform: none;
-  font-size: var(--step-0);
   line-height: 1.15;
 }
 
@@ -264,8 +263,10 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
 
 /* the panel is opaque ivory when open, so invert back inside it */
 @media (max-width: 940px) {
-  body[data-hero-page] .masthead:not(.is-stuck) .nav.is-open .nav__link,
-  body[data-hero-page] .masthead:not(.is-stuck) .nav.is-open }
+  body[data-hero-page] .masthead:not(.is-stuck) .nav.is-open .nav__link {
+    color: var(--ink);
+  }
+}
 
 .nav {
   display: flex;
@@ -639,6 +640,220 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
   }
   .hero__scroll { display: none; }
   .hero__logo { inline-size: 92px; }
+}
+
+/* ---------- The opening sequence ----------
+   A tall section with a sticky stage. Every layer inside is positioned
+   by custom properties that motion.js derives from scroll progress, so
+   the sequence is reversible and can rest at any point. Nothing here
+   animates a property that triggers layout. */
+
+.cinema {
+  position: relative;
+  block-size: 460svh;
+  background: var(--ivory-1);
+}
+
+.cinema__stage {
+  position: sticky;
+  inset-block-start: 0;
+  block-size: 100svh;
+  overflow: hidden;
+  background: var(--ivory-2);
+}
+
+.cinema__bg {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  object-position: center;
+  will-change: transform;
+  transform: scale(var(--bg-scale, 1)) translate3d(0, calc(var(--bg-rise, 0) * -1px), 0);
+}
+
+/* Dimmed only while the rival marks are on screen — they are near-white
+   artwork and would be invisible against the carved ivory otherwise. */
+.cinema__dim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 80% 70% at 50% 45%,
+    rgba(12, 9, 4, 0.62) 0%,
+    rgba(12, 9, 4, 0.78) 60%,
+    rgba(12, 9, 4, 0.88) 100%);
+  opacity: var(--dim, 0);
+}
+
+/* The two Darija lines sit on the right — the inline start in RTL. */
+.cinema__line {
+  position: absolute;
+  inset-inline-start: clamp(1.2rem, 6vw, 7rem);
+  inset-block-start: 50%;
+  z-index: 3;
+  margin: 0;
+  max-inline-size: min(15ch, 42vw);
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 1rem + 2.9vw, 3.6rem);
+  line-height: 1.4;
+  color: var(--ivory-0);
+  text-align: start;
+  text-shadow: 0 2px 26px rgba(16, 11, 3, 0.85), 0 0 3px rgba(16, 11, 3, 0.6);
+  opacity: var(--o, 0);
+  will-change: transform, opacity;
+  transform: translate3d(0, calc(-50% + var(--y, 0) * 1px), 0);
+}
+
+/* a soft pool of shade so the line reads before the scene is dimmed */
+.cinema__line::before {
+  content: "";
+  position: absolute;
+  inset: -70% -40%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 55% 50% at 50% 50%,
+    rgba(14, 10, 3, 0.72) 0%,
+    rgba(14, 10, 3, 0.44) 45%,
+    rgba(14, 10, 3, 0) 72%);
+  opacity: calc(1 - var(--dim, 0));
+}
+
+/* Centred with auto margins rather than the inset+translate trick: in
+   RTL, inset-inline-start resolves to `right`, so translateX(-50%)
+   shifts the layer a second time and drags it off the frame. */
+.cinema__parties {
+  position: absolute;
+  inset-inline: 0;
+  margin-inline: auto;
+  inset-block-start: 50%;
+  z-index: 2;
+  inline-size: min(74vw, 980px);
+  block-size: auto;
+  opacity: var(--o, 0);
+  will-change: transform, opacity;
+  transform: translate3d(calc(var(--x, 0) * 1%), calc(-50% + var(--y, 0) * 1px), 0);
+}
+
+.cinema__logo {
+  position: absolute;
+  inset-inline: 0;
+  margin-inline: auto;
+  inset-block-start: 46%;
+  z-index: 4;
+  inline-size: clamp(150px, 20vw, 280px);
+  block-size: auto;
+  opacity: var(--o, 0);
+  filter: drop-shadow(0 22px 46px rgba(18, 12, 3, 0.55));
+  will-change: transform, opacity;
+  transform: translate3d(0, calc(-50% + var(--y, 0) * 1vh), 0) scale(var(--s, 1));
+}
+
+.cinema__slogan {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 78%;
+  z-index: 4;
+  margin: 0;
+  text-align: center;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 0.9rem + 2.6vw, 3.1rem);
+  color: var(--gold-pale);
+  text-shadow: 0 2px 24px rgba(16, 11, 3, 0.9), 0 0 3px rgba(16, 11, 3, 0.7);
+  opacity: var(--o, 0);
+  will-change: transform, opacity;
+  transform: translate3d(0, calc(var(--y, 0) * 1px), 0);
+}
+
+/* the slogan lands on bright drapery, so it carries its own shade */
+.cinema__slogan::before {
+  content: "";
+  position: absolute;
+  inset: -120% -10%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 40% 50% at 50% 50%,
+    rgba(14, 10, 3, 0.66) 0%,
+    rgba(14, 10, 3, 0.34) 48%,
+    rgba(14, 10, 3, 0) 74%);
+}
+
+/* Mobile is a different composition, not the same one squeezed.
+   The source is 16:9 with its two figures at opposite edges, so a
+   portrait `cover` crop keeps only the seam and throws both portraits
+   away. The image is shown whole instead, as a plate in the upper half,
+   and the sequence plays out in the space beneath it. */
+@media (max-width: 820px) {
+  .cinema { block-size: 420svh; }
+
+  .cinema__stage {
+    background:
+      linear-gradient(to bottom, var(--ivory-2) 0%, var(--ivory-1) 52%, var(--ivory-2) 100%);
+  }
+
+  .cinema__bg {
+    object-fit: contain;
+    object-position: center 22%;
+  }
+
+  /* The copy sits on ivory here rather than on the picture, so it is set
+     in ink and needs no pool of shade behind it. */
+  .cinema__line {
+    max-inline-size: min(15ch, 78vw);
+    inset-block-start: 66%;
+    font-size: clamp(1.35rem, 1rem + 3.4vw, 2.1rem);
+    color: var(--ink);
+    text-shadow: none;
+  }
+  .cinema__line::before { display: none; }
+
+  .cinema__slogan { color: var(--green); text-shadow: none; }
+  .cinema__slogan::before { display: none; }
+
+  .cinema__parties {
+    inline-size: 88vw;
+    inset-block-start: 30%;
+  }
+
+  .cinema__logo { inset-block-start: 62%; inline-size: clamp(130px, 34vw, 190px); }
+  .cinema__slogan { inset-block-start: 84%; }
+}
+
+/* Reduced motion: no pinning, no sequence. The stage resolves to its
+   final frame — the party mark and the slogan over the image — and both
+   Darija lines are shown in flow underneath so nothing is lost. */
+@media (prefers-reduced-motion: reduce) {
+  .cinema { block-size: auto; }
+  .cinema__stage { position: relative; block-size: 100svh; }
+  .cinema__bg { transform: none; }
+  .cinema__dim { opacity: 0.54; }
+  .cinema__parties { display: none; }
+  .cinema__line {
+    position: static;
+    transform: none;
+    opacity: 1;
+    max-inline-size: 28ch;
+    margin: 0 auto 1rem;
+    font-size: clamp(1.2rem, 0.9rem + 1.4vw, 1.9rem);
+  }
+  .cinema__line::before { display: none; }
+  .cinema__stage {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 6rem var(--gutter) 3rem;
+    text-align: center;
+  }
+  .cinema__logo {
+    position: static;
+    transform: none;
+    opacity: 1;
+    margin-block: 1.5rem 1rem;
+  }
+  .cinema__slogan { position: static; transform: none; opacity: 1; }
 }
 
 /* ---------- Buttons ---------- */

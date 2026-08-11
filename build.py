@@ -10,6 +10,7 @@
 الموقع بالمغربية فقط، من اليمين للشمال.
 """
 
+import hashlib
 import html
 import os
 import shutil
@@ -18,8 +19,9 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from content.site import (  # noqa: E402
-    SITE, UI, NAV, HERO, WHO, NEWS_FEATURED, VISION, BUS, MONARCHY,
+    SITE, UI, NAV, WHO, NEWS_FEATURED, VISION, BUS, MONARCHY,
     ACCOUNTABILITY, FOUNDER, JOIN, DECLARATION, FOOTER, META, PETITION,
+    CINEMA,
 )
 from content.doctrines import DOCTRINES, FEATURED  # noqa: E402
 
@@ -45,6 +47,25 @@ def esc(s):
 def asset(path):
     """مسار مطلق لملف ثابت، مع احترام BASE_PATH."""
     return BASE + path
+
+
+_stamps = {}
+
+
+def versioned(path):
+    """أصل ثابت مع بصمة المحتوى.
+
+    بلا هادي، المتصفح كيبقى كيخدم النسخة القديمة من CSS و JS من بعد كل
+    نشر، حتى يمسح الكاش بيدو. البصمة كتتبدل غير ملي يتبدل الملف.
+    """
+    if path not in _stamps:
+        src = os.path.join(STATIC, path.lstrip("/"))
+        try:
+            with open(src, "rb") as fh:
+                _stamps[path] = hashlib.md5(fh.read()).hexdigest()[:8]
+        except OSError:
+            _stamps[path] = "0"
+    return "{}{}?v={}".format(BASE, path, _stamps[path])
 
 
 def url(path=""):
@@ -86,7 +107,7 @@ def head(title, desc, canonical, hero=False):
 """.format(
         title=esc(title), desc=esc(desc), origin=ORIGIN, canonical=canonical,
         favicon=asset("/img/party-logo.svg"),
-        fontcss=asset("/css/fonts-ar.css"), sitecss=asset("/css/site.css"),
+        fontcss=versioned("/css/fonts-ar.css"), sitecss=versioned("/css/site.css"),
         preloads=preloads, skip=esc(UI["skip"]),
         hero_attr=' data-hero-page' if hero else '',
     )
@@ -158,7 +179,7 @@ def footer():
            tagline=esc(FOOTER["tagline"]), name=esc(UI["party_name"]), nav=nav_html,
            legal_title=esc(FOOTER["legal_title"]), legal=legal,
            rights=esc(FOOTER["rights"]), yt=SITE["youtube"],
-           navjs=asset("/js/nav.js"), motionjs=asset("/js/motion.js"))
+           navjs=versioned("/js/nav.js"), motionjs=versioned("/js/motion.js"))
 
 
 def page(key, active, body, hero=False):
@@ -194,52 +215,46 @@ def pagehead(trail, label, title, standfirst=""):
 
 # ------------------------------------------------------------------ الواجهة
 
-def hero_block():
+def cinema_block():
+    """The opening sequence.
+
+    One pinned stage. Everything inside is a pure function of how far the
+    stage has been scrolled, so the sequence plays identically forwards
+    and backwards and can be stopped anywhere in between.
+    """
     def srcset(name):
         return ", ".join(asset("/img/{}-{}.jpg".format(name, w)) + " {}w".format(w)
-                         for w in (800, 1200, 1600, 2200, 2752))
+                         for w in (1280, 1920, 2560, 3840))
 
-    return """<section class="hero" data-hero>
-  <div class="hero__media">
-    <figure class="hero__half hero__half--left" style="margin:0">
-      <img data-hero-img src="{src_left}"
-           srcset="{ss_left}" sizes="(max-width: 820px) 100vw, 50vw"
-           width="2752" height="1536" alt="{alt_left}" fetchpriority="high" decoding="async">
-    </figure>
-    <figure class="hero__half hero__half--right" style="margin:0">
-      <img data-hero-img src="{src_right}"
-           srcset="{ss_right}" sizes="(max-width: 820px) 100vw, 50vw"
-           width="2752" height="1536" alt="{alt_right}" fetchpriority="high" decoding="async">
-    </figure>
-    <div class="hero__wash" aria-hidden="true"></div>
-    <div class="hero__seam" aria-hidden="true"></div>
+    return """<section class="cinema" data-cinema>
+  <div class="cinema__stage">
 
-    <div class="hero__content" data-hero-content>
-      <div class="shell">
-        <p class="hero__eyebrow">{eyebrow}</p>
-        <h1 class="hero__title">{headline}</h1>
-        <p class="hero__slogan">{slogan}</p>
-        <p class="hero__declaration">{declaration}</p>
-        <div class="hero__actions">
-          <a class="btn btn--primary" href="{doctrines}">{cta1}</a>
-          <a class="btn btn--ghost" href="{join}">{cta2}</a>
-        </div>
-      </div>
-    </div>
+    <img class="cinema__bg" data-cine="bg" src="{src}" srcset="{ss}" sizes="100vw"
+         width="3840" height="2160" alt="{hero_alt}" fetchpriority="high" decoding="async">
 
-    <p class="hero__scroll" aria-hidden="true">{scroll}<span></span></p>
+    <div class="cinema__dim" data-cine="dim" aria-hidden="true"></div>
+
+    <p class="cinema__line" data-cine="line1">{line1}</p>
+
+    <img class="cinema__parties" data-cine="parties" src="{parties}"
+         width="1280" height="720" alt="{parties_alt}" loading="eager" decoding="async">
+
+    <p class="cinema__line" data-cine="line2">{line2}</p>
+
+    <img class="cinema__logo" data-cine="logo" src="{logo}"
+         width="340" height="425" alt="{logo_alt}" loading="eager" decoding="async">
+
+    <p class="cinema__slogan" data-cine="slogan">{slogan}</p>
+
   </div>
 </section>
-""".format(src_left=asset("/img/hero-abdullah-ben-zakar-1600.jpg"),
-           src_right=asset("/img/hero-moroccan-monarch-1600.jpg"),
-           ss_left=srcset("hero-abdullah-ben-zakar"),
-           ss_right=srcset("hero-moroccan-monarch"),
-           alt_left=esc(UI["hero_left_alt"]), alt_right=esc(UI["hero_right_alt"]),
-           eyebrow=esc(HERO["eyebrow"]), headline=esc(HERO["headline"]),
-           slogan=esc(HERO["slogan"]), declaration=esc(HERO["declaration"]),
-           doctrines=url("doctrines/"), join=url("join/"),
-           cta1=esc(HERO["cta_primary"]), cta2=esc(HERO["cta_secondary"]),
-           scroll=esc(UI["scroll"]))
+""".format(src=asset("/img/main-hero-1920.jpg"), ss=srcset("main-hero"),
+           hero_alt=esc(CINEMA["hero_alt"]),
+           line1=esc(CINEMA["line_1"]), line2=esc(CINEMA["line_2"]),
+           parties=asset("/img/parties-logos.png"),
+           parties_alt=esc(CINEMA["parties_alt"]),
+           logo=asset("/img/party-logo.svg"), logo_alt=esc(CINEMA["logo_alt"]),
+           slogan=esc(CINEMA["slogan"]))
 
 
 BUS_SVG = """<svg class="road__bus" viewBox="0 0 80 34" fill="none" aria-hidden="true" focusable="false">
@@ -377,9 +392,9 @@ def home():
         '<p class="declaration__line">{}</p>'.format(esc(l))
         for l in DECLARATION["lines"])
 
-    parts = [hero_block()]
+    parts = [cinema_block(), bus_block()]
 
-    parts.append("""<section class="bay bay--raised bay--overlap">
+    parts.append("""<section class="bay bay--raised">
   <div class="shell">
     <p class="label" data-rise="30">{label}</p>
     <h2 class="bay__title" data-rise="46">{title}</h2>
@@ -448,8 +463,6 @@ def home():
 </section>""".format(label=esc(VISION["label"]), title=esc(VISION["title"]),
                      lead=esc(VISION["lead"]), pillars=_pillar_grid(VISION["pillars"]),
                      href=url("vision/"), more=esc(UI["more"])))
-
-    parts.append(bus_block())
 
     parts.append("""<section class="bay bay--recessed">
   <div class="shell shell--narrow">
