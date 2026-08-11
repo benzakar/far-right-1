@@ -266,7 +266,7 @@ BUS_SVG = """<svg class="road__bus" viewBox="0 0 80 34" fill="none" aria-hidden=
 </svg>"""
 
 
-def bus_block(full=False):
+def bus_block(full=False, backdrop=None):
     stages = []
     for st in BUS["stages"]:
         reqs = "\n        ".join("<li>{}</li>".format(esc(r)) for r in st["requirements"])
@@ -289,7 +289,10 @@ def bus_block(full=False):
             '<p style="margin-block-start:2.5rem">'
             '<a class="btn btn--ghost" href="{}">قرا القصة كاملة</a></p>'.format(url("bus/")))
 
-    return """<section class="bay bus" data-progress>
+    backdrop_class = " bay--{}back".format(backdrop) if backdrop else ""
+    backdrop_attr = " data-parallax-bg" if backdrop else ""
+
+    return """<section class="bay bus{backdrop_class}" data-progress{backdrop_attr}>
   <div class="bus__sky" aria-hidden="true"></div>
   <div class="bus__sun" aria-hidden="true"></div>
   <div class="shell bus__inner">
@@ -317,7 +320,8 @@ def bus_block(full=False):
     {more}
   </div>
 </section>
-""".format(label=esc(BUS["label"]), title=esc(BUS["title"]), lead=esc(BUS["lead"]),
+""".format(backdrop_class=backdrop_class, backdrop_attr=backdrop_attr,
+           label=esc(BUS["label"]), title=esc(BUS["title"]), lead=esc(BUS["lead"]),
            bus_svg=BUS_SVG, stages="\n      ".join(stages),
            note_title=esc(BUS["note_title"]), note_body=esc(BUS["note_body"]),
            closing=closing, more=more)
@@ -392,9 +396,12 @@ def home():
         '<p class="declaration__line">{}</p>'.format(esc(l))
         for l in DECLARATION["lines"])
 
-    parts = [cinema_block(), bus_block()]
+    # The homepage alternates the two supplied leather backdrops after the
+    # opening sequence. The Morocco Bus is the first section after the hero,
+    # so it deliberately starts the sequence in green.
+    parts = [cinema_block(), bus_block(backdrop="green")]
 
-    parts.append("""<section class="bay bay--raised">
+    parts.append("""<section class="bay bay--redback" data-parallax-bg>
   <div class="shell">
     <p class="label" data-rise="30">{label}</p>
     <h2 class="bay__title" data-rise="46">{title}</h2>
@@ -406,7 +413,7 @@ def home():
 </section>""".format(label=esc(WHO["label"]), title=esc(WHO["title"]),
                      lead=esc(WHO["lead"]), rows=rows))
 
-    parts.append("""<section class="bay">
+    parts.append("""<section class="bay bay--greenback" data-parallax-bg>
   <div class="shell news">
     <div>
       <p class="news__kicker" data-rise="30">{kicker}</p>
@@ -437,7 +444,7 @@ def home():
                      roster=roster,
                      roster_note=esc(NEWS_FEATURED["outreach_note"])))
 
-    parts.append("""<section class="bay bay--recessed">
+    parts.append("""<section class="bay bay--redback" data-parallax-bg>
   <div class="shell">
     <p class="label" data-rise="30">عقائدنا</p>
     <h2 class="bay__title" data-rise="46">عشر عقائد، ماشي عشر شعارات</h2>
@@ -450,7 +457,7 @@ def home():
 </section>""".format(folios=_folio_grid(FEATURED), href=url("doctrines/"),
                      all=esc(UI["back_to_doctrines"])))
 
-    parts.append("""<section class="bay bay--raised">
+    parts.append("""<section class="bay bay--greenback" data-parallax-bg>
   <div class="shell">
     <p class="label" data-rise="30">{label}</p>
     <h2 class="bay__title" data-rise="46">{title}</h2>
@@ -464,7 +471,7 @@ def home():
                      lead=esc(VISION["lead"]), pillars=_pillar_grid(VISION["pillars"]),
                      href=url("vision/"), more=esc(UI["more"])))
 
-    parts.append("""<section class="bay bay--recessed">
+    parts.append("""<section class="bay bay--redback" data-parallax-bg>
   <div class="shell shell--narrow">
     <p class="label" data-rise="30">{label}</p>
     <h2 class="bay__title" data-rise="46">{title}</h2>
@@ -476,7 +483,7 @@ def home():
                      p1=esc(MONARCHY["body"][0]), p2=esc(MONARCHY["body"][3]),
                      href=url("monarchy/"), more=esc(UI["more"])))
 
-    parts.append("""<section class="bay bay--raised">
+    parts.append("""<section class="bay bay--greenback" data-parallax-bg>
   <div class="shell shell--narrow">
     <p class="label" data-rise="30">{label}</p>
     <h2 class="bay__title" data-rise="46">{title}</h2>
@@ -499,7 +506,7 @@ def home():
                      ladder_title=esc(ACCOUNTABILITY["ladder_title"]),
                      ladder=ladder, href=url("accountability/"), more=esc(UI["more"])))
 
-    parts.append("""<section class="bay bay--recessed">
+    parts.append("""<section class="bay bay--redback" data-parallax-bg>
   <div class="shell shell--narrow">
     <p class="label" data-rise="30">{label}</p>
     <h2 class="bay__title" data-rise="46">{title}</h2>
@@ -519,7 +526,7 @@ def home():
                      yt_label=esc(FOUNDER["youtube_label"]),
                      yt_note=esc(FOUNDER["youtube_note"])))
 
-    parts.append("""<section class="bay bay--raised">
+    parts.append("""<section class="bay bay--greenback" data-parallax-bg>
   <div class="shell">
     <p class="label" data-rise="30">{label}</p>
     <h2 class="bay__title" data-rise="46">{title}</h2>
@@ -534,7 +541,7 @@ def home():
                      lead=esc(JOIN["lead"]), petition=petition_block(compact=True),
                      paths=_pillar_grid(JOIN["paths"]), href=url("join/")))
 
-    parts.append("""<section class="bay bay--deep">
+    parts.append("""<section class="bay bay--deep bay--redback" data-parallax-bg>
   <div class="shell declaration">
     {lines}
     <a class="btn btn--primary" href="{href}">{cta}</a>

@@ -14,19 +14,17 @@
   "use strict";
 
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-  var fine = window.matchMedia("(pointer: fine)");
   var narrow = window.matchMedia("(max-width: 820px)");
 
   var root = document.documentElement;
-  var hero = document.querySelector("[data-hero]");
-  var heroContent = document.querySelector("[data-hero-content]");
-  var heroImages = Array.prototype.slice.call(document.querySelectorAll("[data-hero-img]"));
   var cinema = document.querySelector("[data-cinema]");
   var risers = Array.prototype.slice.call(document.querySelectorAll("[data-rise]"));
   var progressors = Array.prototype.slice.call(document.querySelectorAll("[data-progress]"));
+  var backdrops = Array.prototype.slice.call(document.querySelectorAll("[data-parallax-bg]"));
 
   var live = [];       // risers currently in view
   var liveProg = [];   // progress sections currently in view
+  var liveBackdrops = []; // leather layers currently near the viewport
   var ticking = false;
 
   function clamp(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
@@ -65,9 +63,13 @@
   function set(el, prop, val) { if (el) el.style.setProperty(prop, val); }
 
   function playCinema(p) {
-    /* background drifts and swells very slightly for the whole sequence */
-    set(cine.bg, "--bg-scale", (1 + p * 0.07).toFixed(4));
-    set(cine.bg, "--bg-rise", (p * 46).toFixed(1));
+    /* The background travels on a slower plane than the foreground beats.
+       The previous 46px drift across 460vh was effectively imperceptible on
+       desktop; the extra overscan keeps this stronger parallax edge-free. */
+    var bgTravel = narrow.matches ? 46 : 116;
+    var bgZoom = narrow.matches ? 0.07 : 0.12;
+    set(cine.bg, "--bg-scale", (1 + p * bgZoom).toFixed(4));
+    set(cine.bg, "--bg-rise", (p * bgTravel).toFixed(1));
 
     /* line one */
     var in1 = ease(seg(p, 0.07, 0.19));
@@ -147,6 +149,7 @@
 
   membership(risers, live);
   membership(progressors, liveProg);
+  membership(backdrops, liveBackdrops);
 
   /* ---- the frame ---- */
 
@@ -166,24 +169,6 @@
       playCinema(span > 0 ? clamp(-top / span) : 0);
     }
 
-    /* hero: images hold, content lifts away */
-    if (hero && !narrow.matches) {
-      var span = hero.offsetHeight - vh;
-      var hp = span > 0 ? clamp(window.scrollY / span) : 0;
-
-      if (heroContent) {
-        heroContent.style.setProperty("--rise", (hp * 210).toFixed(1));
-        /* gone before it can collide with the masthead */
-        heroContent.style.setProperty("--fade", (1 - clamp(hp / 0.72)).toFixed(3));
-      }
-      heroImages.forEach(function (img, n) {
-        /* the two halves drift at slightly different rates so the
-           diptych gains depth without either portrait sliding away */
-        img.style.setProperty("--rise", (hp * (n === 0 ? 34 : 46)).toFixed(1));
-        img.style.setProperty("--zoom", (1 + hp * 0.038).toFixed(4));
-      });
-    }
-
     /* generic risers */
     for (var i = 0; i < live.length; i++) {
       var el = live[i];
@@ -200,6 +185,17 @@
       var sp = clamp((vh - sr.top) / (vh + sr.height * 0.6));
       sec.style.setProperty("--p", sp.toFixed(4));
     }
+
+    /* Independent leather planes. Each image crosses half the available
+       overscan while its section passes the viewport, so the movement is
+       visible without making the copy feel detached from its section. */
+    for (var k = 0; k < liveBackdrops.length; k++) {
+      var backdrop = liveBackdrops[k];
+      var br = backdrop.getBoundingClientRect();
+      var bp = clamp((vh - br.top) / (vh + br.height));
+      var travel = narrow.matches ? 56 : 120;
+      backdrop.style.setProperty("--backdrop-y", ((0.5 - bp) * travel).toFixed(1) + "px");
+    }
   }
 
   function request() {
@@ -211,25 +207,6 @@
   window.addEventListener("scroll", request, { passive: true });
   window.addEventListener("resize", request, { passive: true });
   frame();
-
-  /* ---- restrained pointer depth, fine pointers only ----
-     A few pixels of counter-movement on the hero copy. The portraits
-     themselves never move with the pointer: sculpture should not wobble. */
-
-  if (fine.matches && heroContent && !narrow.matches) {
-    var px = 0, py = 0, pending = false;
-    window.addEventListener("mousemove", function (e) {
-      px = (e.clientX / window.innerWidth - 0.5) * 2;
-      py = (e.clientY / window.innerHeight - 0.5) * 2;
-      if (pending) return;
-      pending = true;
-      requestAnimationFrame(function () {
-        pending = false;
-        heroContent.style.setProperty("--tilt-x", (px * -5).toFixed(2) + "px");
-        heroContent.style.setProperty("--tilt-y", (py * -3).toFixed(2) + "px");
-      });
-    }, { passive: true });
-  }
 
   /* ---- masthead surface after the first scroll threshold ---- */
 

@@ -922,6 +922,133 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
 .bay--deep .label { color: var(--gold-lit); }
 .bay--deep .label::before { background: var(--gold); }
 
+/* Homepage leather backdrops.
+   The image lives on an oversized layer instead of on the section itself,
+   which gives motion.js room to move it independently of the copy. */
+.bay--greenback,
+.bay--redback {
+  isolation: isolate;
+  overflow: hidden;
+  background: transparent;
+  color: var(--ivory-1);
+  box-shadow: inset 0 1px 0 rgba(255, 246, 220, 0.16),
+              inset 0 -1px 0 rgba(20, 8, 4, 0.55);
+}
+
+.bay--greenback::before,
+.bay--redback::before,
+.bay--greenback::after,
+.bay--redback::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  inset-inline: 0;
+}
+
+.bay--greenback::before,
+.bay--redback::before {
+  inset-block: -9rem;
+  z-index: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  transform: translate3d(0, var(--backdrop-y, 0px), 0) scale(1.045);
+  transform-origin: center;
+  will-change: transform;
+}
+
+.bay--greenback::before {
+  background-color: var(--green-deep);
+  background-image: url("../img/greenback-2560.jpg");
+}
+
+.bay--redback::before {
+  background-color: #5f1713;
+  background-image: url("../img/redback-2560.jpg");
+}
+
+.bay--greenback::after,
+.bay--redback::after {
+  inset-block: 0;
+  z-index: 0;
+  background: linear-gradient(135deg,
+    rgba(5, 10, 7, 0.18),
+    rgba(10, 5, 3, 0.34));
+}
+
+.bay--greenback > .shell,
+.bay--redback > .shell {
+  position: relative;
+  z-index: 1;
+}
+
+/* The Bus subpage keeps its night-to-dawn art. Only the homepage Bus,
+   which receives a leather class, swaps that art for the supplied image. */
+.bus.bay--greenback,
+.bus.bay--redback { background: transparent; }
+.bus.bay--greenback .bus__sky,
+.bus.bay--greenback .bus__sun,
+.bus.bay--redback .bus__sky,
+.bus.bay--redback .bus__sun { display: none; }
+
+.bay--greenback h2,
+.bay--greenback h3,
+.bay--redback h2,
+.bay--redback h3 { color: var(--ivory-0); }
+
+.bay--greenback .bay__lead,
+.bay--greenback .news__standfirst,
+.bay--greenback .ledger__def,
+.bay--greenback .pillar p,
+.bay--redback .bay__lead,
+.bay--redback .news__standfirst,
+.bay--redback .ledger__def,
+.bay--redback .pillar p { color: rgba(251, 247, 239, 0.86); }
+
+.bay--greenback .label,
+.bay--greenback .news__kicker,
+.bay--greenback .ledger__term,
+.bay--redback .label,
+.bay--redback .news__kicker,
+.bay--redback .ledger__term { color: var(--gold-pale); }
+
+.bay--greenback .label::before,
+.bay--redback .label::before { background: var(--gold-lit); }
+
+.bay--greenback .ledger,
+.bay--greenback .ledger__row,
+.bay--redback .ledger,
+.bay--redback .ledger__row { border-color: rgba(251, 247, 239, 0.28); }
+
+.bay--greenback .btn--outline,
+.bay--redback .btn--outline {
+  border-color: rgba(251, 247, 239, 0.55);
+  color: var(--ivory-0);
+}
+.bay--greenback .btn--outline:hover,
+.bay--redback .btn--outline:hover {
+  border-color: var(--gold-pale);
+  color: var(--gold-pale);
+}
+
+/* Raised information surfaces keep their original ink palette. */
+.bay--greenback .folio,
+.bay--greenback .roster,
+.bay--greenback .petition,
+.bay--greenback .status,
+.bay--greenback .ladder__step,
+.bay--redback .folio,
+.bay--redback .roster,
+.bay--redback .petition,
+.bay--redback .status,
+.bay--redback .ladder__step { color: var(--ink); }
+
+.bay--greenback .petition h3,
+.bay--redback .petition h3 { color: var(--ink); }
+
+.bay--greenback .status,
+.bay--redback .status { background: rgba(251, 247, 239, 0.92); }
+
 /* The next plane rises over the hero like a carved panel */
 .bay--overlap {
   margin-block-start: -6svh;
@@ -1650,4 +1777,6 @@ html[dir="rtl"] .road__bus { transform: scaleX(-1); }
   .axis::before { display: none; }
   .bus { --p: 0.72; }
   .road__bus { inset-inline-start: 62%; }
+  .bay--greenback::before,
+  .bay--redback::before { transform: none; will-change: auto; }
 }

@@ -80,15 +80,18 @@ scroll-progress traveller.
 
 ## Motion
 
-One engine, `static/js/motion.js`. It writes two custom properties
-(`--rise` in pixels, `--fade`) and a per-section `--p`; CSS turns those
-into `translate3d` and opacity. Nothing that triggers layout is animated,
-and native scrolling is never intercepted — there is no wheel or touch
-handler, and the only pinning is `position: sticky`.
+One engine, `static/js/motion.js`. It writes transform-only custom
+properties for the opening sequence, text risers, the Bus progress, and
+the homepage leather backdrops. CSS turns those values into `translate3d`,
+scale, and opacity. Nothing that triggers layout is animated, and native
+scrolling is never intercepted — there is no wheel or touch handler, and
+the only pinning is `position: sticky`.
 
-On the hero the copy rises roughly 4.6× faster than the portraits, which
-drift at slightly different rates and scale to a maximum of 1.038. The
-copy fades out before it can reach the navigation.
+The opening image moves on a slower plane than its foreground beats. After
+the opening sequence, the supplied green and red leather images alternate
+by section, beginning with green on the Morocco Bus. Their oversized image
+layers travel independently as each section crosses the viewport, creating
+the section-level parallax without `background-attachment: fixed`.
 
 `prefers-reduced-motion: reduce` removes the scroll stage, unpins the
 hero, disables smooth scrolling and the axis traveller, collapses every
