@@ -30,13 +30,31 @@ STATIC = os.path.join(ROOT, "static")
 LANGS = ("ar", "en")
 DIRS = {"ar": "rtl", "en": "ltr"}
 
+# Where the site will be served from.
+#
+# BASE_PATH is the sub-directory, if any. A custom domain serves from the
+# root and needs nothing; a GitHub Pages project site serves from
+# /<repo>/ and needs BASE_PATH set, or every absolute path 404s.
+#
+# SITE_ORIGIN is the scheme+host used for canonical URLs, hreflang and
+# the sitemap.
+BASE = os.environ.get("BASE_PATH", "").rstrip("/")
+if BASE and not BASE.startswith("/"):
+    BASE = "/" + BASE
+ORIGIN = os.environ.get("SITE_ORIGIN", "https://" + SITE["domain"]).rstrip("/")
+
 
 def esc(s):
     return html.escape(str(s), quote=True)
 
 
+def asset(path):
+    """Absolute path to a static file, honouring BASE_PATH."""
+    return BASE + path
+
+
 def url(lang, path=""):
-    return "/{}/{}".format(lang, path)
+    return "{}/{}/{}".format(BASE, lang, path)
 
 
 def other(lang):
@@ -53,7 +71,8 @@ def head(lang, title, desc, canonical, counterpart, hero=False):
         ["fraunces-900-latin.woff2", "archivo-400-latin.woff2"]
     )
     preloads = "\n".join(
-        '  <link rel="preload" href="/fonts/{}" as="font" type="font/woff2" crossorigin>'.format(f)
+        '  <link rel="preload" href="{}" as="font" type="font/woff2" crossorigin>'.format(
+            asset("/fonts/" + f))
         for f in critical
     )
     return """<!doctype html>
@@ -63,28 +82,31 @@ def head(lang, title, desc, canonical, counterpart, hero=False):
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{title}</title>
   <meta name="description" content="{desc}">
-  <link rel="canonical" href="https://{domain}{canonical}">
-  <link rel="alternate" hreflang="{lang}" href="https://{domain}{canonical}">
-  <link rel="alternate" hreflang="{olang}" href="https://{domain}{counterpart}">
-  <link rel="alternate" hreflang="x-default" href="https://{domain}/ar/">
+  <link rel="canonical" href="{origin}{canonical}">
+  <link rel="alternate" hreflang="{lang}" href="{origin}{canonical}">
+  <link rel="alternate" hreflang="{olang}" href="{origin}{counterpart}">
+  <link rel="alternate" hreflang="x-default" href="{origin}{ar_home}">
   <meta property="og:type" content="website">
   <meta property="og:title" content="{title}">
   <meta property="og:description" content="{desc}">
   <meta property="og:locale" content="{locale}">
-  <meta property="og:url" content="https://{domain}{canonical}">
+  <meta property="og:url" content="{origin}{canonical}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#F3EDE1">
-  <link rel="icon" href="/img/party-logo.svg" type="image/svg+xml">
+  <link rel="icon" href="{favicon}" type="image/svg+xml">
 {preloads}
-  <link rel="stylesheet" href="/css/fonts-{lang}.css">
-  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="{fontcss}">
+  <link rel="stylesheet" href="{sitecss}">
 </head>
 <body{hero_attr}>
 <a class="skip" href="#main">{skip}</a>
 <div class="axis" aria-hidden="true"></div>
 """.format(
         lang=lang, dir=d, title=esc(title), desc=esc(desc),
-        domain=SITE["domain"], canonical=canonical, counterpart=counterpart,
+        origin=ORIGIN, canonical=canonical, counterpart=counterpart,
+        ar_home=url("ar"), favicon=asset("/img/party-logo.svg"),
+        fontcss=asset("/css/fonts-{}.css".format(lang)),
+        sitecss=asset("/css/site.css"),
         olang=other(lang), locale="ar_MA" if lang == "ar" else "en_US",
         preloads=preloads, skip=esc(UI[lang]["skip"]),
         hero_attr=' data-hero-page' if hero else '',
@@ -101,7 +123,7 @@ def masthead(lang, active, counterpart):
     return """<header class="masthead" data-masthead>
   <div class="shell masthead__inner">
     <a class="wordmark" href="{home}">
-      <img class="wordmark__mark" src="/img/party-logo.svg" alt="" width="34" height="47" loading="eager">
+      <img class="wordmark__mark" src="{logo_src}" alt="" width="34" height="47" loading="eager">
       <span class="wordmark__text">{name}</span>
     </a>
     <button class="burger" type="button" data-burger aria-expanded="false" aria-controls="sitenav"
@@ -114,6 +136,7 @@ def masthead(lang, active, counterpart):
 </header>
 """.format(
         home=url(lang), name=esc(UI[lang]["party_name"]),
+        logo_src=asset("/img/party-logo.svg"),
         menu=esc(u["menu"]), close=esc(u["close"]),
         items="\n      ".join(items), counterpart=counterpart, olang=other(lang),
         lang_label=esc(u["lang_switch_label"]), lang_text=esc(u["lang_switch"]),
@@ -137,7 +160,7 @@ def footer(lang):
   <div class="shell">
     <div class="footer__top">
       <div>
-        <img class="footer__mark" src="/img/party-logo.svg" alt="{logo_alt}" width="96" height="133" loading="lazy">
+        <img class="footer__mark" src="{logo_src}" alt="{logo_alt}" width="96" height="133" loading="lazy">
         <p class="footer__tagline">{tagline}</p>
       </div>
       <div>
@@ -158,12 +181,14 @@ def footer(lang):
     </div>
   </div>
 </footer>
-<script src="/js/nav.js" defer></script>
-<script src="/js/motion.js" defer></script>
+<script src="{navjs}" defer></script>
+<script src="{motionjs}" defer></script>
 </body>
 </html>
 """.format(
         logo_alt=esc(u["logo_alt"]), tagline=esc(f["tagline"]), name=esc(UI[lang]["party_name"]),
+        logo_src=asset("/img/party-logo.svg"),
+        navjs=asset("/js/nav.js"), motionjs=asset("/js/motion.js"),
         links=links, legal_title=esc(f["legal_title"]), legal=legal,
         rights=esc(f["rights"]), yt=SITE["youtube"],
     )
@@ -212,7 +237,7 @@ def hero_block(lang):
     u = UI[lang]
 
     def srcset(name):
-        return ", ".join("/img/{}-{}.jpg {}w".format(name, w, w)
+        return ", ".join(asset("/img/{}-{}.jpg".format(name, w)) + " {}w".format(w)
                          for w in (800, 1200, 1600, 2200, 2752))
 
     slogan = '<p class="hero__slogan">{}'.format(esc(h["slogan"]))
@@ -224,12 +249,12 @@ def hero_block(lang):
     return """<section class="hero" data-hero>
   <div class="hero__media">
     <figure class="hero__half hero__half--left" style="margin:0">
-      <img data-hero-img src="/img/hero-abdullah-ben-zakar-1600.jpg"
+      <img data-hero-img src="{src_left}"
            srcset="{ss_left}" sizes="(max-width: 820px) 100vw, 50vw"
            width="2752" height="1536" alt="{alt_left}" fetchpriority="high" decoding="async">
     </figure>
     <figure class="hero__half hero__half--right" style="margin:0">
-      <img data-hero-img src="/img/hero-moroccan-monarch-1600.jpg"
+      <img data-hero-img src="{src_right}"
            srcset="{ss_right}" sizes="(max-width: 820px) 100vw, 50vw"
            width="2752" height="1536" alt="{alt_right}" fetchpriority="high" decoding="async">
     </figure>
@@ -255,6 +280,8 @@ def hero_block(lang):
 """.format(
         ss_left=srcset("hero-abdullah-ben-zakar"),
         ss_right=srcset("hero-moroccan-monarch"),
+        src_left=asset("/img/hero-abdullah-ben-zakar-1600.jpg"),
+        src_right=asset("/img/hero-moroccan-monarch-1600.jpg"),
         alt_left=esc(u["hero_left_alt"]), alt_right=esc(u["hero_right_alt"]),
         eyebrow=esc(h["eyebrow"]),
         headline=esc(h["headline"]), slogan=slogan,
@@ -611,7 +638,7 @@ def about_page(lang):
     <p>{naming_b}</p>
 
     <figure class="emblem">
-      <img src="/img/party-logo.svg" alt="{logo_alt}" width="300" height="375" loading="lazy">
+      <img src="{logo_src}" alt="{logo_alt}" width="300" height="375" loading="lazy">
       <figcaption>{emblem_cap}</figcaption>
     </figure>
   </div>
@@ -637,6 +664,7 @@ def about_page(lang):
         identity="\n      ".join("<li>{}</li>".format(esc(x)) for x in identity),
         naming_t=esc(naming[0]), naming_b=esc(naming[1]),
         logo_alt=esc(UI[lang]["logo_alt"]),
+        logo_src=asset("/img/party-logo.svg"),
         emblem_cap=esc({
             "ar": "شعار الحزب: النافذة المغربية المفتوحة، وأمامها لوحة تحمل صورة "
                   "تاريخية. الشعار يحمل الصيغة الإعلامية للمشروع؛ أما التسمية الرسمية "
@@ -1130,16 +1158,16 @@ def build():
 <head>
 <meta charset="utf-8">
 <title>حزب اليمين المغربي — The Moroccan Right Party</title>
-<meta http-equiv="refresh" content="0; url=/ar/">
-<link rel="canonical" href="https://{d}/ar/">
+<meta http-equiv="refresh" content="0; url={ar}">
+<link rel="canonical" href="{origin}{ar}">
 <meta name="robots" content="noindex">
 </head>
 <body>
-<p><a href="/ar/">العربية</a> · <a href="/en/">English</a></p>
-<script>location.replace("/ar/");</script>
+<p><a href="{ar}">العربية</a> · <a href="{en}">English</a></p>
+<script>location.replace("{ar}");</script>
 </body>
 </html>
-""".format(d=SITE["domain"]))
+""".format(ar=url("ar"), en=url("en"), origin=ORIGIN))
     count += 1
 
     # sitemap + robots
@@ -1154,12 +1182,12 @@ def build():
     sitemap = ['<?xml version="1.0" encoding="UTF-8"?>',
                '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for u_ in sorted(urls):
-        sitemap.append("  <url><loc>https://{}{}</loc></url>".format(SITE["domain"], u_))
+        sitemap.append("  <url><loc>{}{}</loc></url>".format(ORIGIN, u_))
     sitemap.append("</urlset>")
     write("sitemap.xml", "\n".join(sitemap) + "\n")
 
-    write("robots.txt", "User-agent: *\nAllow: /\nSitemap: https://{}/sitemap.xml\n".format(
-        SITE["domain"]))
+    write("robots.txt", "User-agent: *\nAllow: /\nSitemap: {}{}/sitemap.xml\n".format(
+        ORIGIN, BASE))
 
     print("built {} pages + {} urls in sitemap".format(count, len(urls)))
 
