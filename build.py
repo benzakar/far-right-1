@@ -520,11 +520,50 @@ def home():
         ),
     ])
 
+    two_speeds_panel = """<article class="story-panel story-panel--longform" data-reveal>
+    <div class="story-panel__visual">
+      {slot}
+    </div>
+    <div class="story-panel__copy">
+      <h2 class="story-panel__title">{title}</h2>
+      <div class="story-panel__body">
+        <p class="story-panel__text">{p1}</p>
+        <p class="story-panel__text">{p2}</p>
+        <p class="story-panel__text">{p3}</p>
+        <h3 class="story-panel__subheading">{subtitle}</h3>
+        <p class="story-panel__text">{p4}</p>
+        <p class="story-panel__text">{p5}</p>
+        <p class="story-panel__text">{p6}</p>
+        <p class="story-panel__text story-panel__closing">{p7} <strong>{party}</strong>.</p>
+      </div>
+    </div>
+  </article>""".format(
+        slot=_image_slot("home-two-speeds-plans", "مغرب الخطتين والدستور الجديد"),
+        title=esc("باش نقادو مغرب السرعتين، خاصنا مغرب الخطتين"),
+        p1=esc("5 سنين ديال بنكيران، و5 ديال العثماني، و5 ديال أخنوش، وفالأخير: كارثة سبتة."),
+        p2=esc("دستور 2011 خرّج على البلاد، وأحسن مثال هو مطالبة المواطنين بإلغاء الساعة الإضافية. رغم الوقفات الاحتجاجية والعريضة اللي وقّعها عشرات الآلاف من المغاربة، والمشاكل الصحية اللي عاناو منها المغاربة وأطفالهم، عطى الدستور لذاك الانتهازي ديال أخنوش السلطة باش يلغي الساعة الإضافية فقط من أجل الانتخابات، ماشي من أجل المغاربة."),
+        p3=esc("أملنا فـ ولد سيدنا أعزّه الله، وفالدستور اللي الحزب موجد ليه؛ الدستور اللي غادي يحل كاع المشاكل، منها: مشكل الهجرة، والصحة، والتعليم، واللي غادي يهني ولد سيدنا من بنكيران وأخنوش ديال المستقبل."),
+        subtitle=esc("علاش دستور 2011 ما صالحش من بعد المونديال؟"),
+        p4=esc("زيادة على أن التغيير سنة الحياة، وأن العالم غادي بواحد السرعة كبيرة خاصها دستور خاص، وزيادة على هاد الأسباب، المغاربة كلهم سمعو من بنكيران كيفاش سيدنا كان كيهدر معاه على البلوكاج الحكومي."),
+        p5=esc("سيدنا عيا مع حكومات الأحزاب، وعيا ما ينبه ويوجّه فالخطابات ديالو."),
+        p6=esc("حنا جايين باش ولد سيدنا يلقى حزب كيهنيه من صداع المناورات السياسية، ومن أي بلوكاج حكومي مستقبلي. الحزب هو مشروع مغربي، داعم للملكية، رأسمالي ومنتج، كيبدا من المشكل ماشي من الكرسي."),
+        p7=esc("ما كنطلبوش من المغاربة يصدقونا بالسمع؛ كنطلبو منهم يشوفو بعينيهم الفرق الواضح ما بين 36 حزب ديال الهضرة، وحزب ديال الابتكار والخدمة:"),
+        party=esc("حزب اليمين المغربي"),
+    )
+
     # Concrete proposals lead the homepage. The Bus remains available later as
     # a summary metaphor, after visitors understand Plan A/B and see examples.
     parts = [cinema_block()]
 
-    parts.append("""<section class="bay bay--greenback" id="plan-a-b" data-parallax-bg>
+    parts.append("""<section class="bay bay--greenback" id="two-speeds-plans" data-parallax-bg>
+  <div class="shell">
+    <div class="story-reader story-reader--flush">
+      {panel}
+    </div>
+  </div>
+</section>""".format(panel=two_speeds_panel))
+
+    parts.append("""<section class="bay bay--redback" id="plan-a-b" data-parallax-bg>
   <div class="shell">
     <p class="label" data-rise="30">من هنا كتبدا الفكرة</p>
     <h2 class="bay__title" data-rise="46">خطة ألف وخطة باء</h2>
@@ -538,7 +577,7 @@ def home():
     [VISION["plan_lead"]],
     actions=[(url("vision/"), "شوف الرؤية كاملة", False)], level=3)))
 
-    parts.append("""<section class="bay bay--redback" id="examples" data-parallax-bg>
+    parts.append("""<section class="bay bay--greenback" id="examples" data-parallax-bg>
   <div class="shell">
     <p class="label" data-rise="30">من الفكرة للمشروع</p>
     <h2 class="bay__title" data-rise="46">ثلاثة أمثلة كيبينو كيفاش كنفكرو</h2>
@@ -553,7 +592,7 @@ def home():
   </div>
 </section>""".format(panels=example_panels))
 
-    parts.append("""<section class="bay bay--greenback" id="latest-news" data-parallax-bg>
+    parts.append("""<section class="bay bay--redback" id="latest-news" data-parallax-bg>
   <div class="shell">
     <p class="label" data-rise="30">آخر المستجدات</p>
     <h2 class="bay__title" data-rise="46">شنو واقع دابا</h2>
@@ -568,7 +607,7 @@ def home():
     actions=[(url("news/{}/".format(NEWS_FEATURED["slug"])), UI["more"], False)],
     flip=True, level=3)))
 
-    parts.append("""<section class="bay bay--redback" id="about" data-parallax-bg>
+    parts.append("""<section class="bay bay--greenback" id="about" data-parallax-bg>
   <div class="shell">
     <p class="label" data-rise="30">الموقف والهوية</p>
     <h2 class="bay__title" data-rise="46">حنا شكون، وشنو كيميزنا</h2>
@@ -579,7 +618,7 @@ def home():
   </div>
 </section>""".format(panels=identity_panels))
 
-    parts.append("""<section class="bay bay--greenback" id="doctrines" data-parallax-bg>
+    parts.append("""<section class="bay bay--redback" id="doctrines" data-parallax-bg>
   <div class="shell">
     <p class="label" data-rise="30">باقي العقائد</p>
     <h2 class="bay__title" data-rise="46">الفكرة فالخلاصة، والتفاصيل اختيارية</h2>
@@ -591,7 +630,7 @@ def home():
   </div>
 </section>""".format(cards=_doctrine_cards(remaining_doctrines)))
 
-    parts.append("""<section class="bay bay--redback" id="bus-summary" data-parallax-bg>
+    parts.append("""<section class="bay bay--greenback" id="bus-summary" data-parallax-bg>
   <div class="shell">
     <div class="story-reader">
       {panel}
@@ -601,7 +640,7 @@ def home():
     "section-bus", "حافلة المغرب", BUS["label"], BUS["title"], [BUS["lead"]],
     actions=[(url("bus/"), "شوف حافلة المغرب", False)], flip=True)))
 
-    parts.append("""<section class="bay bay--greenback" id="accountability" data-parallax-bg>
+    parts.append("""<section class="bay bay--redback" id="accountability" data-parallax-bg>
   <div class="shell">
     <p class="label" data-rise="30">كيفاش غادي تحاسبونا</p>
     <h2 class="bay__title" data-rise="46">القياس قبل الثقة</h2>
@@ -616,7 +655,7 @@ def home():
     actions=[(url("accountability/"), UI["more"], False)],
     extra=about_points, level=3)))
 
-    parts.append("""<section class="bay bay--redback" data-parallax-bg>
+    parts.append("""<section class="bay bay--greenback" data-parallax-bg>
   <div class="shell">
     <div class="story-reader">
       {panel}
