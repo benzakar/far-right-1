@@ -1035,6 +1035,72 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
    this long-form section into a scroll container that disables its sticky art. */
 #two-speeds-plans { overflow: clip; }
 
+/* The section opens with the source post itself instead of repeating its two
+   lines as a label and heading. The blockquote is a complete local fallback;
+   X replaces it with the official embed only when its widget is available. */
+.tweet-heading {
+  inline-size: min(100%, 550px);
+  min-block-size: 236px;
+  margin-inline: auto;
+  margin-block-end: clamp(2.4rem, 5vw, 4.5rem);
+}
+
+.tweet-heading .twitter-tweet {
+  position: relative;
+  margin: 0;
+  padding: clamp(1.35rem, 3vw, 2rem);
+  border: 1px solid rgba(196, 179, 147, 0.82);
+  border-radius: 24px;
+  background: var(--ivory-0);
+  color: var(--ink-mute);
+  box-shadow: var(--lift);
+  font-family: var(--body);
+  font-size: var(--step--1);
+  line-height: 1.55;
+}
+
+.tweet-heading .twitter-tweet::before {
+  content: "𝕏";
+  display: block;
+  margin-block-end: 0.8rem;
+  color: var(--ink);
+  font-family: system-ui, sans-serif;
+  font-size: var(--step-1);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.tweet-heading .twitter-tweet p {
+  max-inline-size: none;
+  margin-block-end: 1rem;
+  color: var(--ink);
+  font-family: var(--gold-display);
+  font-size: var(--step-1);
+  line-height: 1.7;
+}
+
+.tweet-heading .twitter-tweet a {
+  color: var(--green);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.tweet-heading iframe {
+  margin-inline: auto !important;
+}
+
+.tweet-heading .twitter-tweet.twitter-tweet-rendered {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.tweet-heading .twitter-tweet.twitter-tweet-rendered::before {
+  display: none;
+}
+
 .bay--greenback::before,
 .bay--redback::before,
 .bay--greenback::after,
@@ -1168,7 +1234,7 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
   grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
   align-items: stretch;
   gap: clamp(1rem, 2.5vw, 2rem);
-  margin-block-start: clamp(2.4rem, 5vw, 4.5rem);
+  margin-block-start: 0;
 }
 
 .policy-reader__visual {

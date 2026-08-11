@@ -564,12 +564,19 @@ def home():
 
     parts.append("""<section class="bay bay--greenback" id="two-speeds-plans" data-parallax-bg>
   <div class="shell">
-    <p class="label" data-rise="30">{label}</p>
-    <h2 class="bay__title" data-rise="46">{title}</h2>
+    <h2 class="vh">{title}</h2>
+    <div class="tweet-heading" data-rise="38">
+      <blockquote class="twitter-tweet" data-dnt="true">
+        <p lang="ar" dir="rtl">{tweet_first}<br><br>{title}</p>
+        &mdash; Ben Zakar (@benzakarMorocco)
+        <a href="https://x.com/benzakarMorocco/status/2087319291154538680?ref_src=twsrc%5Etfw">August 11, 2026</a>
+      </blockquote>
+    </div>
+    <script async src="https://platform.x.com/widgets.js" charset="utf-8"></script>
     {reader}
   </div>
 </section>""".format(
-        label=esc("5 سنين ديال بنكيران، و5 ديال العثماني، و5 ديال أخنوش، وفالأخير: كارثة سبتة."),
+        tweet_first=esc("دستور 2011 خرّج على البلاد، 5 سنين ديال بنكيران، 5 ديال العثماني، و5 ديال أخنوش، وفالأخير: كارثة سبتة."),
         title=esc("باش نقادو مغرب السرعتين، خاصنا مغرب الخطتين"),
         reader=two_speeds_reader,
     ))
