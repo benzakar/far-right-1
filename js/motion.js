@@ -73,7 +73,7 @@
        own bottom edge and exposed an ivory strip before the green section. */
     var bgPhase = p < 0.82
       ? p / 0.82
-      : lerp(1, 0.38, ease(seg(p, 0.82, 1)));
+      : lerp(1, 0.20, ease(seg(p, 0.82, 1)));
     set(cine.bg, "--bg-rise", (bgPhase * bgTravel).toFixed(1));
 
     /* line one and the rival marks form one right-hand title slide */

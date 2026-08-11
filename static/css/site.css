@@ -660,7 +660,9 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
 .cinema {
   position: relative;
   block-size: 460svh;
-  background: var(--ivory-1);
+  /* If a fractional transform ever exposes the handoff edge, it exposes
+     green rather than an ivory hairline between the hero and Bus section. */
+  background: var(--green-deep);
 }
 
 .cinema__stage {
@@ -668,12 +670,14 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
   inset-block-start: 0;
   block-size: 100svh;
   overflow: hidden;
-  background: var(--ivory-2);
+  isolation: isolate;
+  background: var(--green-deep);
 }
 
 .cinema__bg {
   position: absolute;
   inset: 0;
+  z-index: 1;
   inline-size: 100%;
   block-size: 100%;
   object-fit: cover;
@@ -687,6 +691,7 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
 .cinema__dim {
   position: absolute;
   inset: 0;
+  z-index: 2;
   pointer-events: none;
   background: radial-gradient(ellipse 84% 76% at 50% 48%,
     rgba(251, 247, 239, 0.90) 0%,
@@ -814,6 +819,23 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
   .cinema__stage {
     background:
       linear-gradient(to bottom, var(--ivory-2) 0%, var(--ivory-1) 52%, var(--ivory-2) 100%);
+  }
+
+  /* On narrow screens the complete 16:9 artwork is presented as a plate,
+     rather than cropped. Continue its built-in leather column behind the
+     lower copy so that the column still reaches the first green section. */
+  .cinema__stage::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: 46.35%;
+    inline-size: 3.8%;
+    min-inline-size: 13px;
+    z-index: 0;
+    background-color: #086544;
+    background-image: url("../img/leather-tile.webp");
+    background-size: 256px 256px;
+    background-blend-mode: soft-light;
   }
 
   .cinema__bg {
@@ -974,7 +996,8 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
 
 /* The opening hero and first green section share one flush boundary. */
 .cinema + .bay--greenback {
-  margin-block-start: 0;
+  /* The one-pixel overlap prevents a subpixel seam at fractional zooms. */
+  margin-block-start: -1px;
   border-block-start: 0;
   box-shadow: inset 0 -1px 0 rgba(20, 8, 4, 0.55);
 }

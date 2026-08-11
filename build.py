@@ -229,13 +229,13 @@ def cinema_block():
     """
     def srcset(name):
         return ", ".join(asset("/img/{}-{}.jpg".format(name, w)) + " {}w".format(w)
-                         for w in (1280, 1920, 2560, 3840))
+                         for w in (640, 960, 1280))
 
     return """<section class="cinema" data-cinema>
   <div class="cinema__stage">
 
     <img class="cinema__bg" data-cine="bg" src="{src}" srcset="{ss}" sizes="100vw"
-         width="3840" height="2160" alt="{hero_alt}" fetchpriority="high" decoding="async">
+         width="1280" height="720" alt="{hero_alt}" fetchpriority="high" decoding="async">
 
     <div class="cinema__dim" data-cine="dim" aria-hidden="true"></div>
 
@@ -253,7 +253,7 @@ def cinema_block():
 
   </div>
 </section>
-""".format(src=asset("/img/hero2-1920.jpg"), ss=srcset("hero2"),
+""".format(src=asset("/img/hero3-1280.jpg"), ss=srcset("hero3"),
            hero_alt=esc(CINEMA["hero_alt"]),
            line1=esc(CINEMA["line_1"]), line2=esc(CINEMA["line_2"]),
            parties=asset("/img/darklogos.png"),
