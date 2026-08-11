@@ -79,7 +79,6 @@ def head(title, desc, canonical, hero=False):
         "reem-kufi-700-arabic.woff2",
         "zain-400-arabic.woff2",
         "cairo-variable-arabic.woff2",
-        "lalezar-400-arabic.woff2",
     ]
     preloads = "\n".join(
         '  <link rel="preload" href="{}" as="font" type="font/woff2" crossorigin>'.format(
@@ -536,7 +535,6 @@ def home():
           <p>{p4}</p>
           <p>{p5}</p>
           <p>{p6}</p>
-          <p class="policy-pane__closing">{p7} <strong>{party}</strong>.</p>
         </div>
         <div class="policy-pane__fade" aria-hidden="true"></div>
       </div>
@@ -554,8 +552,6 @@ def home():
         p4=esc("زيادة على أن التغيير سنة الحياة، وأن العالم غادي بواحد السرعة كبيرة خاصها دستور خاص، وزيادة على هاد الأسباب، المغاربة كلهم سمعو من بنكيران كيفاش سيدنا كان كيهدر معاه على البلوكاج الحكومي."),
         p5=esc("سيدنا عيا مع حكومات الأحزاب، وعيا ما ينبه ويوجّه فالخطابات ديالو."),
         p6=esc("حنا جايين باش ولد سيدنا يلقى حزب كيهنيه من صداع المناورات السياسية، ومن أي بلوكاج حكومي مستقبلي. الحزب هو مشروع مغربي، داعم للملكية، رأسمالي ومنتج، كيبدا من المشكل ماشي من الكرسي."),
-        p7=esc("ما كنطلبوش من المغاربة يصدقونا بالسمع؛ كنطلبو منهم يشوفو بعينيهم الفرق الواضح ما بين 36 حزب ديال الهضرة، وحزب ديال الابتكار والخدمة:"),
-        party=esc("حزب اليمين المغربي"),
     )
 
     # Concrete proposals lead the homepage. The Bus remains available later as
@@ -564,21 +560,23 @@ def home():
 
     parts.append("""<section class="bay bay--greenback" id="two-speeds-plans" data-parallax-bg>
   <div class="shell">
-    <h2 class="vh">{title}</h2>
-    <div class="tweet-heading" data-rise="38">
-      <blockquote class="twitter-tweet" data-dnt="true">
-        <p lang="ar" dir="rtl">{tweet_first}<br><br>{title}</p>
-        &mdash; Ben Zakar (@benzakarMorocco)
-        <a href="https://x.com/benzakarMorocco/status/2087319291154538680?ref_src=twsrc%5Etfw">August 11, 2026</a>
+    <p class="label" data-rise="30">{label}</p>
+    <h2 class="bay__title" data-rise="46">{title}</h2>
+    {reader}
+    <div class="tweet-heading tweet-heading--after" data-rise="38">
+      <blockquote class="twitter-tweet" data-dnt="true" data-lang="en">
+        <p lang="ar" dir="rtl">{tweet}</p>
+        &mdash; Abdellah Ben Zakar (@benzakarMorocco)
+        <a href="https://x.com/benzakarMorocco/status/2087324035004682646?ref_src=twsrc%5Etfw">August 11, 2026</a>
       </blockquote>
     </div>
     <script async src="https://platform.x.com/widgets.js" charset="utf-8"></script>
-    {reader}
   </div>
 </section>""".format(
-        tweet_first=esc("دستور 2011 خرّج على البلاد، 5 سنين ديال بنكيران، 5 ديال العثماني، و5 ديال أخنوش، وفالأخير: كارثة سبتة."),
+        label=esc("5 سنين ديال بنكيران، و5 ديال العثماني، و5 ديال أخنوش، وفالأخير: كارثة سبتة."),
         title=esc("باش نقادو مغرب السرعتين، خاصنا مغرب الخطتين"),
         reader=two_speeds_reader,
+        tweet=esc("ما كنطلبوش من المغاربة يصدقونا بالسمع؛ كنطلبو منهم يشوفو بعينيهم الفرق الواضح ما بين 36 حزب ديال الهضرة، وحزب ديال الابتكار والخدمة: حزب اليمين المغربي."),
     ))
 
     parts.append("""<section class="bay bay--redback" id="plan-a-b" data-parallax-bg>

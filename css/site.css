@@ -36,7 +36,6 @@
   --body:    "Zain", system-ui, sans-serif;
   --util:    "Reem Kufi", system-ui, sans-serif;
   --interactive: "Cairo", system-ui, sans-serif;
-  --gold-display: "Lalezar", "Reem Kufi", system-ui, sans-serif;
 
   --step--1: clamp(0.82rem, 0.79rem + 0.14vw, 0.9rem);
   --step-0:  clamp(1rem, 0.96rem + 0.2vw, 1.13rem);
@@ -1035,14 +1034,16 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
    this long-form section into a scroll container that disables its sticky art. */
 #two-speeds-plans { overflow: clip; }
 
-/* The section opens with the source post itself instead of repeating its two
-   lines as a label and heading. The blockquote is a complete local fallback;
-   X replaces it with the official embed only when its widget is available. */
+/* The source post follows the reader, where the removed closing paragraph used
+   to land. The blockquote remains a complete local fallback when X is blocked. */
 .tweet-heading {
   inline-size: min(100%, 550px);
   min-block-size: 236px;
   margin-inline: auto;
-  margin-block-end: clamp(2.4rem, 5vw, 4.5rem);
+}
+
+.tweet-heading--after {
+  margin-block-start: clamp(2.4rem, 5vw, 4.5rem);
 }
 
 .tweet-heading .twitter-tweet {
@@ -1074,7 +1075,7 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
   max-inline-size: none;
   margin-block-end: 1rem;
   color: var(--ink);
-  font-family: var(--gold-display);
+  font-family: var(--display);
   font-size: var(--step-1);
   line-height: 1.7;
 }
@@ -1303,11 +1304,6 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
   color: var(--green-deep);
   font-size: var(--step-2);
   line-height: 1.45;
-}
-
-.policy-pane__closing strong {
-  color: var(--green-deep);
-  font-family: var(--interactive);
 }
 
 .policy-pane__fade {
@@ -1666,7 +1662,7 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
 .bus .label,
 .stage__sub,
 .declaration__line:nth-child(2) {
-  font-family: var(--gold-display);
+  font-family: var(--display);
   font-weight: 400;
 }
 
