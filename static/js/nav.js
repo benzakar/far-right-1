@@ -25,7 +25,7 @@
     opener = document.activeElement;
     nav.classList.add("is-open");
     burger.setAttribute("aria-expanded", "true");
-    burger.textContent = burger.getAttribute("data-label-close") || burger.textContent;
+    burger.setAttribute("aria-label", burger.getAttribute("data-label-close") || "Close menu");
     document.body.style.overflow = "hidden";
     var f = focusables();
     if (f.length) f[0].focus();
@@ -35,7 +35,7 @@
   function close() {
     nav.classList.remove("is-open");
     burger.setAttribute("aria-expanded", "false");
-    burger.textContent = burger.getAttribute("data-label-menu") || burger.textContent;
+    burger.setAttribute("aria-label", burger.getAttribute("data-label-menu") || "Menu");
     document.body.style.overflow = "";
     document.removeEventListener("keydown", onKey);
     if (opener && opener.focus) opener.focus();

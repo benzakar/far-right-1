@@ -264,15 +264,50 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
   background: none;
   border: 1px solid var(--ivory-4);
   border-radius: 999px;
-  padding: 0.5rem 0.9rem;
-  font-family: var(--util);
-  font-size: var(--step--1);
+  inline-size: 48px;
+  block-size: 48px;
+  padding: 0;
+  place-items: center;
   cursor: pointer;
   color: inherit;
 }
 
+.burger__icon {
+  position: relative;
+  display: block;
+  inline-size: 22px;
+  block-size: 16px;
+}
+
+.burger__icon span {
+  position: absolute;
+  left: 0;
+  inline-size: 100%;
+  block-size: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  transform-origin: center;
+  transition: transform 0.24s var(--ease), opacity 0.18s var(--ease);
+}
+
+.burger__icon span:nth-child(1) { top: 0; }
+.burger__icon span:nth-child(2) { top: 7px; }
+.burger__icon span:nth-child(3) { top: 14px; }
+
+.burger[aria-expanded="true"] .burger__icon span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.burger[aria-expanded="true"] .burger__icon span:nth-child(2) {
+  opacity: 0;
+}
+
+.burger[aria-expanded="true"] .burger__icon span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
 @media (max-width: 940px) {
-  .burger { display: block; }
+  .burger { display: grid; }
   .nav {
     position: fixed;
     inset: 0;

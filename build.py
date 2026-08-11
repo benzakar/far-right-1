@@ -130,7 +130,9 @@ def masthead(active):
       <span class="wordmark__text">{name}</span>
     </a>
     <button class="burger" type="button" data-burger aria-expanded="false" aria-controls="sitenav"
-            data-label-menu="{menu}" data-label-close="{close}">{menu}</button>
+            aria-label="{menu}" data-label-menu="{menu}" data-label-close="{close}">
+      <span class="burger__icon" aria-hidden="true"><span></span><span></span><span></span></span>
+    </button>
     <nav class="nav" id="sitenav" data-nav aria-label="{name}">
       {items}
     </nav>
