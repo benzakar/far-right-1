@@ -301,6 +301,28 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
     color: var(--ink);
     border-color: var(--ivory-4);
   }
+  /* Give the mobile toggle a solid brand surface in both states. The old
+     transparent button disappeared over the pale hero and open menu. */
+  .burger,
+  body[data-hero-page] .masthead:not(.is-stuck) .burger {
+    background: var(--green-deep);
+    color: var(--ivory-0);
+    border: 2px solid var(--gold-pale);
+    box-shadow: 0 8px 22px rgba(13, 53, 39, 0.28);
+    font-weight: 700;
+    transition: background-color 0.22s var(--ease), color 0.22s var(--ease),
+      border-color 0.22s var(--ease), box-shadow 0.22s var(--ease);
+  }
+  .masthead:has(.nav.is-open) .burger,
+  body[data-hero-page] .masthead:not(.is-stuck):has(.nav.is-open) .burger {
+    background: var(--madder);
+    color: var(--ivory-0);
+    border-color: var(--gold-pale);
+    box-shadow: 0 8px 22px rgba(140, 47, 35, 0.3);
+  }
+  .masthead:has(.nav.is-open) .burger:focus-visible {
+    outline-color: var(--madder);
+  }
   .nav__link {
     font-size: var(--step-2);
     font-family: var(--display);
