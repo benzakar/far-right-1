@@ -53,7 +53,7 @@
    */
   var cine = {};
   if (cinema) {
-    ["bg", "dim", "line1", "parties", "line2", "logo", "slogan"].forEach(function (k) {
+    ["bg", "dim", "hint", "line1", "parties", "line2", "logo", "slogan"].forEach(function (k) {
       cine[k] = cinema.querySelector('[data-cine="' + k + '"]');
     });
   }
@@ -77,6 +77,12 @@
       ? p / 0.82
       : lerp(1, 0.20, ease(seg(p, 0.82, 1)));
     set(cine.bg, "--bg-rise", (bgPhase * bgTravel).toFixed(1));
+
+    /* The mobile cue fills the quiet space under the image, then clears as
+       soon as the visitor starts the scroll story. */
+    var hintOut = ease(seg(p, 0.005, 0.075));
+    set(cine.hint, "--hint-o", (1 - hintOut).toFixed(3));
+    set(cine.hint, "--hint-y", lerp(0, -18, hintOut).toFixed(1));
 
     /* line one and the rival marks form one right-hand title slide */
     var in1 = ease(seg(p, 0.05, 0.13));

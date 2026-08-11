@@ -258,6 +258,8 @@ def cinema_block():
 
     <div class="cinema__dim" data-cine="dim" aria-hidden="true"></div>
 
+    <div class="cinema__scroll-hint" data-cine="hint" aria-hidden="true"><span></span></div>
+
     <p class="cinema__line" data-cine="line1">{line1}</p>
 
     <img class="cinema__parties" data-cine="parties" src="{parties}"
