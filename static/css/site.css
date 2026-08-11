@@ -1214,6 +1214,67 @@ html[dir="rtl"] .road__bus { transform: scaleX(-1); }
 .crumbs a:hover { border-block-end-color: var(--gold); }
 .crumbs span[aria-hidden] { color: var(--gold); }
 
+/* ---------- Petition ----------
+   The one action on the site that leaves for somewhere else, so it is
+   built as a distinct raised plane rather than another bay: green edge,
+   the host named up front, and the destination stated on the control. */
+
+.petition {
+  background: var(--ivory-0);
+  border: 1px solid var(--ivory-4);
+  border-inline-start: 4px solid var(--green);
+  box-shadow: var(--lift);
+  padding: clamp(1.6rem, 4vw, 3rem);
+}
+
+.petition__kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-family: var(--util);
+  font-size: var(--step-0);
+  color: var(--green);
+  margin-block-end: 1rem;
+}
+
+.petition__kicker::after {
+  content: "";
+  flex: 1 1 auto;
+  block-size: 1px;
+  background: var(--ivory-4);
+}
+
+.petition__title {
+  font-size: var(--step-2);
+  margin-block-end: 1rem;
+  max-inline-size: 26ch;
+}
+
+.petition__lead {
+  font-size: var(--step-1);
+  line-height: 1.7;
+  color: var(--ink);
+  margin-block-end: 1.2rem;
+}
+
+.petition p { color: var(--ink-soft); }
+
+.petition__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem 1.2rem;
+  margin-block-start: 1.8rem;
+}
+
+.petition__note {
+  font-size: var(--step--1);
+  color: var(--ink-mute);
+  margin: 0;
+}
+
+.petition .btn--primary { font-size: var(--step-1); padding: 1rem 2rem; }
+
 /* The emblem, shown at a size where it is actually legible */
 .emblem {
   margin: clamp(2.4rem, 5vw, 3.6rem) 0 0;

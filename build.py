@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from content.site import (  # noqa: E402
     SITE, UI, NAV, HERO, WHO, NEWS_FEATURED, VISION, BUS, MONARCHY,
-    ACCOUNTABILITY, FOUNDER, JOIN, DECLARATION, FOOTER, META,
+    ACCOUNTABILITY, FOUNDER, JOIN, DECLARATION, FOOTER, META, PETITION,
 )
 from content.doctrines import DOCTRINES, FEATURED  # noqa: E402
 
@@ -332,6 +332,30 @@ def _folio_grid(doctrines):
         for i, d_ in enumerate(doctrines))
 
 
+def petition_block(compact=False, level=3):
+    """The petition card.
+
+    `compact` is the homepage variant. `level` is the heading level: on
+    the homepage the card sits under a section h2 so it is an h3; on the
+    join page it is the first thing after the page h1, so it is an h2.
+    """
+    paras = "" if compact else "\n    ".join(
+        "<p>{}</p>".format(esc(p)) for p in PETITION["body"])
+    return """<div class="petition" data-reveal>
+    <p class="petition__kicker">{kicker} · {host}</p>
+    <h{lvl} class="petition__title">{title}</h{lvl}>
+    <p class="petition__lead">{lead}</p>
+    {paras}
+    <div class="petition__actions">
+      <a class="btn btn--primary" href="{href}" rel="noopener noreferrer" target="_blank">{cta} \u2197</a>
+      <p class="petition__note">{note}</p>
+    </div>
+  </div>""".format(lvl=level, kicker=esc(PETITION["kicker"]), host=esc(PETITION["host"]),
+                   title=esc(PETITION["title"]), lead=esc(PETITION["lead"]),
+                   paras=paras, href=SITE["petition"], cta=esc(PETITION["cta"]),
+                   note=esc(PETITION["note"]))
+
+
 def home():
     rows = "\n    ".join(
         """<div class="ledger__row" data-reveal="{d}">
@@ -487,14 +511,15 @@ def home():
     <p class="label" data-rise="30">{label}</p>
     <h2 class="bay__title" data-rise="46">{title}</h2>
     <p class="bay__lead" data-rise="36">{lead}</p>
-    <div class="pillars">
+    {petition}
+    <div class="pillars" style="margin-block-start:clamp(2.4rem,5vw,3.5rem)">
       {paths}
     </div>
-    <p style="margin-block-start:2.6rem"><a class="btn btn--primary" href="{href}">{label}</a></p>
+    <p style="margin-block-start:2.6rem"><a class="btn btn--outline" href="{href}">{label}</a></p>
   </div>
 </section>""".format(label=esc(JOIN["label"]), title=esc(JOIN["title"]),
-                     lead=esc(JOIN["lead"]), paths=_pillar_grid(JOIN["paths"]),
-                     href=url("join/")))
+                     lead=esc(JOIN["lead"]), petition=petition_block(compact=True),
+                     paths=_pillar_grid(JOIN["paths"]), href=url("join/")))
 
     parts.append("""<section class="bay bay--deep">
   <div class="shell declaration">
@@ -829,7 +854,12 @@ def join_page():
     body = pagehead([(url(), UI["home"]), (None, JOIN["label"])],
                     JOIN["label"], JOIN["title"], JOIN["lead"])
 
-    body += """<section class="bay bay--raised" aria-labelledby="paths-h">
+    body += """<section class="bay bay--raised">
+  <div class="shell shell--narrow">
+    {petition}
+  </div>
+</section>
+<section class="bay bay--recessed" aria-labelledby="paths-h">
   <div class="shell">
     <h2 class="vh" id="paths-h">طرق المساهمة</h2>
     <div class="pillars" style="margin-block-start:0">
@@ -837,7 +867,7 @@ def join_page():
     </div>
   </div>
 </section>
-<section class="bay bay--recessed">
+<section class="bay bay--raised">
   <div class="shell shell--narrow prose">
     <h2>{how_t}</h2>
     <p>{how_b}</p>
@@ -848,7 +878,8 @@ def join_page():
     </div>
     <p><a class="btn btn--outline" href="{yt}" rel="noopener noreferrer" target="_blank">YouTube ↗</a></p>
   </div>
-</section>""".format(paths=_pillar_grid(JOIN["paths"]),
+</section>""".format(petition=petition_block(level=2),
+                     paths=_pillar_grid(JOIN["paths"]),
                      how_t=esc(JOIN["how_title"]), how_b=esc(JOIN["how_body"]),
                      contact_t=esc(JOIN["contact_title"]),
                      tag=esc(UI["status_explainer"]),
