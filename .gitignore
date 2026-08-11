@@ -1,4 +1,5 @@
-# Generated output — rebuild with `python3 build.py`
+# Build working directory. The published copy lives at the repo root
+# instead, because Pages serves files straight from the branch.
 dist/
 
 # Python
