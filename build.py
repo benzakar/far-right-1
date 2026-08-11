@@ -168,7 +168,7 @@ def footer():
     </div>
     <div class="footer__base">
       <span>{rights}</span>
-      <a href="{yt}" rel="noopener noreferrer" target="_blank">YouTube ↗</a>
+      <a href="{yt}" rel="noopener noreferrer" target="_blank">يوتيوب ↗</a>
     </div>
   </div>
 </footer>
@@ -897,7 +897,7 @@ def join_page():
       <span class="status__tag">{tag}</span>
       <p>{contact_n}</p>
     </div>
-    <p><a class="btn btn--outline" href="{yt}" rel="noopener noreferrer" target="_blank">YouTube ↗</a></p>
+    <p><a class="btn btn--outline" href="{yt}" rel="noopener noreferrer" target="_blank">يوتيوب ↗</a></p>
   </div>
 </section>""".format(petition=petition_block(level=2),
                      paths=_pillar_grid(JOIN["paths"]),
