@@ -1,0 +1,1422 @@
+@charset "UTF-8";
+
+/* ============================================================
+   The Moroccan Right Party — carved ivory editorial system
+
+   The page is built from planes at different relief depths rather
+   than from cards. Light falls from the top-inline-start, so every
+   raised plane carries a light edge there and a shadow opposite.
+   Logical properties throughout: the same rules mirror for RTL.
+   ============================================================ */
+
+:root {
+  /* Ivory relief planes, lit to recessed */
+  --ivory-0: #FBF7EF;
+  --ivory-1: #F3EDE1;
+  --ivory-2: #E8DECB;
+  --ivory-3: #D9CBB1;
+  --ivory-4: #C4B393;
+
+  --ink:      #2A241B;
+  --ink-soft: #59503F;
+  --ink-mute: #6E6553;
+
+  --green:     #14503A;
+  --green-lit: #1E6B4E;
+  --green-deep:#0D3527;
+
+  --gold:     #A8823C;
+  --gold-lit: #C9A45E;
+  --gold-pale:#E3D3AE;
+
+  --madder:   #8C2F23;
+
+  /* Type */
+  --display: "Fraunces", Georgia, serif;
+  --body:    "Archivo", system-ui, sans-serif;
+  --util:    "Archivo", system-ui, sans-serif;
+
+  --step--1: clamp(0.82rem, 0.79rem + 0.14vw, 0.9rem);
+  --step-0:  clamp(1rem, 0.96rem + 0.2vw, 1.13rem);
+  --step-1:  clamp(1.2rem, 1.12rem + 0.4vw, 1.5rem);
+  --step-2:  clamp(1.5rem, 1.35rem + 0.72vw, 2.1rem);
+  --step-3:  clamp(1.9rem, 1.6rem + 1.4vw, 3rem);
+  --step-4:  clamp(2.4rem, 1.8rem + 2.8vw, 4.6rem);
+  --step-5:  clamp(2.9rem, 1.9rem + 4.6vw, 6.6rem);
+
+  --measure: 66ch;
+  --gutter: clamp(1.15rem, 0.8rem + 1.8vw, 3rem);
+  --shell: 1240px;
+  --bay: clamp(3.5rem, 2rem + 7vw, 8rem);
+
+  --rule: 1px solid var(--ivory-4);
+  --engrave:
+    inset 0 1px 0 rgba(255, 253, 247, 0.9),
+    inset 0 -1px 0 rgba(120, 100, 66, 0.14);
+  --lift:
+    0 1px 0 rgba(255, 253, 247, 0.95) inset,
+    0 18px 40px -28px rgba(70, 56, 30, 0.42);
+
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+html[lang="ar"] {
+  --display: "Reem Kufi", system-ui, sans-serif;
+  --body: "Noto Naskh Arabic", system-ui, serif;
+  --util: "Reem Kufi", system-ui, sans-serif;
+  --measure: 62ch;
+}
+
+/* ---------- Reset-ish ---------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  /* the sticky header must not cover anchored headings */
+  scroll-padding-block-start: 6rem;
+}
+
+body {
+  margin: 0;
+  background: var(--ivory-1);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: var(--step-0);
+  line-height: 1.68;
+  overflow-x: hidden;
+  /* carved paper: a very faint two-tone weave, no image request */
+  background-image:
+    radial-gradient(circle at 18% 12%, rgba(255, 255, 250, 0.75), transparent 42%),
+    radial-gradient(circle at 82% 78%, rgba(214, 200, 174, 0.32), transparent 46%);
+  background-attachment: fixed;
+}
+
+html[lang="ar"] body { line-height: 1.9; }
+
+img, svg, picture { max-width: 100%; display: block; }
+
+h1, h2, h3, h4 {
+  font-family: var(--display);
+  font-weight: 900;
+  line-height: 1.08;
+  margin: 0;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+html[lang="ar"] h1,
+html[lang="ar"] h2,
+html[lang="ar"] h3,
+html[lang="ar"] h4 {
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+p { margin: 0 0 1.1em; max-inline-size: var(--measure); }
+p:last-child { margin-block-end: 0; }
+
+a { color: inherit; }
+
+:focus-visible {
+  outline: 3px solid var(--green);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.skip {
+  position: absolute;
+  inset-inline-start: -9999px;
+  top: 0;
+  z-index: 999;
+  background: var(--green);
+  color: #fff;
+  padding: 0.85rem 1.3rem;
+  font-family: var(--util);
+}
+.skip:focus {
+  inset-inline-start: 0;
+}
+
+.vh {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- Shell ---------- */
+
+.shell {
+  inline-size: min(100% - (var(--gutter) * 2), var(--shell));
+  margin-inline: auto;
+}
+
+.shell--narrow {
+  inline-size: min(100% - (var(--gutter) * 2), 760px);
+  margin-inline: auto;
+}
+
+/* ---------- The carved axis (site signature) ----------
+   The hero diptych meets on a seam. That seam continues down the
+   whole document as an architectural centre axis, with a traveller
+   marking scroll progress. It is the one ornament the page repeats. */
+
+.axis {
+  position: fixed;
+  inset-block: 0;
+  inset-inline-start: 50%;
+  inline-size: 2px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    transparent 0,
+    rgba(168, 130, 60, 0.11) 12%,
+    rgba(168, 130, 60, 0.11) 88%,
+    transparent 100%);
+}
+
+.axis::before {
+  content: "";
+  position: absolute;
+  inset-inline: -1px;
+  block-size: 12vh;
+  top: calc(var(--scroll, 0) * 88vh);
+  background: linear-gradient(to bottom,
+    transparent, var(--gold) 42%, var(--gold-lit) 58%, transparent);
+  opacity: 0.34;
+}
+
+@media (max-width: 900px) { .axis { display: none; } }
+
+/* ---------- Header ---------- */
+
+.masthead {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: 40;
+  transition: background-color 0.4s var(--ease), box-shadow 0.4s var(--ease);
+}
+
+/* The transparent masthead carries ivory type over a bright carved
+   image. It gets its own scrim rather than depending on the hero's,
+   which is tuned for the copy at the foot of the frame. */
+body[data-hero-page] .masthead:not(.is-stuck)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(to bottom,
+    rgba(20, 14, 4, 0.62) 0%,
+    rgba(20, 14, 4, 0.34) 55%,
+    rgba(20, 14, 4, 0) 100%);
+}
+
+.masthead__inner {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.8rem, 2vw, 2rem);
+  padding-block: 0.85rem;
+  /* keeps the wordmark and the toggle above the mobile panel, so the
+     panel always has a visible close control */
+  position: relative;
+  z-index: 2;
+}
+
+.masthead.is-stuck {
+  background: rgba(251, 247, 239, 0.92);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 1px 0 var(--ivory-4), 0 14px 30px -26px rgba(70, 56, 30, 0.6);
+}
+
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  text-decoration: none;
+  flex: 0 0 auto;
+}
+
+.wordmark__mark {
+  inline-size: 34px;
+  block-size: 34px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.wordmark__text {
+  font-family: var(--util);
+  font-weight: 700;
+  font-size: var(--step--1);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.15;
+}
+
+html[lang="ar"] .wordmark__text {
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: var(--step-0);
+}
+
+.masthead .wordmark__text { color: var(--ink); }
+
+/* Over the hero the masthead is transparent, so its type inverts to
+   ivory and rides on the wash's top scrim. Once the page scrolls it
+   becomes a glass surface and the type returns to ink. */
+body[data-hero-page] .masthead:not(.is-stuck) .wordmark__text,
+body[data-hero-page] .masthead:not(.is-stuck) .nav__link,
+body[data-hero-page] .masthead:not(.is-stuck) .lang,
+body[data-hero-page] .masthead:not(.is-stuck) .burger {
+  color: var(--ivory-0);
+}
+
+body[data-hero-page] .masthead:not(.is-stuck) .lang,
+body[data-hero-page] .masthead:not(.is-stuck) .burger {
+  border-color: rgba(251, 247, 239, 0.5);
+}
+
+body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
+  background: var(--gold-lit);
+}
+
+/* the panel is opaque ivory when open, so invert back inside it */
+@media (max-width: 940px) {
+  body[data-hero-page] .masthead:not(.is-stuck) .nav.is-open .nav__link,
+  body[data-hero-page] .masthead:not(.is-stuck) .nav.is-open .lang {
+    color: var(--ink);
+    border-color: var(--ivory-4);
+  }
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.6rem, 1.4vw, 1.6rem);
+  margin-inline-start: auto;
+}
+
+.nav__link {
+  font-family: var(--util);
+  font-size: var(--step--1);
+  text-decoration: none;
+  padding-block: 0.4rem;
+  position: relative;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+.nav__link::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  block-size: 1px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: var(--edge, left);
+  transition: transform 0.32s var(--ease);
+}
+
+.nav__link:hover::after,
+.nav__link[aria-current="page"]::after { transform: scaleX(1); }
+.nav__link[aria-current="page"] { font-weight: 600; }
+
+.lang {
+  font-family: var(--util);
+  font-size: var(--step--1);
+  text-decoration: none;
+  border: 1px solid var(--ivory-4);
+  padding: 0.34rem 0.8rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: border-color 0.3s var(--ease), background-color 0.3s var(--ease);
+}
+.lang:hover { border-color: var(--gold); background: rgba(227, 211, 174, 0.35); }
+
+.burger {
+  display: none;
+  margin-inline-start: auto;
+  background: none;
+  border: 1px solid var(--ivory-4);
+  border-radius: 999px;
+  padding: 0.5rem 0.9rem;
+  font-family: var(--util);
+  font-size: var(--step--1);
+  cursor: pointer;
+  color: inherit;
+}
+
+@media (max-width: 940px) {
+  .burger { display: block; }
+  .nav {
+    position: fixed;
+    inset: 0;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    gap: 0;
+    background: var(--ivory-0);
+    padding: 5rem var(--gutter) 3rem;
+    margin: 0;
+    transform: translateY(-100%);
+    transition: transform 0.42s var(--ease);
+    overflow-y: auto;
+  }
+  .nav.is-open { transform: translateY(0); }
+  /* The panel is a sibling inside the masthead row, so the wordmark and
+     toggle need to outrank it directly to stay on top of it. */
+  .nav { z-index: 1; }
+  .wordmark, .burger { position: relative; z-index: 3; }
+  /* the toggle sits above the panel; keep it legible against it */
+  body[data-hero-page] .masthead:not(.is-stuck):has(.nav.is-open)::before { opacity: 0; }
+  body[data-hero-page] .masthead:not(.is-stuck):has(.nav.is-open) .wordmark__text,
+  body[data-hero-page] .masthead:not(.is-stuck):has(.nav.is-open) .burger {
+    color: var(--ink);
+    border-color: var(--ivory-4);
+  }
+  .nav__link {
+    font-size: var(--step-2);
+    font-family: var(--display);
+    padding-block: 0.75rem;
+    border-block-end: var(--rule);
+  }
+  .nav__link::after { display: none; }
+  .nav .lang { margin-block-start: 1.6rem; align-self: flex-start; }
+}
+
+/* ---------- Hero ----------
+   Desktop: a true 50/50 diptych. The left half is the founder, the
+   right half the monarch sculpture. Order is fixed physically and
+   does not mirror in RTL, because the pairing itself is the message. */
+
+.hero {
+  position: relative;
+  /* the extra third of a screen is the scroll stage the opening
+     choreography plays across; 18svh was too short to read as motion */
+  block-size: 134svh;
+  margin-block-end: 0;
+}
+
+.hero__media {
+  position: sticky;
+  inset-block-start: 0;
+  block-size: 100svh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  direction: ltr; /* the diptych never mirrors */
+  overflow: hidden;
+  background: var(--ivory-2);
+}
+
+.hero__half {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero__half img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  will-change: transform;
+  transform: translate3d(0, calc(var(--rise, 0) * -1px), 0) scale(var(--zoom, 1));
+  transition: none;
+}
+
+.hero__half--left img  { object-position: 60% 42%; }
+.hero__half--right img { object-position: 58% 40%; }
+
+/* the seam: a narrow ivory breath plus a single gold thread */
+.hero__seam {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 50%;
+  inline-size: clamp(26px, 3vw, 54px);
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: linear-gradient(to right,
+    rgba(243, 237, 225, 0) 0%,
+    rgba(243, 237, 225, 0.55) 34%,
+    rgba(251, 247, 239, 0.78) 50%,
+    rgba(243, 237, 225, 0.55) 66%,
+    rgba(243, 237, 225, 0) 100%);
+}
+
+/* the gold thread: the axis the whole site is built on, introduced here */
+.hero__seam::after {
+  content: "";
+  position: absolute;
+  inset-block: 4%;
+  inset-inline-start: 50%;
+  inline-size: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(to bottom,
+    transparent 0%,
+    rgba(201, 164, 94, 0.85) 14%,
+    rgba(233, 209, 160, 0.95) 50%,
+    rgba(201, 164, 94, 0.85) 86%,
+    transparent 100%);
+  box-shadow: 0 0 14px rgba(201, 164, 94, 0.5);
+}
+
+/* Legibility layer.
+   Both portraits carry their faces in the upper half of the frame — the
+   images are cropped horizontally only, so the faces sit at a fixed
+   height. That leaves the lower third (shoulders, suit, drapery) free to
+   take a heavy gradient without ever touching a face. The top scrim
+   exists only to carry the navigation. */
+.hero__wash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to bottom,
+      rgba(28, 21, 10, 0.52) 0%,
+      rgba(28, 21, 10, 0.18) 9%,
+      rgba(28, 21, 10, 0) 18%),
+    linear-gradient(to top,
+      rgba(24, 18, 8, 0.88) 0%,
+      rgba(24, 18, 8, 0.78) 14%,
+      rgba(24, 18, 8, 0.55) 30%,
+      rgba(24, 18, 8, 0.24) 46%,
+      rgba(24, 18, 8, 0.04) 58%,
+      rgba(24, 18, 8, 0) 64%);
+}
+
+.hero__content {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: clamp(3.4rem, 8vh, 6.5rem);
+  z-index: 3;
+  color: var(--ivory-0);
+  text-align: center;
+  will-change: transform, opacity;
+  transform: translate3d(0, calc(var(--rise, 0) * -1px), 0);
+  opacity: var(--fade, 1);
+}
+
+/* A scrim shaped to the copy rather than a slab across the picture.
+   It sits below the faces and lets the carving stay luminous around it. */
+.hero__content::before {
+  content: "";
+  position: absolute;
+  inset: -14% -6% -32% -6%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 62% 58% at 50% 58%,
+    rgba(18, 13, 5, 0.66) 0%,
+    rgba(18, 13, 5, 0.42) 42%,
+    rgba(18, 13, 5, 0.12) 68%,
+    rgba(18, 13, 5, 0) 82%);
+}
+
+.hero__logo {
+  inline-size: clamp(58px, 5.2vw, 78px);
+  margin-inline: auto;
+  margin-block-end: clamp(0.7rem, 1.6vh, 1.15rem);
+  filter: drop-shadow(0 10px 26px rgba(20, 14, 4, 0.65));
+}
+
+.hero__eyebrow {
+  font-family: var(--util);
+  font-size: var(--step--1);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #F0E4C8;
+  /* it sits highest in the block, where the scrim is thinnest */
+  text-shadow: 0 1px 12px rgba(20, 14, 4, 0.85), 0 0 2px rgba(20, 14, 4, 0.5);
+  margin-block-end: 0.9rem;
+}
+
+html[lang="ar"] .hero__eyebrow {
+  letter-spacing: 0.06em;
+  text-transform: none;
+  font-size: var(--step-0);
+}
+
+.hero__title {
+  font-size: var(--step-5);
+  margin-block-end: 0.5rem;
+  text-shadow: 0 3px 30px rgba(20, 14, 4, 0.55);
+}
+
+/* The English headline is far longer than the Arabic one. Left at the
+   same size it wraps to two lines, which pushes the whole block up
+   until the eyebrow crosses the founder's face. Sized to hold one line
+   at desktop widths instead. */
+html[lang="en"] .hero__title {
+  font-size: clamp(2.1rem, 1.1rem + 3.5vw, 4.3rem);
+}
+
+.hero__slogan {
+  font-family: var(--display);
+  font-size: var(--step-2);
+  font-weight: 400;
+  color: var(--gold-pale);
+  margin-block-end: 0.85rem;
+}
+
+html[lang="ar"] .hero__slogan { font-weight: 400; }
+
+.hero__slogan-src {
+  display: block;
+  font-family: "Reem Kufi", system-ui, sans-serif;
+  font-size: var(--step-1);
+  opacity: 0.78;
+  margin-block-start: 0.2rem;
+  direction: rtl;
+}
+
+.hero__declaration {
+  max-inline-size: 62ch;
+  margin-inline: auto;
+  margin-block-end: 1.5rem;
+  color: rgba(251, 247, 239, 0.92);
+  font-size: var(--step-0);
+  text-wrap: pretty;
+}
+
+.hero__actions {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Kept out of the centre column so it never crowds the CTAs, and above
+   the panel that overlaps the hero foot. */
+.hero__scroll {
+  position: absolute;
+  inset-block-end: 9svh;
+  inset-inline-end: var(--gutter);
+  z-index: 3;
+  font-family: var(--util);
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(251, 247, 239, 0.72);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  opacity: var(--fade, 1);
+}
+
+html[lang="ar"] .hero__scroll { letter-spacing: 0.04em; text-transform: none; font-size: 0.78rem; }
+
+.hero__scroll span {
+  inline-size: 1px;
+  block-size: 34px;
+  background: linear-gradient(to bottom, rgba(251,247,239,0.7), transparent);
+  animation: drop 2.4s var(--ease) infinite;
+}
+
+@keyframes drop {
+  0%   { transform: scaleY(0); transform-origin: top; opacity: 0; }
+  40%  { transform: scaleY(1); transform-origin: top; opacity: 1; }
+  60%  { transform: scaleY(1); transform-origin: bottom; opacity: 1; }
+  100% { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
+}
+
+/* Mobile hero: a designed stack, not two slivers.
+   The founder panel leads, the monarch panel follows and overlaps. */
+@media (max-width: 820px) {
+  .hero { block-size: auto; min-block-size: 100svh; }
+  .hero__media {
+    position: relative;
+    block-size: auto;
+    min-block-size: 100svh;
+    grid-template-columns: 1fr;
+    /* sized so the headline and both buttons land within the first
+       screen; taller panels pushed the whole message below the fold */
+    grid-template-rows: 30svh 30svh;
+  }
+  .hero__half--right {
+    margin-block-start: -6svh;
+    clip-path: polygon(0 12%, 100% 0, 100% 100%, 0 100%);
+  }
+  .hero__seam {
+    inset-block: auto;
+    inset-inline: 0;
+    inset-block-start: 30svh;
+    inline-size: 100%;
+    block-size: 40px;
+    transform: translateY(-50%);
+    background: linear-gradient(to bottom,
+      rgba(243,237,225,0) 0%, rgba(251,247,239,0.6) 50%, rgba(243,237,225,0) 100%);
+  }
+  .hero__seam::after {
+    inset-block: auto;
+    inset-block-start: 50%;
+    inset-inline: 8%;
+    inline-size: auto;
+    block-size: 1px;
+    transform: translateY(-50%);
+    background: linear-gradient(to right,
+      transparent, rgba(201,164,94,0.7) 50%, transparent);
+  }
+  .hero__content {
+    position: relative;
+    inset-block-end: auto;
+    padding: 1.7rem var(--gutter) 2.6rem;
+    background: var(--green-deep);
+    transform: none;
+    opacity: 1;
+  }
+  .hero__content::before { display: none; }
+  .hero__title { font-size: clamp(1.85rem, 6.4vw, 2.5rem); }
+  html[lang="en"] .hero__title { font-size: clamp(1.75rem, 6vw, 2.4rem); }
+  .hero__slogan { font-size: var(--step-1); margin-block-end: 0.6rem; }
+  .hero__declaration { font-size: var(--step--1); margin-block-end: 1.2rem; }
+  html[lang="ar"] .hero__declaration { font-size: var(--step-0); }
+  .hero__eyebrow { margin-block-end: 0.6rem; }
+  .hero__wash {
+    background: linear-gradient(to bottom,
+      rgba(36,28,14,0.34) 0%, rgba(36,28,14,0) 30%, rgba(36,28,14,0) 70%,
+      rgba(36,28,14,0.30) 100%);
+  }
+  .hero__scroll { display: none; }
+  .hero__logo { inline-size: 92px; }
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--util);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  padding: 0.85rem 1.7rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.28s var(--ease), background-color 0.28s var(--ease),
+              color 0.28s var(--ease), border-color 0.28s var(--ease);
+}
+
+html[lang="ar"] .btn { font-size: var(--step-0); letter-spacing: 0; }
+
+.btn--primary {
+  background: var(--green);
+  color: var(--ivory-0);
+  box-shadow: 0 14px 28px -20px rgba(13, 53, 39, 0.9);
+}
+.btn--primary:hover { background: var(--green-lit); transform: translateY(-2px); }
+
+.btn--ghost {
+  border-color: rgba(251, 247, 239, 0.55);
+  color: var(--ivory-0);
+}
+.btn--ghost:hover { border-color: var(--gold-lit); color: var(--gold-pale); }
+
+.btn--outline {
+  border-color: var(--ivory-4);
+  color: var(--ink);
+}
+.btn--outline:hover { border-color: var(--green); color: var(--green); }
+
+/* ---------- Sections and planes ---------- */
+
+.bay {
+  position: relative;
+  padding-block: var(--bay);
+  z-index: 2;
+}
+
+.bay--raised {
+  background: var(--ivory-0);
+  box-shadow: var(--engrave);
+}
+
+.bay--recessed {
+  background: var(--ivory-2);
+  box-shadow: inset 0 14px 26px -22px rgba(90, 72, 40, 0.55),
+              inset 0 -14px 26px -22px rgba(90, 72, 40, 0.35);
+}
+
+.bay--deep {
+  background: var(--green-deep);
+  color: var(--ivory-1);
+}
+.bay--deep h2, .bay--deep h3 { color: var(--ivory-0); }
+.bay--deep .label { color: var(--gold-lit); }
+.bay--deep .label::before { background: var(--gold); }
+
+/* The next plane rises over the hero like a carved panel */
+.bay--overlap {
+  margin-block-start: -6svh;
+  border-start-start-radius: 2px;
+  border-start-end-radius: 2px;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-family: var(--util);
+  font-size: var(--step--1);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-block-end: 1.4rem;
+}
+
+html[lang="ar"] .label { letter-spacing: 0.03em; text-transform: none; font-size: var(--step-0); }
+
+.label::before {
+  content: "";
+  inline-size: clamp(22px, 4vw, 54px);
+  block-size: 1px;
+  background: var(--gold);
+  flex: 0 0 auto;
+}
+
+.bay__title {
+  font-size: var(--step-4);
+  margin-block-end: 1.1rem;
+  max-inline-size: 20ch;
+}
+
+.bay__lead {
+  font-size: var(--step-1);
+  line-height: 1.5;
+  color: var(--ink-soft);
+  max-inline-size: 54ch;
+}
+
+html[lang="ar"] .bay__lead { line-height: 1.8; }
+.bay--deep .bay__lead { color: rgba(243, 237, 225, 0.82); }
+
+/* ---------- Distinctions: an engraved ledger, not four cards ---------- */
+
+.ledger {
+  margin-block-start: clamp(2.4rem, 5vw, 4rem);
+  border-block-start: 1px solid var(--ivory-4);
+}
+
+.ledger__row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(1rem, 3vw, 3rem);
+  padding-block: clamp(1.5rem, 3vw, 2.4rem);
+  border-block-end: 1px solid var(--ivory-4);
+  align-items: baseline;
+}
+
+.ledger__term {
+  font-family: var(--display);
+  font-size: var(--step-2);
+  font-weight: 900;
+  line-height: 1.15;
+}
+html[lang="ar"] .ledger__term { font-weight: 700; line-height: 1.4; }
+
+.ledger__def { color: var(--ink-soft); margin: 0; }
+
+@media (max-width: 720px) {
+  .ledger__row { grid-template-columns: 1fr; gap: 0.5rem; }
+}
+
+/* ---------- Doctrine folios ---------- */
+
+/* Six featured doctrines on three columns: two complete rows, so the
+   hairline grid never ends on an empty cell. */
+.folios {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin-block-start: clamp(2.4rem, 5vw, 4rem);
+  background: var(--ivory-4);
+  border: 1px solid var(--ivory-4);
+}
+
+@media (max-width: 900px) { .folios { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .folios { grid-template-columns: 1fr; } }
+
+.folio {
+  background: var(--ivory-0);
+  padding: clamp(1.5rem, 3vw, 2.4rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  text-decoration: none;
+  position: relative;
+  transition: background-color 0.34s var(--ease);
+}
+
+.folio:hover { background: var(--ivory-1); }
+
+.folio__index {
+  font-family: var(--util);
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+
+.folio__name {
+  font-family: var(--display);
+  font-size: var(--step-1);
+  font-weight: 900;
+  line-height: 1.2;
+}
+html[lang="ar"] .folio__name { font-weight: 700; line-height: 1.45; }
+
+.folio__summary { color: var(--ink-soft); font-size: var(--step--1); margin: 0; }
+html[lang="ar"] .folio__summary { font-size: var(--step-0); }
+
+.folio__more {
+  margin-block-start: auto;
+  font-family: var(--util);
+  font-size: var(--step--1);
+  color: var(--green);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.folio__more::after {
+  content: "→";
+  transition: transform 0.3s var(--ease);
+}
+html[dir="rtl"] .folio__more::after { content: "←"; }
+.folio:hover .folio__more::after { transform: translateX(4px); }
+html[dir="rtl"] .folio:hover .folio__more::after { transform: translateX(-4px); }
+
+/* ---------- Doctrine register (the index) ----------
+   Ten items do not divide into any sensible column count, and a long
+   grid of identical tiles is exactly the look this project is not.
+   The index is a register instead: numbered, ruled, and readable. */
+
+.register { border-block-start: 1px solid var(--ivory-4); }
+
+.register__item {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr) minmax(0, 1.05fr) auto;
+  gap: clamp(0.6rem, 2.4vw, 2.4rem);
+  align-items: baseline;
+  padding-block: clamp(1.4rem, 2.8vw, 2.1rem);
+  border-block-end: 1px solid var(--ivory-4);
+  text-decoration: none;
+  transition: background-color 0.3s var(--ease), padding-inline 0.3s var(--ease);
+}
+
+.register__item:hover {
+  background: var(--ivory-0);
+  padding-inline: clamp(0.5rem, 1.5vw, 1.2rem);
+}
+
+.register__num {
+  font-family: var(--util);
+  font-size: var(--step--1);
+  letter-spacing: 0.18em;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+
+.register__name {
+  font-family: var(--display);
+  font-size: var(--step-2);
+  font-weight: 900;
+  line-height: 1.16;
+}
+html[lang="ar"] .register__name { font-weight: 700; line-height: 1.4; }
+
+.register__summary { color: var(--ink-soft); margin: 0; font-size: var(--step--1); }
+html[lang="ar"] .register__summary { font-size: var(--step-0); }
+
+.register__go {
+  font-family: var(--util);
+  font-size: var(--step--1);
+  color: var(--green);
+  white-space: nowrap;
+}
+.register__go::after { content: "→"; margin-inline-start: 0.4rem; display: inline-block; transition: transform 0.3s var(--ease); }
+html[dir="rtl"] .register__go::after { content: "←"; }
+.register__item:hover .register__go::after { transform: translateX(4px); }
+html[dir="rtl"] .register__item:hover .register__go::after { transform: translateX(-4px); }
+
+@media (max-width: 860px) {
+  .register__item {
+    grid-template-columns: 3.2rem minmax(0, 1fr);
+    row-gap: 0.4rem;
+  }
+  .register__summary { grid-column: 2; }
+  .register__go { grid-column: 2; }
+}
+
+/* ---------- News ---------- */
+
+.news {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: clamp(1.8rem, 5vw, 4.5rem);
+  align-items: start;
+}
+
+@media (max-width: 900px) { .news { grid-template-columns: 1fr; } }
+
+.news__kicker {
+  font-family: var(--util);
+  font-size: var(--step--1);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--madder);
+  margin-block-end: 0.9rem;
+}
+html[lang="ar"] .news__kicker { letter-spacing: 0.02em; text-transform: none; font-size: var(--step-0); }
+
+.news__title { font-size: var(--step-3); margin-block-end: 1rem; max-inline-size: 22ch; }
+
+.news__standfirst {
+  font-size: var(--step-1);
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+html[lang="ar"] .news__standfirst { line-height: 1.8; }
+
+.status {
+  border-inline-start: 3px solid var(--madder);
+  background: rgba(140, 47, 35, 0.05);
+  padding: 1rem 1.2rem;
+  margin-block: 1.6rem;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+html[lang="ar"] .status { font-size: var(--step-0); }
+.status p { max-inline-size: none; }
+
+.status__tag {
+  display: block;
+  font-family: var(--util);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--madder);
+  margin-block-end: 0.35rem;
+  font-weight: 600;
+}
+html[lang="ar"] .status__tag { letter-spacing: 0.02em; text-transform: none; font-size: 0.86rem; }
+
+/* Outreach roster — typographic, since no party has been contacted */
+.roster {
+  border: 1px solid var(--ivory-4);
+  padding: clamp(1.2rem, 3vw, 2rem);
+  background: var(--ivory-0);
+}
+
+.roster__label {
+  font-family: var(--util);
+  font-size: var(--step--1);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-block-end: 1.1rem;
+}
+html[lang="ar"] .roster__label { letter-spacing: 0.02em; text-transform: none; font-size: var(--step-0); }
+
+.roster__list { list-style: none; margin: 0; padding: 0; }
+
+.roster__list li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+  padding-block: 0.6rem;
+  border-block-end: 1px dashed var(--ivory-4);
+  font-family: var(--display);
+  font-size: var(--step-1);
+}
+.roster__list li:last-child { border-block-end: 0; }
+
+.roster__list li::before {
+  content: "";
+  inline-size: 6px;
+  block-size: 6px;
+  border: 1px solid var(--gold);
+  flex: 0 0 auto;
+  transform: rotate(45deg);
+}
+
+/* small print stays in the reading face — the display Kufi is
+   decorative and gets hard to read below body size */
+.roster__note {
+  margin-block-start: 1rem;
+  font-size: var(--step--1);
+  color: var(--ink-mute);
+}
+
+/* ---------- Vision pillars ---------- */
+
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  gap: clamp(1.6rem, 3.5vw, 3rem);
+  margin-block-start: clamp(2.4rem, 5vw, 4rem);
+}
+
+.pillar { border-block-start: 2px solid var(--gold); padding-block-start: 1.1rem; }
+
+.pillar h3 {
+  font-size: var(--step-1);
+  margin-block-end: 0.5rem;
+}
+
+.pillar p { color: var(--ink-soft); font-size: var(--step--1); margin: 0; }
+html[lang="ar"] .pillar p { font-size: var(--step-0); }
+.bay--deep .pillar p { color: rgba(243, 237, 225, 0.78); }
+.bay--deep .pillar { border-block-start-color: var(--gold-lit); }
+
+/* ---------- The Morocco Bus ---------- */
+
+.bus {
+  position: relative;
+  overflow: hidden;
+  color: var(--ivory-1);
+  /* Night at the start, first light by the end — driven by --p from JS.
+     The daylight end deliberately stops at dawn rather than noon: the
+     copy on this section stays ivory throughout, so the background is
+     capped at a lightness that keeps it above 4.5:1 at every scroll
+     position. It also happens to be the truer image — the journey is
+     described as still under way. */
+  /* The ground. The sky is a bounded band above it, because a gradient
+     stretched over the whole (very tall) section would bury its horizon
+     thousands of pixels below the fold. */
+  background: color-mix(in oklab, #101A28 calc((1 - var(--p, 0)) * 100%), #3A2A22);
+}
+
+/* Sky band: deep blue overhead, warming to a sunrise horizon that fades
+   into the ground colour so the band has no visible edge. */
+.bus__sky {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  block-size: clamp(430px, 66svh, 760px);
+  pointer-events: none;
+  background-image:
+    /* stars, extinguished as the sun comes up */
+    radial-gradient(1.4px 1.4px at 12% 14%, rgba(255,255,255,calc(0.9 * (1 - var(--p, 0)))), transparent),
+    radial-gradient(1.2px 1.2px at 28% 26%, rgba(255,255,255,calc(0.7 * (1 - var(--p, 0)))), transparent),
+    radial-gradient(1.6px 1.6px at 47% 9%, rgba(255,255,255,calc(0.85 * (1 - var(--p, 0)))), transparent),
+    radial-gradient(1.1px 1.1px at 63% 21%, rgba(255,255,255,calc(0.65 * (1 - var(--p, 0)))), transparent),
+    radial-gradient(1.5px 1.5px at 78% 12%, rgba(255,255,255,calc(0.8 * (1 - var(--p, 0)))), transparent),
+    radial-gradient(1.2px 1.2px at 88% 30%, rgba(255,255,255,calc(0.7 * (1 - var(--p, 0)))), transparent),
+    linear-gradient(to bottom,
+      color-mix(in oklab, #07101E calc((1 - var(--p, 0)) * 100%), #16386B) 0%,
+      color-mix(in oklab, #0C1828 calc((1 - var(--p, 0)) * 100%), #6E4A38) 74%,
+      color-mix(in oklab, #101A28 calc((1 - var(--p, 0)) * 100%), #3A2A22) 100%);
+}
+
+/* The sun climbs and warms as the section is crossed. It sits below the
+   horizon band at the start, so at p=0 there is nothing to see. */
+.bus__sun {
+  position: absolute;
+  inset-inline-end: 14%;
+  inset-block-start: clamp(150px, 26svh, 300px);
+  inline-size: clamp(120px, 17vw, 240px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(255, 236, 196, 0.98) 0%,
+    rgba(255, 226, 170, 0.92) 15%,
+    rgba(233, 168, 88, 0.55) 30%,
+    rgba(201, 122, 60, 0.20) 54%,
+    rgba(201, 122, 60, 0) 72%);
+  opacity: calc(var(--p, 0) * var(--p, 0));
+  transform: translateY(calc((1 - var(--p, 0)) * 190px));
+  pointer-events: none;
+}
+
+.bus__inner { position: relative; z-index: 2; }
+
+.bus .bay__lead { color: rgba(243, 237, 225, 0.85); }
+.bus .label { color: var(--gold-lit); }
+.bus .label::before { background: var(--gold-lit); }
+.bus h2, .bus h3 { color: var(--ivory-0); }
+
+.road {
+  margin-block: clamp(2.5rem, 6vw, 4.5rem);
+  position: relative;
+}
+
+.road__line {
+  block-size: 2px;
+  background: repeating-linear-gradient(to right,
+    rgba(243,237,225,0.55) 0 26px, transparent 26px 52px);
+}
+
+.road__bus {
+  position: absolute;
+  inset-block-end: 4px;
+  inset-inline-start: calc(var(--p, 0) * 88%);
+  inline-size: clamp(46px, 6vw, 74px);
+  transition: none;
+}
+html[dir="rtl"] .road__bus { transform: scaleX(-1); }
+
+.stages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: clamp(1.6rem, 3.5vw, 3rem);
+}
+
+.stage {
+  border: 1px solid rgba(243, 237, 225, 0.22);
+  padding: clamp(1.3rem, 3vw, 2.1rem);
+  /* opaque enough that the cards stay readable when the horizon warms */
+  background: rgba(9, 16, 26, 0.46);
+  backdrop-filter: blur(2px);
+}
+
+.stage__role {
+  font-family: var(--display);
+  font-size: var(--step-2);
+  margin-block-end: 0.2rem;
+  color: var(--ivory-0);
+}
+
+.stage__sub {
+  font-family: var(--util);
+  font-size: var(--step--1);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-lit);
+  margin-block-end: 1rem;
+}
+html[lang="ar"] .stage__sub { letter-spacing: 0.02em; text-transform: none; font-size: var(--step-0); }
+
+.stage p { color: rgba(243, 237, 225, 0.84); font-size: var(--step--1); }
+html[lang="ar"] .stage p { font-size: var(--step-0); }
+
+.stage__req-label {
+  font-family: var(--util);
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(243, 237, 225, 0.6);
+  margin-block: 1.2rem 0.6rem;
+}
+html[lang="ar"] .stage__req-label { letter-spacing: 0.02em; text-transform: none; font-size: 0.9rem; }
+
+.stage ul { margin: 0; padding-inline-start: 1.1rem; }
+.stage li { color: rgba(243, 237, 225, 0.78); font-size: var(--step--1); margin-block-end: 0.4rem; }
+html[lang="ar"] .stage li { font-size: var(--step-0); }
+
+/* ---------- Prose pages ---------- */
+
+.prose h2 {
+  font-size: var(--step-3);
+  margin-block: clamp(2.6rem, 5vw, 4rem) 1rem;
+}
+
+.prose h3 {
+  font-size: var(--step-1);
+  margin-block: 2rem 0.7rem;
+}
+
+.prose p { color: var(--ink-soft); }
+.prose > p:first-of-type { font-size: var(--step-1); color: var(--ink); line-height: 1.55; }
+html[lang="ar"] .prose > p:first-of-type { line-height: 1.85; }
+
+.prose ul, .prose ol { color: var(--ink-soft); padding-inline-start: 1.3rem; max-inline-size: var(--measure); }
+.prose li { margin-block-end: 0.6rem; }
+
+.pagehead {
+  padding-block: clamp(7rem, 14vh, 11rem) clamp(2.5rem, 5vw, 4rem);
+  background: var(--ivory-0);
+  box-shadow: var(--engrave);
+}
+
+.pagehead__title { font-size: var(--step-4); margin-block: 0.6rem 1rem; }
+
+.pagehead__standfirst {
+  font-size: var(--step-1);
+  color: var(--ink-soft);
+  line-height: 1.5;
+  max-inline-size: 52ch;
+}
+html[lang="ar"] .pagehead__standfirst { line-height: 1.8; }
+
+.crumbs {
+  font-family: var(--util);
+  font-size: var(--step--1);
+  color: var(--ink-mute);
+  display: flex;
+  gap: 0.55rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.crumbs a { text-decoration: none; border-block-end: 1px solid var(--ivory-4); }
+.crumbs a:hover { border-block-end-color: var(--gold); }
+.crumbs span[aria-hidden] { color: var(--gold); }
+
+/* The emblem, shown at a size where it is actually legible */
+.emblem {
+  margin: clamp(2.4rem, 5vw, 3.6rem) 0 0;
+  padding: clamp(1.6rem, 4vw, 2.6rem);
+  background: var(--ivory-1);
+  border: 1px solid var(--ivory-4);
+  box-shadow: var(--engrave);
+  text-align: center;
+}
+.emblem img { margin-inline: auto; inline-size: min(300px, 70%); block-size: auto; }
+.emblem figcaption {
+  margin-block-start: 1.4rem;
+  font-family: var(--util);
+  font-size: var(--step--1);
+  color: var(--ink-mute);
+  max-inline-size: 46ch;
+  margin-inline: auto;
+  text-align: start;
+}
+html[lang="ar"] .emblem figcaption { font-size: var(--step-0); }
+
+/* Evidence ladder */
+.ladder { display: grid; gap: 1px; background: var(--ivory-4); border: 1px solid var(--ivory-4); margin-block: 2rem; }
+.ladder__step { background: var(--ivory-0); padding: 1.1rem 1.3rem; display: grid; grid-template-columns: minmax(0, 8rem) 1fr; gap: 1rem; align-items: baseline; }
+.ladder__rank { font-family: var(--util); font-weight: 600; font-size: var(--step--1); letter-spacing: 0.1em; text-transform: uppercase; color: var(--madder); }
+html[lang="ar"] .ladder__rank { letter-spacing: 0; text-transform: none; font-size: var(--step-0); }
+.ladder__body { margin: 0; color: var(--ink-soft); font-size: var(--step--1); }
+html[lang="ar"] .ladder__body { font-size: var(--step-0); }
+@media (max-width: 620px) { .ladder__step { grid-template-columns: 1fr; gap: 0.25rem; } }
+
+/* Commitments / measures list */
+.marks { list-style: none; padding: 0; margin: 1.4rem 0 0; max-inline-size: var(--measure); }
+.marks li {
+  position: relative;
+  padding-inline-start: 1.9rem;
+  margin-block-end: 0.9rem;
+  color: var(--ink-soft);
+}
+.marks li::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 0.62em;
+  inline-size: 8px;
+  block-size: 8px;
+  border: 1px solid var(--gold);
+  transform: rotate(45deg);
+}
+
+/* ---------- Declaration ---------- */
+
+.declaration { text-align: center; }
+
+.declaration__line {
+  font-family: var(--display);
+  font-size: var(--step-3);
+  font-weight: 900;
+  line-height: 1.22;
+  margin-block-end: 0.5rem;
+  color: var(--ivory-0);
+}
+html[lang="ar"] .declaration__line { font-weight: 700; line-height: 1.5; }
+.declaration__line:nth-child(2) { color: var(--gold-lit); }
+
+.declaration .btn { margin-block-start: 2.2rem; }
+
+/* ---------- Footer ---------- */
+
+.footer {
+  background: var(--ivory-2);
+  padding-block: clamp(3rem, 6vw, 5rem) 2rem;
+  box-shadow: inset 0 14px 26px -22px rgba(90, 72, 40, 0.5);
+  position: relative;
+  z-index: 2;
+}
+
+.footer__top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: clamp(1.8rem, 5vw, 4rem);
+  padding-block-end: 2.4rem;
+  border-block-end: 1px solid var(--ivory-4);
+}
+@media (max-width: 820px) { .footer__top { grid-template-columns: 1fr; } }
+
+.footer__mark { inline-size: 96px; margin-block-end: 1rem; }
+.footer__tagline { color: var(--ink-soft); font-size: var(--step--1); }
+html[lang="ar"] .footer__tagline { font-size: var(--step-0); }
+
+.footer__nav { display: flex; flex-wrap: wrap; gap: 0.9rem 1.6rem; margin-block-end: 1.8rem; }
+.footer__nav a { font-family: var(--util); font-size: var(--step--1); text-decoration: none; border-block-end: 1px solid transparent; }
+.footer__nav a:hover { border-block-end-color: var(--gold); }
+
+.footer__legal h2 {
+  font-family: var(--util);
+  font-size: 0.74rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-block-end: 0.8rem;
+  font-weight: 600;
+}
+html[lang="ar"] .footer__legal h2 { letter-spacing: 0.02em; text-transform: none; font-size: 0.92rem; }
+
+.footer__legal li { color: var(--ink-mute); font-size: var(--step--1); margin-block-end: 0.6rem; max-inline-size: 62ch; }
+html[lang="ar"] .footer__legal li { font-size: var(--step-0); }
+
+.footer__base {
+  padding-block-start: 1.6rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-family: var(--util);
+  font-size: var(--step--1);
+  color: var(--ink-mute);
+}
+
+/* ---------- Motion layers ----------
+   Everything animated is transform + opacity only. The engine in
+   motion.js writes --rise (px) and --fade; CSS never animates a
+   property that triggers layout. */
+
+[data-rise] {
+  will-change: transform;
+  transform: translate3d(0, calc(var(--rise, 0) * -1px), 0);
+}
+
+[data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+}
+[data-reveal].is-in { opacity: 1; transform: none; }
+
+/* ---------- Reduced motion ----------
+   Collapse every transform to nothing and keep all content present.
+   The bus keeps its daylight end-state so the section still reads. */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  [data-rise],
+  .hero__content,
+  .hero__half img { transform: none !important; opacity: 1 !important; }
+
+  [data-reveal] { opacity: 1; transform: none; }
+
+  .hero { block-size: auto; min-block-size: 100svh; }
+  .hero__media { position: relative; }
+  .hero__scroll span { animation: none; block-size: 22px; }
+  .axis::before { display: none; }
+  .bus { --p: 0.72; }
+  .road__bus { inset-inline-start: 62%; }
+}
