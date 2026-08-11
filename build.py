@@ -258,7 +258,8 @@ def cinema_block():
 
     <div class="cinema__dim" data-cine="dim" aria-hidden="true"></div>
 
-    <div class="cinema__scroll-hint" data-cine="hint" aria-hidden="true"><span></span></div>
+    <img class="cinema__scroll-hint" data-cine="hint" src="{arrow}"
+         width="500" height="500" alt="" aria-hidden="true" decoding="async">
 
     <p class="cinema__line" data-cine="line1">{line1}</p>
 
@@ -275,6 +276,7 @@ def cinema_block():
   </div>
 </section>
 """.format(src=asset("/img/hero6-1280.jpg"), ss=srcset("hero6"),
+           arrow=asset("/img/arrow.gif"),
            hero_alt=esc(CINEMA["hero_alt"]),
            line1=esc(CINEMA["line_1"]), line2=esc(CINEMA["line_2"]),
            parties=asset("/img/darklogos.png"),
