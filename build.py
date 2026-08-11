@@ -75,7 +75,11 @@ def url(path=""):
 # ---------------------------------------------------------------- الهيكل
 
 def head(title, desc, canonical, hero=False):
-    critical = ["reem-kufi-700-arabic.woff2", "ibm-plex-sans-arabic-400-arabic.woff2"]
+    critical = [
+        "reem-kufi-700-arabic.woff2",
+        "zain-400-arabic.woff2",
+        "cairo-variable-arabic.woff2",
+    ]
     preloads = "\n".join(
         '  <link rel="preload" href="{}" as="font" type="font/woff2" crossorigin>'.format(
             asset("/fonts/" + f))
