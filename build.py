@@ -455,18 +455,53 @@ def home():
         '<p class="declaration__line">{}</p>'.format(esc(l))
         for l in DECLARATION["lines"])
 
+    bronx = next(d for d in DOCTRINES if d["slug"] == "bronx")
+    lalla = next(d for d in DOCTRINES if d["slug"] == "lalla-khadija")
+    remaining_doctrines = [
+        d for d in DOCTRINES if d["slug"] not in ("bronx", "lalla-khadija")
+    ]
+
     about_points = """<ul class="story-panel__points">
           {items}
         </ul>""".format(items="\n          ".join(
             "<li>{}</li>".format(esc(title))
             for title, _ in WHO["distinctions"]))
 
-    about_panels = "\n".join([
+    example_panels = "\n".join([
+        _story_panel(
+            "doctrine-bronx", bronx["name"], "المثال اللول", bronx["name"],
+            [bronx["summary"], bronx["slogan"]],
+            actions=[(url("doctrines/bronx/"), UI["read_more"], False)],
+            level=3,
+        ),
+        _story_panel(
+            "doctrine-lalla-khadija", lalla["name"], "المثال الثاني", lalla["name"],
+            [lalla["summary"], lalla["slogan"]],
+            actions=[(url("doctrines/lalla-khadija/"), UI["read_more"], False)],
+            flip=True, level=3,
+        ),
+        _story_panel(
+            "project-taxis", "خطة باء ديال الطاكسيات", "المثال الثالث",
+            VISION["example_title"],
+            [(
+                "خطة باء ديال الطاكسيات كتجمع المأذونيات المنظمة، وحماية السائقين، "
+                "والتطبيقات المرخصة، والأثمنة الواضحة، والتأمين، ومراقبة الجودة فمنظومة "
+                "وحدة عادلة."
+            )],
+            actions=[(url("vision/"), "شوف خطة ألف وخطة باء", False)], level=3,
+        ),
+    ])
+
+    identity_panels = "\n".join([
+        _story_panel(
+            "section-monarchy", "الملكية والاستمرارية", MONARCHY["label"],
+            MONARCHY["title"], [MONARCHY["body"][1]],
+            actions=[(url("monarchy/"), UI["more"], False)], flip=True, level=3,
+        ),
         _story_panel(
             "about-identity", "هوية الحزب", WHO["label"], WHO["title"],
             [WHO["lead"]],
-            actions=[(url("about/"), "تعرف علينا بلا لف ودوران", False)],
-            extra=about_points, level=3,
+            actions=[(url("about/"), "تعرف علينا بلا لف ودوران", False)], level=3,
         ),
         _story_panel(
             "about-founder", "عبدالله بن زكار", FOUNDER["label"], FOUNDER["name"],
@@ -479,74 +514,101 @@ def home():
         ),
     ])
 
-    idea_panels = "\n".join([
-        _story_panel(
-            "section-vision", "رؤية مغرب ما بعد 2030", VISION["label"], VISION["title"],
-            [VISION["lead"]],
-            actions=[(url("vision/"), UI["more"], False)], level=3,
-        ),
-        _story_panel(
-            "section-monarchy", "الملكية والاستمرارية", MONARCHY["label"],
-            MONARCHY["title"], [MONARCHY["body"][0]],
-            actions=[(url("monarchy/"), UI["more"], False)], flip=True, level=3,
-        ),
-        _story_panel(
-            "section-accountability", "المساءلة والأدلة", ACCOUNTABILITY["label"],
-            ACCOUNTABILITY["title"], [ACCOUNTABILITY["summary"]],
-            actions=[(url("accountability/"), UI["more"], False)], level=3,
-        ),
-    ])
+    # Concrete proposals lead the homepage. The Bus remains available later as
+    # a summary metaphor, after visitors understand Plan A/B and see examples.
+    parts = [cinema_block()]
 
-    # The homepage alternates the two supplied leather backdrops after the
-    # opening sequence. The Morocco Bus is the first section after the hero,
-    # so it deliberately starts the sequence in green.
-    parts = [cinema_block(), bus_block(backdrop="green")]
+    parts.append("""<section class="bay bay--greenback" id="plan-a-b" data-parallax-bg>
+  <div class="shell">
+    <p class="label" data-rise="30">من هنا كتبدا الفكرة</p>
+    <h2 class="bay__title" data-rise="46">خطة ألف وخطة باء</h2>
+    <p class="bay__lead" data-rise="36">خطة ألف كتوجد المغرب للمسار المتوقع. خطة باء كتوجد المغرب للي ما كانش فالحساب.</p>
+    <div class="story-reader">
+      {panel}
+    </div>
+  </div>
+</section>""".format(panel=_story_panel(
+    "section-vision", "خطة ألف وخطة باء", VISION["label"], VISION["plan_title"],
+    [VISION["plan_lead"]],
+    actions=[(url("vision/"), "شوف الرؤية كاملة", False)], level=3)))
+
+    parts.append("""<section class="bay bay--redback" id="examples" data-parallax-bg>
+  <div class="shell">
+    <p class="label" data-rise="30">من الفكرة للمشروع</p>
+    <h2 class="bay__title" data-rise="46">ثلاثة أمثلة كيبينو كيفاش كنفكرو</h2>
+    <p class="bay__lead" data-rise="36">ماشي شعارات عامة: كل مثال كيبدا من مشكل باين، وكيقترح تصميم يمكن يتجرب ويتقاس.</p>
+    <div class="story-reader">
+      {panels}
+    </div>
+    <div class="status" data-reveal>
+      <span class="status__tag">اللي جاي</span>
+      <p>وهادي غير البداية. عقائد ومشاريع أخرى كيبانو لتحت، وأخرى غادي تزيد من بعد.</p>
+    </div>
+  </div>
+</section>""".format(panels=example_panels))
+
+    parts.append("""<section class="bay bay--greenback" id="latest-news" data-parallax-bg>
+  <div class="shell">
+    <p class="label" data-rise="30">آخر المستجدات</p>
+    <h2 class="bay__title" data-rise="46">شنو واقع دابا</h2>
+    <p class="bay__lead" data-rise="36">الخبر كيتنشر ملي يتأكد. دابا هادي مبادرة فمرحلة التحضير، ماشي لقاء وقع.</p>
+    <div class="story-reader">
+      {panel}
+    </div>
+  </div>
+</section>""".format(panel=_story_panel(
+    "news-immigration-equality", "المساواة فالهجرة", "آخر المستجدات · 10 غشت 2026",
+    NEWS_FEATURED["title"], [NEWS_FEATURED["standfirst"], NEWS_FEATURED["status_note"]],
+    actions=[(url("news/{}/".format(NEWS_FEATURED["slug"])), UI["more"], False)],
+    flip=True, level=3)))
 
     parts.append("""<section class="bay bay--redback" id="about" data-parallax-bg>
   <div class="shell">
-    <p class="label" data-rise="30">القصة فبلاصتها</p>
-    <h2 class="bay__title" data-rise="46">من حنا، وشكون بدا هاد المشروع</h2>
-    <p class="bay__lead" data-rise="36">بلا جوج صفحات وبلا ما تضيع فالنص: الحزب والمؤسس مجموعين فمسار واحد.</p>
+    <p class="label" data-rise="30">الموقف والهوية</p>
+    <h2 class="bay__title" data-rise="46">حنا شكون، وشنو كيميزنا</h2>
+    <p class="bay__lead" data-rise="36">البراركية، هوية الحزب، والمؤسس مجموعين هنا بلا ما يتفرّقو على الزائر.</p>
     <div class="story-reader">
       {panels}
     </div>
   </div>
-</section>""".format(panels=about_panels))
+</section>""".format(panels=identity_panels))
 
-    parts.append("""<section class="bay bay--greenback" data-parallax-bg>
+    parts.append("""<section class="bay bay--greenback" id="doctrines" data-parallax-bg>
+  <div class="shell">
+    <p class="label" data-rise="30">باقي العقائد</p>
+    <h2 class="bay__title" data-rise="46">الفكرة فالخلاصة، والتفاصيل اختيارية</h2>
+    <p class="bay__lead" data-rise="36">شفتي البرونكس ولالة خديجة. هنا باقي العقائد فبطاقات قصيرة.</p>
+    <p class="doctrine-cards__hint">جرّ البطاقات باش تشوف الباقي</p>
+    <div class="doctrine-cards">
+      {cards}
+    </div>
+  </div>
+</section>""".format(cards=_doctrine_cards(remaining_doctrines)))
+
+    parts.append("""<section class="bay bay--redback" id="bus-summary" data-parallax-bg>
   <div class="shell">
     <div class="story-reader">
       {panel}
     </div>
   </div>
 </section>""".format(panel=_story_panel(
-    "news-immigration-equality", "المساواة فالهجرة", NEWS_FEATURED["kicker"],
-    NEWS_FEATURED["title"], [NEWS_FEATURED["standfirst"], NEWS_FEATURED["status_note"]],
-    actions=[(url("news/{}/".format(NEWS_FEATURED["slug"])), UI["more"], False)],
-    flip=True)))
+    "section-bus", "حافلة المغرب", BUS["label"], BUS["title"], [BUS["lead"]],
+    actions=[(url("bus/"), "شوف حافلة المغرب", False)], flip=True)))
 
-    parts.append("""<section class="bay bay--redback" id="doctrines" data-parallax-bg>
+    parts.append("""<section class="bay bay--greenback" id="accountability" data-parallax-bg>
   <div class="shell">
-    <p class="label" data-rise="30">عقائدنا</p>
-    <h2 class="bay__title" data-rise="46">عشر عقائد، ماشي عشر شعارات</h2>
-    <p class="bay__lead" data-rise="36">دابا تقدر تشوفهم كاملين هنا. كل بطاقة كتعطيك الفكرة، والصورة غادي تزيد فبلاصتها منين ترفعها.</p>
-    <p class="doctrine-cards__hint">جرّ البطاقات باش تشوف الباقي</p>
-    <div class="doctrine-cards">
-      {cards}
-    </div>
-  </div>
-</section>""".format(cards=_doctrine_cards(DOCTRINES)))
-
-    parts.append("""<section class="bay bay--greenback" data-parallax-bg>
-  <div class="shell">
-    <p class="label" data-rise="30">الفكرة والخطة</p>
-    <h2 class="bay__title" data-rise="46">قرا اللي يهمك، وكمل إلا بغيتي</h2>
-    <p class="bay__lead" data-rise="36">كل موضوع عندو خلاصة قصيرة حدّ الصورة، والتفاصيل باقية اختيارية.</p>
+    <p class="label" data-rise="30">كيفاش غادي تحاسبونا</p>
+    <h2 class="bay__title" data-rise="46">القياس قبل الثقة</h2>
+    <p class="bay__lead" data-rise="36">الفرق ماشي فالنوايا. الفرق فالحل، والتجربة، والنتيجة اللي كتتنشر.</p>
     <div class="story-reader">
-      {panels}
+      {panel}
     </div>
   </div>
-</section>""".format(panels=idea_panels))
+</section>""".format(panel=_story_panel(
+    "section-accountability", "المساءلة والنتائج", ACCOUNTABILITY["label"],
+    ACCOUNTABILITY["title"], [ACCOUNTABILITY["summary"]],
+    actions=[(url("accountability/"), UI["more"], False)],
+    extra=about_points, level=3)))
 
     parts.append("""<section class="bay bay--redback" data-parallax-bg>
   <div class="shell">
@@ -560,7 +622,7 @@ def home():
     actions=[(url("join/"), JOIN["label"], False)]),
     petition=petition_block(compact=True)))
 
-    parts.append("""<section class="bay bay--deep bay--redback" data-parallax-bg>
+    parts.append("""<section class="bay bay--deep bay--greenback" data-parallax-bg>
   <div class="shell declaration">
     {lines}
     <a class="btn btn--primary" href="{href}">{cta}</a>

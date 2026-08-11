@@ -10,7 +10,9 @@ master at least 1600 px wide gives enough room for responsive crops.
 - `about-founder` — Abdullah Ben Zakar
 - `news-immigration-equality` — immigration equality initiative
 - `section-vision` — Morocco after 2030 / Plan A and Plan B
+- `project-taxis` — Plan B for the taxi sector
 - `section-monarchy` — monarchy and continuity
+- `section-bus` — the Morocco Bus metaphor
 - `section-accountability` — accountability and evidence
 - `section-join` — builders joining the movement
 
