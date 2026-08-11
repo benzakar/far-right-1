@@ -1517,8 +1517,11 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
 @media (max-width: 780px) {
   .policy-reader { grid-template-columns: 1fr; }
   .policy-pane {
-    block-size: auto;
-    aspect-ratio: 1;
+    inline-size: 100%;
+    max-inline-size: 100%;
+    block-size: clamp(380px, 62svh, 520px);
+    aspect-ratio: auto;
+    justify-self: stretch;
   }
 
   .story-panel,
