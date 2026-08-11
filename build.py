@@ -271,7 +271,7 @@ def cinema_block():
 
   </div>
 </section>
-""".format(src=asset("/img/hero4-1280.jpg"), ss=srcset("hero4"),
+""".format(src=asset("/img/hero6-1280.jpg"), ss=srcset("hero6"),
            hero_alt=esc(CINEMA["hero_alt"]),
            line1=esc(CINEMA["line_1"]), line2=esc(CINEMA["line_2"]),
            parties=asset("/img/darklogos.png"),
