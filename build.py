@@ -23,7 +23,7 @@ from content.site import (  # noqa: E402
     ACCOUNTABILITY, FOUNDER, JOIN, DECLARATION, FOOTER, META, PETITION,
     CINEMA,
 )
-from content.doctrines import DOCTRINES, FEATURED  # noqa: E402
+from content.doctrines import DOCTRINES  # noqa: E402
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DIST = os.path.join(ROOT, "dist")
@@ -195,6 +195,24 @@ def page(key, active, body, hero=False):
             + footer())
 
 
+def redirect_page(target, canonical):
+    """Keep an old public URL working after its content joins another page."""
+    return """<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="refresh" content="0; url={target}">
+  <link rel="canonical" href="{origin}{canonical}">
+  <title>المؤسس داخل صفحة من حنا — حزب اليمين المغربي</title>
+</head>
+<body>
+  <p>قسم المؤسس ولى داخل صفحة «من حنا». <a href="{target}">دوز ليه من هنا</a>.</p>
+</body>
+</html>
+""".format(target=target, origin=ORIGIN, canonical=canonical)
+
+
 def crumbs(trail):
     parts = []
     for i, (href, label) in enumerate(trail):
@@ -343,16 +361,69 @@ def _pillar_grid(items):
         for i, (t, b) in enumerate(items))
 
 
-def _folio_grid(doctrines):
+def _image_slot(key, label, compact=False):
+    """An intentional empty image plane.
+
+    The visible placeholder keeps the layout finished while the commissioned
+    artwork is still being produced. `data-image-slot` is the stable hook used
+    when the matching image is uploaded later.
+    """
+    cls = "media-slot media-slot--compact" if compact else "media-slot"
+    return """<div class="{cls}" data-image-slot="{key}" role="img" aria-label="بلاصة مخصصة لصورة {label}">
+      <span class="media-slot__ornament" aria-hidden="true"></span>
+      <span class="media-slot__label">بلاصة الصورة</span>
+      <span class="media-slot__name">{label}</span>
+    </div>""".format(cls=cls, key=esc(key), label=esc(label))
+
+
+def _story_panel(key, image_label, eyebrow, title, body, actions=(), flip=False,
+                 panel_id="", level=2, extra=""):
+    body_html = "\n        ".join(
+        '<p class="story-panel__text">{}</p>'.format(esc(p)) for p in body)
+    if extra:
+        body_html += "\n        " + extra
+    links = []
+    for href, label, external in actions:
+        attrs = ' rel="noopener noreferrer" target="_blank"' if external else ""
+        arrow = " ↗" if external else ""
+        links.append('<a class="btn btn--outline" href="{}"{}>{}{}</a>'.format(
+            href, attrs, esc(label), arrow))
+    actions_html = ("\n      <div class=\"story-panel__actions\">{}</div>".format(
+        "\n          ".join(links))) if links else ""
+    classes = "story-panel story-panel--flip" if flip else "story-panel"
+    id_attr = ' id="{}"'.format(esc(panel_id)) if panel_id else ""
+    return """<article class="{classes}"{id_attr} data-reveal>
+    <div class="story-panel__visual">
+      {slot}
+    </div>
+    <div class="story-panel__copy">
+      <p class="story-panel__eyebrow">{eyebrow}</p>
+      <h{level} class="story-panel__title">{title}</h{level}>
+      <div class="story-panel__body">
+        {body}
+      </div>{actions}
+    </div>
+  </article>""".format(
+        classes=classes, id_attr=id_attr, slot=_image_slot(key, image_label),
+        eyebrow=esc(eyebrow), level=level, title=esc(title), body=body_html,
+        actions=actions_html)
+
+
+def _doctrine_cards(doctrines):
     return "\n      ".join(
-        """<a class="folio" href="{href}" data-reveal="{d}">
-        <span class="folio__index">{idx:02d}</span>
-        <span class="folio__name">{name}</span>
-        <p class="folio__summary">{summary}</p>
-        <span class="folio__more">{more}</span>
-      </a>""".format(href=url("doctrines/{}/".format(d_["slug"])), d=i * 60,
-                     idx=d_["order"], name=esc(d_["name"]),
-                     summary=esc(d_["summary"]), more=esc(UI["read_more"]))
+        """<article class="doctrine-card" data-reveal="{delay}">
+        {slot}
+        <div class="doctrine-card__copy">
+          <span class="doctrine-card__index">عقيدة {idx:02d}</span>
+          <h3 class="doctrine-card__title">{name}</h3>
+          <p class="doctrine-card__summary">{summary}</p>
+          <a class="doctrine-card__link" href="{href}">{more}</a>
+        </div>
+      </article>""".format(
+            delay=(i % 2) * 70,
+            slot=_image_slot("doctrine-" + d_["slug"], d_["name"], compact=True),
+            idx=d_["order"], name=esc(d_["name"]), summary=esc(d_["summary"]),
+            href=url("doctrines/{}/".format(d_["slug"])), more=esc(UI["read_more"]))
         for i, d_ in enumerate(doctrines))
 
 
@@ -381,170 +452,114 @@ def petition_block(compact=False, level=3):
 
 
 def home():
-    rows = "\n    ".join(
-        """<div class="ledger__row" data-reveal="{d}">
-      <p class="ledger__term">{t}</p>
-      <p class="ledger__def">{b}</p>
-    </div>""".format(d=i * 70, t=esc(t), b=esc(b))
-        for i, (t, b) in enumerate(WHO["distinctions"]))
-
-    roster = "\n        ".join("<li>{}</li>".format(esc(c))
-                              for c in NEWS_FEATURED["outreach"])
-
-    ladder = "\n      ".join(
-        """<div class="ladder__step">
-        <span class="ladder__rank">{r}</span>
-        <p class="ladder__body">{b}</p>
-      </div>""".format(r=esc(r), b=esc(b)) for r, b in ACCOUNTABILITY["ladder"])
-
     dec_lines = "\n      ".join(
         '<p class="declaration__line">{}</p>'.format(esc(l))
         for l in DECLARATION["lines"])
+
+    about_points = """<ul class="story-panel__points">
+          {items}
+        </ul>""".format(items="\n          ".join(
+            "<li>{}</li>".format(esc(title))
+            for title, _ in WHO["distinctions"]))
+
+    about_panels = "\n".join([
+        _story_panel(
+            "about-identity", "هوية الحزب", WHO["label"], WHO["title"],
+            [WHO["lead"]],
+            actions=[(url("about/"), "تعرف علينا بلا لف ودوران", False)],
+            extra=about_points, level=3,
+        ),
+        _story_panel(
+            "about-founder", "عبدالله بن زكار", FOUNDER["label"], FOUNDER["name"],
+            [FOUNDER["standfirst"], FOUNDER["message"][5]],
+            actions=[
+                (url("about/#founder"), "شوف المؤسس وسط قصة الحزب", False),
+                (SITE["youtube"], FOUNDER["youtube_label"], True),
+            ],
+            flip=True, panel_id="founder", level=3,
+        ),
+    ])
+
+    idea_panels = "\n".join([
+        _story_panel(
+            "section-vision", "رؤية مغرب ما بعد 2030", VISION["label"], VISION["title"],
+            [VISION["lead"]],
+            actions=[(url("vision/"), UI["more"], False)], level=3,
+        ),
+        _story_panel(
+            "section-monarchy", "الملكية والاستمرارية", MONARCHY["label"],
+            MONARCHY["title"], [MONARCHY["body"][0]],
+            actions=[(url("monarchy/"), UI["more"], False)], flip=True, level=3,
+        ),
+        _story_panel(
+            "section-accountability", "المساءلة والأدلة", ACCOUNTABILITY["label"],
+            ACCOUNTABILITY["title"], [ACCOUNTABILITY["summary"]],
+            actions=[(url("accountability/"), UI["more"], False)], level=3,
+        ),
+    ])
 
     # The homepage alternates the two supplied leather backdrops after the
     # opening sequence. The Morocco Bus is the first section after the hero,
     # so it deliberately starts the sequence in green.
     parts = [cinema_block(), bus_block(backdrop="green")]
 
-    parts.append("""<section class="bay bay--redback" data-parallax-bg>
+    parts.append("""<section class="bay bay--redback" id="about" data-parallax-bg>
   <div class="shell">
-    <p class="label" data-rise="30">{label}</p>
-    <h2 class="bay__title" data-rise="46">{title}</h2>
-    <p class="bay__lead" data-rise="36">{lead}</p>
-    <div class="ledger">
-    {rows}
+    <p class="label" data-rise="30">القصة فبلاصتها</p>
+    <h2 class="bay__title" data-rise="46">من حنا، وشكون بدا هاد المشروع</h2>
+    <p class="bay__lead" data-rise="36">بلا جوج صفحات وبلا ما تضيع فالنص: الحزب والمؤسس مجموعين فمسار واحد.</p>
+    <div class="story-reader">
+      {panels}
     </div>
   </div>
-</section>""".format(label=esc(WHO["label"]), title=esc(WHO["title"]),
-                     lead=esc(WHO["lead"]), rows=rows))
+</section>""".format(panels=about_panels))
 
     parts.append("""<section class="bay bay--greenback" data-parallax-bg>
-  <div class="shell news">
-    <div>
-      <p class="news__kicker" data-rise="30">{kicker}</p>
-      <h2 class="news__title" data-rise="48">{title}</h2>
-      <p class="news__standfirst" data-rise="38">{standfirst}</p>
-      <div class="status">
-        <span class="status__tag">{tag}</span>
-        <p>{status}</p>
-      </div>
-      <p><a class="btn btn--outline" href="{href}">{more}</a></p>
+  <div class="shell">
+    <div class="story-reader">
+      {panel}
     </div>
-    <aside class="roster" data-rise="66">
-      <p class="roster__label">{roster_label}</p>
-      <ul class="roster__list">
-        {roster}
-      </ul>
-      <p class="roster__note">{roster_note}</p>
-    </aside>
   </div>
-</section>""".format(kicker=esc(NEWS_FEATURED["kicker"]),
-                     title=esc(NEWS_FEATURED["title"]),
-                     standfirst=esc(NEWS_FEATURED["standfirst"]),
-                     tag=esc(UI["status_proposal"]),
-                     status=esc(NEWS_FEATURED["status_note"]),
-                     href=url("news/{}/".format(NEWS_FEATURED["slug"])),
-                     more=esc(UI["more"]),
-                     roster_label=esc(NEWS_FEATURED["outreach_label"]),
-                     roster=roster,
-                     roster_note=esc(NEWS_FEATURED["outreach_note"])))
+</section>""".format(panel=_story_panel(
+    "news-immigration-equality", "المساواة فالهجرة", NEWS_FEATURED["kicker"],
+    NEWS_FEATURED["title"], [NEWS_FEATURED["standfirst"], NEWS_FEATURED["status_note"]],
+    actions=[(url("news/{}/".format(NEWS_FEATURED["slug"])), UI["more"], False)],
+    flip=True)))
 
-    parts.append("""<section class="bay bay--redback" data-parallax-bg>
+    parts.append("""<section class="bay bay--redback" id="doctrines" data-parallax-bg>
   <div class="shell">
     <p class="label" data-rise="30">عقائدنا</p>
     <h2 class="bay__title" data-rise="46">عشر عقائد، ماشي عشر شعارات</h2>
-    <p class="bay__lead" data-rise="36">كل عقيدة كتبدا من مشكل مغربي محدد، وكتسالي بالتزام يمكن يتقاس.</p>
-    <div class="folios">
-      {folios}
+    <p class="bay__lead" data-rise="36">دابا تقدر تشوفهم كاملين هنا. كل بطاقة كتعطيك الفكرة، والصورة غادي تزيد فبلاصتها منين ترفعها.</p>
+    <p class="doctrine-cards__hint">جرّ البطاقات باش تشوف الباقي</p>
+    <div class="doctrine-cards">
+      {cards}
     </div>
-    <p style="margin-block-start:2.4rem"><a class="btn btn--outline" href="{href}">{all}</a></p>
   </div>
-</section>""".format(folios=_folio_grid(FEATURED), href=url("doctrines/"),
-                     all=esc(UI["back_to_doctrines"])))
+</section>""".format(cards=_doctrine_cards(DOCTRINES)))
 
     parts.append("""<section class="bay bay--greenback" data-parallax-bg>
   <div class="shell">
-    <p class="label" data-rise="30">{label}</p>
-    <h2 class="bay__title" data-rise="46">{title}</h2>
-    <p class="bay__lead" data-rise="36">{lead}</p>
-    <div class="pillars">
-      {pillars}
+    <p class="label" data-rise="30">الفكرة والخطة</p>
+    <h2 class="bay__title" data-rise="46">قرا اللي يهمك، وكمل إلا بغيتي</h2>
+    <p class="bay__lead" data-rise="36">كل موضوع عندو خلاصة قصيرة حدّ الصورة، والتفاصيل باقية اختيارية.</p>
+    <div class="story-reader">
+      {panels}
     </div>
-    <p style="margin-block-start:2.6rem"><a class="btn btn--outline" href="{href}">{more}</a></p>
   </div>
-</section>""".format(label=esc(VISION["label"]), title=esc(VISION["title"]),
-                     lead=esc(VISION["lead"]), pillars=_pillar_grid(VISION["pillars"]),
-                     href=url("vision/"), more=esc(UI["more"])))
+</section>""".format(panels=idea_panels))
 
     parts.append("""<section class="bay bay--redback" data-parallax-bg>
-  <div class="shell shell--narrow">
-    <p class="label" data-rise="30">{label}</p>
-    <h2 class="bay__title" data-rise="46">{title}</h2>
-    <p class="bay__lead" data-rise="36">{p1}</p>
-    <p style="margin-block-start:1.6rem">{p2}</p>
-    <p><a class="btn btn--outline" href="{href}">{more}</a></p>
-  </div>
-</section>""".format(label=esc(MONARCHY["label"]), title=esc(MONARCHY["title"]),
-                     p1=esc(MONARCHY["body"][0]), p2=esc(MONARCHY["body"][3]),
-                     href=url("monarchy/"), more=esc(UI["more"])))
-
-    parts.append("""<section class="bay bay--greenback" data-parallax-bg>
-  <div class="shell shell--narrow">
-    <p class="label" data-rise="30">{label}</p>
-    <h2 class="bay__title" data-rise="46">{title}</h2>
-    <p class="bay__lead" data-rise="36">{summary}</p>
-    <div class="status">
-      <span class="status__tag">{tag}</span>
-      <p>{disclaimer}</p>
-    </div>
-    <h3 style="font-size:var(--step-1);margin-block-end:.4rem">{ladder_title}</h3>
-    <div class="ladder">
-      {ladder}
-    </div>
-    <p><a class="btn btn--outline" href="{href}">{more}</a></p>
-  </div>
-</section>""".format(label=esc(ACCOUNTABILITY["label"]),
-                     title=esc(ACCOUNTABILITY["title"]),
-                     summary=esc(ACCOUNTABILITY["summary"]),
-                     tag=esc(UI["status_explainer"]),
-                     disclaimer=esc(ACCOUNTABILITY["disclaimer"]),
-                     ladder_title=esc(ACCOUNTABILITY["ladder_title"]),
-                     ladder=ladder, href=url("accountability/"), more=esc(UI["more"])))
-
-    parts.append("""<section class="bay bay--redback" data-parallax-bg>
-  <div class="shell shell--narrow">
-    <p class="label" data-rise="30">{label}</p>
-    <h2 class="bay__title" data-rise="46">{title}</h2>
-    <p class="bay__lead" data-rise="36">{p1}</p>
-    <p style="margin-block-start:1.6rem">{p2}</p>
-    <p>{p3}</p>
-    <p style="margin-block-start:2rem;display:flex;gap:.8rem;flex-wrap:wrap">
-      <a class="btn btn--outline" href="{href}">{more}</a>
-      <a class="btn btn--outline" href="{yt}" rel="noopener noreferrer" target="_blank">{yt_label} ↗</a>
-    </p>
-    <p style="font-size:var(--step--1);color:var(--ink-mute)">{yt_note}</p>
-  </div>
-</section>""".format(label=esc(FOUNDER["label"]), title=esc(FOUNDER["title"]),
-                     p1=esc(FOUNDER["message"][0]), p2=esc(FOUNDER["message"][2]),
-                     p3=esc(FOUNDER["message"][5]), href=url("founder/"),
-                     more=esc(UI["more"]), yt=SITE["youtube"],
-                     yt_label=esc(FOUNDER["youtube_label"]),
-                     yt_note=esc(FOUNDER["youtube_note"])))
-
-    parts.append("""<section class="bay bay--greenback" data-parallax-bg>
   <div class="shell">
-    <p class="label" data-rise="30">{label}</p>
-    <h2 class="bay__title" data-rise="46">{title}</h2>
-    <p class="bay__lead" data-rise="36">{lead}</p>
+    <div class="story-reader">
+      {panel}
+    </div>
     {petition}
-    <div class="pillars" style="margin-block-start:clamp(2.4rem,5vw,3.5rem)">
-      {paths}
-    </div>
-    <p style="margin-block-start:2.6rem"><a class="btn btn--outline" href="{href}">{label}</a></p>
   </div>
-</section>""".format(label=esc(JOIN["label"]), title=esc(JOIN["title"]),
-                     lead=esc(JOIN["lead"]), petition=petition_block(compact=True),
-                     paths=_pillar_grid(JOIN["paths"]), href=url("join/")))
+</section>""".format(panel=_story_panel(
+    "section-join", "الحركة والبنّايين", JOIN["label"], JOIN["title"], [JOIN["lead"]],
+    actions=[(url("join/"), JOIN["label"], False)]),
+    petition=petition_block(compact=True)))
 
     parts.append("""<section class="bay bay--deep bay--redback" data-parallax-bg>
   <div class="shell declaration">
@@ -575,12 +590,6 @@ NAMING_NOTE = (
     "كنقدمو راسنا بحال يمين مغربي وطني منتج حديث."
 )
 
-EMBLEM_CAPTION = (
-    "شعار الحزب: النافذة المغربية المحلولة، وقدامها لوحة فيها صورة تاريخية. الشعار "
-    "حامل الصيغة الإعلامية ديال المشروع؛ أما التسمية الرسمية فهي «حزب اليمين المغربي»."
-)
-
-
 def about_page():
     rows = "\n    ".join(
         """<div class="ledger__row" data-reveal="{d}">
@@ -592,19 +601,36 @@ def about_page():
     body = pagehead([(url(), UI["home"]), (None, WHO["label"])],
                     WHO["label"], WHO["title"], WHO["lead"])
 
-    body += """<section class="bay bay--raised">
-  <div class="shell shell--narrow prose">
-    <h2>هوية الحزب</h2>
-    <ul class="marks">
-      {identity}
-    </ul>
-    <h2>على الاسم</h2>
-    <p>{naming}</p>
+    identity = """<ul class="story-panel__points story-panel__points--roomy">
+          {items}
+        </ul>""".format(items="\n          ".join(
+            "<li>{}</li>".format(esc(item)) for item in IDENTITY))
 
-    <figure class="emblem">
-      <img src="{logo}" alt="{logo_alt}" width="300" height="375" loading="lazy">
-      <figcaption>{cap}</figcaption>
-    </figure>
+    about_story = "\n".join([
+        _story_panel(
+            "about-identity", "هوية حزب اليمين المغربي", "هوية الحزب",
+            "يمين مغربي وطني منتج حديث", [NAMING_NOTE], extra=identity,
+        ),
+        _story_panel(
+            "about-founder", "عبدالله بن زكار", FOUNDER["label"], FOUNDER["name"],
+            [FOUNDER["message"][0], FOUNDER["message"][1], FOUNDER["message"][2],
+             FOUNDER["message"][5]],
+            actions=[(SITE["youtube"], FOUNDER["youtube_label"], True)],
+            flip=True, panel_id="founder",
+        ),
+    ])
+
+    vision_story = _story_panel(
+        "section-vision", "خطة ألف وخطة باء", VISION["label"], VISION["plan_title"],
+        [VISION["plan_lead"]],
+        actions=[(url("vision/"), "الرؤية كاملة", False)],
+    )
+
+    body += """<section class="bay bay--raised">
+  <div class="shell">
+    <div class="story-reader">
+      {about_story}
+    </div>
   </div>
 </section>
 <section class="bay bay--recessed">
@@ -617,35 +643,18 @@ def about_page():
   </div>
 </section>
 <section class="bay bay--raised">
-  <div class="shell shell--narrow prose">
-    <h2>{plan_title}</h2>
-    <p>{plan_lead}</p>
-    {plan_body}
-    <p style="margin-block-start:2rem"><a class="btn btn--outline" href="{vhref}">الرؤية كاملة</a></p>
+  <div class="shell">
+    <div class="story-reader">
+      {vision_story}
+    </div>
   </div>
 </section>""".format(
-        identity="\n      ".join("<li>{}</li>".format(esc(x)) for x in IDENTITY),
-        naming=esc(NAMING_NOTE), logo=asset("/img/party-logo.svg"),
-        logo_alt=esc(UI["logo_alt"]), cap=esc(EMBLEM_CAPTION), rows=rows,
-        plan_title=esc(VISION["plan_title"]), plan_lead=esc(VISION["plan_lead"]),
-        plan_body="\n    ".join("<p>{}</p>".format(esc(p)) for p in VISION["plan_body"]),
-        vhref=url("vision/"))
+        about_story=about_story, rows=rows, vision_story=vision_story)
 
     return page("about", "about/", body)
 
 
 def doctrines_index():
-    items = "\n      ".join(
-        """<a class="register__item" href="{href}" data-reveal="{d}">
-        <span class="register__num">{idx:02d}</span>
-        <span class="register__name">{name}</span>
-        <p class="register__summary">{summary}</p>
-        <span class="register__go">{more}</span>
-      </a>""".format(href=url("doctrines/{}/".format(d_["slug"])),
-                     d=min(i, 6) * 45, idx=d_["order"], name=esc(d_["name"]),
-                     summary=esc(d_["summary"]), more=esc(UI["read_more"]))
-        for i, d_ in enumerate(DOCTRINES))
-
     body = pagehead([(url(), UI["home"]), (None, "عقائدنا")],
                     "عقائدنا", "عشر عقائد، ماشي عشر شعارات",
                     "كل عقيدة كتبدا من مشكل مغربي محدد، وكتشرح علاش ما تحلاش، ومن بعد "
@@ -653,11 +662,11 @@ def doctrines_index():
 
     body += """<section class="bay bay--recessed">
   <div class="shell">
-    <div class="register">
-      {items}
+    <div class="doctrine-cards doctrine-cards--index">
+      {cards}
     </div>
   </div>
-</section>""".format(items=items)
+</section>""".format(cards=_doctrine_cards(DOCTRINES))
 
     return page("doctrines", "doctrines/", body)
 
@@ -847,34 +856,6 @@ def news_article():
             + footer())
 
 
-def founder_page():
-    body = pagehead([(url(), UI["home"]), (None, FOUNDER["label"])],
-                    FOUNDER["label"], FOUNDER["title"], FOUNDER["standfirst"])
-
-    body += """<section class="bay bay--raised">
-  <div class="shell shell--narrow prose">
-    {paras}
-    <p style="margin-block-start:2.4rem">
-      <a class="btn btn--outline" href="{yt}" rel="noopener noreferrer" target="_blank">{yt_label} ↗</a>
-    </p>
-    <p style="font-size:var(--step--1);color:var(--ink-mute)">{yt_note}</p>
-  </div>
-</section>
-<section class="bay bay--recessed">
-  <div class="shell shell--narrow prose">
-    <h2>الدور ديالو فالحزب</h2>
-    <p>{role}</p>
-    <p><a class="btn btn--outline" href="{bus}">حافلة المغرب</a></p>
-  </div>
-</section>""".format(paras="\n    ".join("<p>{}</p>".format(esc(p))
-                                        for p in FOUNDER["message"]),
-                     yt=SITE["youtube"], yt_label=esc(FOUNDER["youtube_label"]),
-                     yt_note=esc(FOUNDER["youtube_note"]),
-                     role=esc(BUS["stages"][1]["body"]), bus=url("bus/"))
-
-    return page("founder", "founder/", body)
-
-
 def join_page():
     body = pagehead([(url(), UI["home"]), (None, JOIN["label"])],
                     JOIN["label"], JOIN["title"], JOIN["lead"])
@@ -1040,7 +1021,7 @@ def build():
         ("vision/index.html", vision_page()),
         ("news/index.html", news_index()),
         ("news/{}/index.html".format(NEWS_FEATURED["slug"]), news_article()),
-        ("founder/index.html", founder_page()),
+        ("founder/index.html", redirect_page(url("about/#founder"), url("about/"))),
         ("join/index.html", join_page()),
         ("monarchy/index.html", monarchy_page()),
         ("bus/index.html", bus_page()),
@@ -1053,7 +1034,7 @@ def build():
         write(path, content)
 
     paths = ["", "about/", "doctrines/", "vision/", "news/",
-             "news/{}/".format(NEWS_FEATURED["slug"]), "founder/", "join/",
+             "news/{}/".format(NEWS_FEATURED["slug"]), "join/",
              "monarchy/", "bus/", "accountability/"]
     paths += ["doctrines/{}/".format(d["slug"]) for d in DOCTRINES]
 

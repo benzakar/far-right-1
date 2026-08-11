@@ -328,6 +328,8 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
   .nav {
     position: fixed;
     inset: 0;
+    inline-size: 100vw;
+    block-size: 100dvh;
     flex-direction: column;
     justify-content: center;
     align-items: stretch;
@@ -358,7 +360,7 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
     border-block-end: var(--rule);
   }
   .nav__link::after { display: none; }
-  .nav }
+}
 
 /* ---------- Hero ----------
    Desktop: a true 50/50 diptych. The left half is the founder, the
@@ -1115,6 +1117,286 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
 
 .bay--greenback .status,
 .bay--redback .status { background: rgba(251, 247, 239, 0.92); }
+
+/* ---------- Short scroll stories + future image planes ----------
+
+   The homepage now behaves like an illustrated reader: a bounded text box
+   sits beside an image plane and the order alternates as the visitor moves
+   down. Until final artwork is uploaded, the media plane is an intentional
+   placeholder rather than a broken image request. */
+
+.story-reader {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  margin-block-start: clamp(2.4rem, 5vw, 4.5rem);
+}
+
+.story-panel {
+  direction: ltr;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas: "visual copy";
+  min-block-size: clamp(430px, 52vw, 610px);
+  overflow: hidden;
+  background: var(--ivory-0);
+  color: var(--ink);
+  border: 1px solid rgba(196, 179, 147, 0.82);
+  border-radius: 2px;
+  box-shadow: var(--lift);
+}
+
+.story-panel--flip { grid-template-areas: "copy visual"; }
+
+.story-panel__visual {
+  grid-area: visual;
+  min-inline-size: 0;
+}
+
+.story-panel__copy {
+  grid-area: copy;
+  direction: rtl;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(1.7rem, 4.5vw, 4.2rem);
+  min-inline-size: 0;
+}
+
+.story-panel__eyebrow {
+  font-family: var(--util);
+  font-size: var(--step-0);
+  color: var(--madder);
+  margin-block-end: 0.75rem;
+}
+
+.story-panel__title,
+.bay--greenback .story-panel__title,
+.bay--redback .story-panel__title {
+  color: var(--ink);
+  font-size: var(--step-3);
+  max-inline-size: 18ch;
+  margin-block-end: 1rem;
+}
+
+.story-panel__body { color: var(--ink-soft); }
+.story-panel__text { line-height: 1.75; }
+
+.story-panel__points {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0 0;
+}
+
+.story-panel__points li {
+  padding-block-start: 0.6rem;
+  border-block-start: 1px solid var(--ivory-4);
+  color: var(--ink);
+  line-height: 1.55;
+}
+
+.story-panel__points--roomy { grid-template-columns: 1fr; }
+
+.story-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-block-start: 1.7rem;
+}
+
+.bay--greenback .story-panel .btn--outline,
+.bay--redback .story-panel .btn--outline {
+  border-color: var(--ivory-4);
+  color: var(--ink);
+}
+
+.bay--greenback .story-panel .btn--outline:hover,
+.bay--redback .story-panel .btn--outline:hover {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.media-slot {
+  position: relative;
+  isolation: isolate;
+  block-size: 100%;
+  min-block-size: clamp(330px, 45vw, 610px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 2rem;
+  overflow: hidden;
+  text-align: center;
+  color: var(--green-deep);
+  background:
+    radial-gradient(circle at 28% 22%, rgba(255,255,255,0.78), transparent 32%),
+    linear-gradient(145deg, var(--ivory-1), var(--ivory-3));
+}
+
+.media-slot::before {
+  content: "";
+  position: absolute;
+  inset: clamp(1rem, 2vw, 1.7rem);
+  z-index: -1;
+  border: 1px solid rgba(168, 130, 60, 0.56);
+  box-shadow: inset 0 0 0 7px rgba(251, 247, 239, 0.34);
+}
+
+.media-slot::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inline-size: clamp(90px, 24%, 150px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(20, 80, 58, 0.2);
+  transform: rotate(45deg);
+}
+
+.media-slot__ornament {
+  inline-size: 2.6rem;
+  block-size: 2.6rem;
+  border: 1px solid var(--gold);
+  transform: rotate(45deg);
+  margin-block-end: 0.8rem;
+}
+
+.media-slot__label {
+  font-family: var(--util);
+  font-size: var(--step--1);
+  color: var(--madder);
+}
+
+.media-slot__name {
+  font-family: var(--display);
+  font-size: var(--step-1);
+  font-weight: 700;
+  line-height: 1.45;
+  max-inline-size: 20ch;
+}
+
+.story-reader + .petition {
+  margin-block-start: clamp(2rem, 5vw, 4rem);
+}
+
+/* Doctrine summaries live on the homepage now. The complete essays stay one
+   click away, but the visitor no longer needs that click to understand them. */
+.doctrine-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1rem, 2.4vw, 1.8rem);
+  margin-block-start: clamp(2.4rem, 5vw, 4rem);
+}
+
+.doctrine-cards__hint { display: none; }
+
+.doctrine-card {
+  direction: ltr;
+  display: grid;
+  grid-template-columns: minmax(150px, 0.42fr) minmax(0, 0.58fr);
+  overflow: hidden;
+  min-block-size: 260px;
+  background: var(--ivory-0);
+  color: var(--ink);
+  border: 1px solid rgba(196, 179, 147, 0.82);
+  box-shadow: var(--lift);
+  scroll-snap-align: start;
+}
+
+.doctrine-card .media-slot--compact {
+  min-block-size: 100%;
+  padding: 1.2rem;
+}
+
+.doctrine-card .media-slot__ornament {
+  inline-size: 1.8rem;
+  block-size: 1.8rem;
+  margin-block-end: 0.45rem;
+}
+
+.doctrine-card .media-slot__name { font-size: var(--step-0); }
+
+.doctrine-card__copy {
+  direction: rtl;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.doctrine-card__index {
+  font-family: var(--util);
+  font-size: var(--step--1);
+  color: var(--madder);
+}
+
+.doctrine-card__title,
+.bay--greenback .doctrine-card__title,
+.bay--redback .doctrine-card__title {
+  color: var(--ink);
+  font-size: var(--step-1);
+  margin-block: 0.45rem 0.65rem;
+}
+
+.doctrine-card__summary {
+  color: var(--ink-soft);
+  line-height: 1.65;
+  margin-block-end: 1rem;
+}
+
+.doctrine-card__link {
+  margin-block-start: auto;
+  color: var(--green);
+  text-decoration: none;
+  border-block-end: 1px solid var(--ivory-4);
+}
+
+.doctrine-card__link:hover { border-block-end-color: var(--green); }
+
+@media (max-width: 1020px) {
+  .doctrine-cards { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 780px) {
+  .story-panel,
+  .story-panel--flip {
+    grid-template-columns: 1fr;
+    grid-template-areas: "visual" "copy";
+    min-block-size: 0;
+  }
+  .media-slot { min-block-size: clamp(260px, 74vw, 430px); }
+  .story-panel__copy { padding: clamp(1.5rem, 7vw, 2.6rem); }
+}
+
+@media (max-width: 720px) {
+  .doctrine-cards:not(.doctrine-cards--index) {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: min(86vw, 350px);
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: inline mandatory;
+    scrollbar-width: thin;
+    padding-block-end: 0.8rem;
+  }
+  .doctrine-cards__hint {
+    display: block;
+    margin-block: 1.2rem -1.2rem;
+    color: var(--gold-pale);
+    font-family: var(--util);
+    font-size: var(--step--1);
+  }
+  .doctrine-card {
+    grid-template-columns: 1fr;
+    grid-template-rows: 185px auto;
+  }
+  .doctrine-card .media-slot--compact { min-block-size: 185px; }
+  .doctrine-cards--index { grid-template-columns: 1fr; }
+  .story-panel__points { grid-template-columns: 1fr; }
+}
 
 /* The next plane rises over the hero like a carved panel */
 .bay--overlap {
