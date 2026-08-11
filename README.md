@@ -1,8 +1,10 @@
-# The Moroccan Right Party — حزب اليمين المغربي
+# حزب اليمين المغربي — The Moroccan Right Party
 
-A bilingual (Arabic-first) website for an emerging Moroccan political
-movement. Arabic is the primary experience; the English side is an
-authored international adaptation, not a translation.
+الموقع الرسمي، بالمغربية. الدارجة هي الصوت الأساسي، والفصحى كتستعمل غير
+فين كتكون الدقة ضرورية: القانون، الدستور، المؤسسات، المصطلح التقني.
+
+The site is Moroccan Arabic only. This README is in English because it is
+developer documentation, not site content.
 
 ## Build
 
@@ -25,37 +27,36 @@ Then open <http://127.0.0.1:4321/>.
 ## Layout
 
 ```
-build.py            generator + templates (one file)
-content/site.py     homepage sections, pages, UI strings, metadata
-content/doctrines.py the ten doctrines, Arabic and English
-static/css/         design system + per-language font faces
-static/js/          scroll choreography, navigation
-static/fonts/       self-hosted woff2 subsets
-static/img/         optimised images
-assets/originals/   untouched source files
+build.py             generator + templates (one file)
+content/site.py      homepage sections, pages, UI strings, metadata
+content/doctrines.py the ten doctrines
+static/css/          design system + font faces
+static/js/           scroll choreography, navigation
+static/fonts/        self-hosted woff2 subsets
+static/img/          optimised images
+assets/originals/    untouched source files
 ```
 
-Arabic and English share every template. Only the content differs;
-direction and typography follow from the `<html>` element.
+Content lives entirely in `content/`. Editing a doctrine or a section
+means editing one Python dictionary — no HTML.
 
 ## Routes
 
-`/` redirects to `/ar/`. Every route exists in both languages, and the
-language switch on any page opens the same page in the other language.
+Everything sits at the root. `lang="ar"` and `dir="rtl"` throughout.
 
 ```
-/ar/  /en/                    home
-      about/                  identity, the four differences, Plan A / Plan B
-      doctrines/              index of all ten
-      doctrines/<slug>/       one page per doctrine
-      vision/                 Morocco beyond 2030
-      news/                   updates
-      news/immigration-equality/
-      founder/                the founder's message
-      join/                   ways to contribute
-      monarchy/               monarchy, continuity, the question to revolutionaries
-      bus/                    the Morocco Bus, night to daylight
-      accountability/         how allegations should be handled (explainer)
+/                        home
+/about/                  identity, the four differences, Plan A / Plan B
+/doctrines/              register of all ten
+/doctrines/<slug>/       one page per doctrine
+/vision/                 مغرب ما بعد 2030
+/news/                   updates
+/news/immigration-equality/
+/founder/                رسالة المؤسس
+/join/                   ways to contribute
+/monarchy/               الملكية والاستمرارية
+/bus/                    حافلة المغرب, night to daylight
+/accountability/         المساءلة والأدلة (explainer)
 ```
 
 ## Design
@@ -65,9 +66,13 @@ cards, lit from the top-inline-start. Restrained gold for rules and
 emphasis, deep green for decisive actions, red rationed to legal-status
 labels only.
 
-Typography: Reem Kufi with Noto Naskh Arabic for Arabic; Fraunces with
-Archivo for English. Fonts are self-hosted — embedding Google's CDN has
-been ruled a GDPR problem in the EU, and this site expects EU visitors.
+Typography: **Reem Kufi** for titles — architectural, kufic, and the
+reason the headings read as carved. **IBM Plex Sans Arabic** for body
+copy and long paragraphs: even colour, holds up at small sizes, and its
+plainness lets the Kufi headings carry the personality.
+
+Fonts are self-hosted. Embedding Google's CDN has been ruled a GDPR
+problem in the EU, and this site expects EU visitors.
 
 The signature element is the seam where the two hero portraits meet. It
 continues down the whole document as a carved centre axis carrying a
@@ -90,44 +95,54 @@ hero, disables smooth scrolling and the axis traveller, collapses every
 transform, and pins the Morocco Bus to its daylight state. All content
 stays present and readable.
 
-## Editorial rules
+## القواعد التحريرية — editorial rules
 
-These are enforced throughout the content files and should be kept:
+These are enforced throughout `content/` and should be kept:
 
-- Coined doctrine names are fixed vocabulary — The Bronx Doctrine, The
-  Lalla Khadija Doctrine, The Cipolla Mentality, The Ukraine Doctrine,
-  The Action-State Doctrine and the rest.
-- Invitations are labelled invitations, proposals are labelled proposals.
-- No third party is presented as having accepted, endorsed, or joined.
-  The Morocco Bus describes its roles by what each role requires rather
-  than by naming who might hold it.
-- The accountability section is an explainer. It proposes how allegations
-  should be handled and makes no allegation against anyone.
-- No invented statistics, endorsements, meetings, or memberships.
-- The formal identity is "The Moroccan Right Party / حزب اليمين المغربي".
+- الأسماء المسكوكة ما كتتبدلش — عقيدة البرونكس، عقيدة لالة خديجة، عقلية
+  سيبولا، عقيدة أوكرانيا، عقيدة دولة الفعل، وباقي الأسماء.
+- الدعوة كتتسمى دعوة، والاقتراح كيتسمى اقتراح.
+- حتى شخص من برا ما كيتقدم بحال إلا وافق ولا انضم ولا أيّد. أدوار حافلة
+  المغرب موصوفة بما كيتطلبو الدور، ماشي باسم شكون غادي يديرو.
+- قسم المساءلة شرح عام، ما فيه حتى ادعاء ضد حتى واحد.
+- ما كاينش إحصائيات ولا تأييدات ولا لقاءات ولا عضويات مخترعة.
+- التسمية الرسمية هي «حزب اليمين المغربي».
 
-## Deploying and connecting fromparty.com
+## Deploying
 
-`netlify.toml` is included and needs no changes. Cloudflare Pages and
-Render work with the same settings: build `python3 build.py`, publish
-`dist`.
+### GitHub Pages
 
-To connect the domain (the owner must do these — they need account
-access and payment details):
+`.github/workflows/pages.yml` builds and publishes automatically. It
+needs one setting, once:
+
+**Settings → Pages → Build and deployment → Source → GitHub Actions**
+
+Without that, Pages stays in its default Jekyll mode and publishes this
+README instead of the site.
+
+A project Pages site serves from `/<repo>/`, so the workflow passes
+`BASE_PATH`. Never set `BASE_PATH` for a root deployment.
+
+### Netlify / Cloudflare Pages / Render
+
+`netlify.toml` is included and needs no changes. The same settings work
+elsewhere: build `python3 build.py`, publish `dist`.
+
+### Connecting fromparty.com
+
+The owner must do these — they need account access and payment details:
 
 1. Confirm `fromparty.com` is actually available or already owned. This
    has **not** been checked or reserved.
 2. Register or transfer it at any registrar.
-3. In the host's dashboard, add `fromparty.com` and `www.fromparty.com`
-   as custom domains.
+3. In the host's dashboard, add `fromparty.com` and `www.fromparty.com`.
 4. Point DNS at the host — either the host's nameservers, or an `ALIAS`
-   /`ANAME` record on the apex plus a `CNAME` for `www`.
+   /`ANAME` on the apex plus a `CNAME` for `www`.
 5. Let the host issue the TLS certificate, then set the canonical
-   redirect (`www` → apex, matching the `SITE["domain"]` value in
-   `content/site.py`).
+   redirect (`www` → apex).
 
-If the domain changes, update `SITE["domain"]` — canonical URLs,
-`hreflang`, the sitemap and `robots.txt` all read from it.
+If the domain changes, update `SITE["domain"]` in `content/site.py`.
+Canonical URLs, the sitemap and `robots.txt` all read from it.
 
 ## Still needs the owner's confirmation
 
@@ -136,7 +151,7 @@ If the domain changes, update `SITE["domain"]` — canonical URLs,
   page and footer currently say these do not exist yet rather than
   showing placeholders.
 - Whether any named individual has actually agreed to an invitation. If
-  so, that person can be named on the Morocco Bus page.
+  so, that person can be named on `/bus/`.
 - The supplied emblem carries the phrase "Far Right of Morocco". The
   site's own text uses the formal name throughout; the emblem is shown
-  and explained on the About page.
+  and explained on `/about/`.
