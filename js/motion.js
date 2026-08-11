@@ -48,7 +48,7 @@
    *
    *   0.00 .. 0.07   the image alone
    *   0.07 .. 0.36   first line in, holds, out
-   *   0.34 .. 0.68   scene dims; rival marks enter, cross, leave
+   *   0.34 .. 0.68   scene washes pale; rival marks enter, cross, leave
    *   0.68 .. 0.92   second line in, holds, out
    *   0.86 .. 0.95   party mark rises from below and settles
    *   0.95 .. 1.00   slogan appears beneath it
@@ -77,7 +77,7 @@
     set(cine.line1, "--o", (in1 * (1 - out1)).toFixed(3));
     set(cine.line1, "--y", lerp(46, -46, ease(seg(p, 0.07, 0.37))).toFixed(1));
 
-    /* the dim that lets the near-white marks read */
+    /* the pale contrast wash that lets the dark uploaded marks read */
     var dimIn = ease(seg(p, 0.34, 0.43));
     var dimOut = ease(seg(p, 0.60, 0.69));
     set(cine.dim, "--dim", (dimIn * (1 - dimOut)).toFixed(3));

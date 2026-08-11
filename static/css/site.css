@@ -673,16 +673,16 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
   transform: scale(var(--bg-scale, 1)) translate3d(0, calc(var(--bg-rise, 0) * -1px), 0);
 }
 
-/* Dimmed only while the rival marks are on screen — they are near-white
-   artwork and would be invisible against the carved ivory otherwise. */
+/* The uploaded rival marks are black. A pale contrast wash lifts them off
+   the detailed hero while they cross, then clears before our mark arrives. */
 .cinema__dim {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse 80% 70% at 50% 45%,
-    rgba(12, 9, 4, 0.62) 0%,
-    rgba(12, 9, 4, 0.78) 60%,
-    rgba(12, 9, 4, 0.88) 100%);
+  background: radial-gradient(ellipse 84% 76% at 50% 48%,
+    rgba(251, 247, 239, 0.90) 0%,
+    rgba(243, 237, 225, 0.72) 62%,
+    rgba(232, 222, 203, 0.48) 100%);
   opacity: var(--dim, 0);
 }
 
@@ -734,6 +734,7 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
   opacity: var(--o, 0);
   will-change: transform, opacity;
   transform: translate3d(calc(var(--x, 0) * 1%), calc(-50% + var(--y, 0) * 1px), 0);
+  filter: drop-shadow(0 10px 18px rgba(251, 247, 239, 0.34));
 }
 
 .cinema__logo {
@@ -742,7 +743,9 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
   margin-inline: auto;
   inset-block-start: 46%;
   z-index: 4;
-  inline-size: clamp(150px, 20vw, 280px);
+  /* The supplied PNG keeps its 16:9 transparent canvas. Size the canvas,
+     not just the visible mark, so the artwork lands at the intended scale. */
+  inline-size: clamp(520px, 60vw, 900px);
   block-size: auto;
   opacity: var(--o, 0);
   filter: drop-shadow(0 22px 46px rgba(18, 12, 3, 0.55));
@@ -817,7 +820,7 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
     inset-block-start: 30%;
   }
 
-  .cinema__logo { inset-block-start: 62%; inline-size: clamp(130px, 34vw, 190px); }
+  .cinema__logo { inset-block-start: 62%; inline-size: min(94vw, 680px); }
   .cinema__slogan { inset-block-start: 84%; }
 }
 

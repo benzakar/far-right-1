@@ -242,7 +242,7 @@ def cinema_block():
     <p class="cinema__line" data-cine="line2">{line2}</p>
 
     <img class="cinema__logo" data-cine="logo" src="{logo}"
-         width="340" height="425" alt="{logo_alt}" loading="eager" decoding="async">
+         width="1280" height="720" alt="{logo_alt}" loading="eager" decoding="async">
 
     <p class="cinema__slogan" data-cine="slogan">{slogan}</p>
 
@@ -251,9 +251,9 @@ def cinema_block():
 """.format(src=asset("/img/main-hero-1920.jpg"), ss=srcset("main-hero"),
            hero_alt=esc(CINEMA["hero_alt"]),
            line1=esc(CINEMA["line_1"]), line2=esc(CINEMA["line_2"]),
-           parties=asset("/img/parties-logos.png"),
+           parties=asset("/img/darklogos.png"),
            parties_alt=esc(CINEMA["parties_alt"]),
-           logo=asset("/img/party-logo.svg"), logo_alt=esc(CINEMA["logo_alt"]),
+           logo=asset("/img/party-logo.png"), logo_alt=esc(CINEMA["logo_alt"]),
            slogan=esc(CINEMA["slogan"]))
 
 
