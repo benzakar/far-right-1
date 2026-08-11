@@ -760,7 +760,7 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
 .cinema__slogan {
   position: absolute;
   inset-inline: 0;
-  inset-block-start: 78%;
+  inset-block-start: 72%;
   z-index: 4;
   margin: 0;
   text-align: center;
@@ -928,7 +928,7 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
   .cinema__slogan {
     left: 50%;
     right: auto;
-    inset-block-start: 82%;
+    inset-block-start: 75%;
     inline-size: min(88vw, 25rem);
     padding: 0.65rem 0.9rem 0.75rem;
     border: 1px solid rgba(251, 247, 239, 0.22);
