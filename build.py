@@ -520,29 +520,33 @@ def home():
         ),
     ])
 
-    two_speeds_panel = """<article class="story-panel story-panel--longform" data-reveal>
-    <div class="story-panel__visual">
-      {slot}
-    </div>
-    <div class="story-panel__copy">
-      <h2 class="story-panel__title">{title}</h2>
-      <div class="story-panel__body">
-        <p class="story-panel__text">{p1}</p>
-        <p class="story-panel__text">{p2}</p>
-        <p class="story-panel__text">{p3}</p>
-        <h3 class="story-panel__subheading">{subtitle}</h3>
-        <p class="story-panel__text">{p4}</p>
-        <p class="story-panel__text">{p5}</p>
-        <p class="story-panel__text">{p6}</p>
-        <p class="story-panel__text story-panel__closing">{p7} <strong>{party}</strong>.</p>
+    two_speeds_reader = """<div class="policy-reader" data-reveal>
+    <figure class="policy-reader__visual">
+      <img class="policy-reader__image" src="{image}" width="1000" height="1000"
+           alt="قصاصة خبر على إلغاء الساعة الإضافية فالمغرب من بعد صيف 2026"
+           loading="lazy" decoding="async">
+    </figure>
+    <div class="policy-pane" data-text-pane>
+      <div class="policy-pane__window">
+        <div class="policy-pane__scroll" aria-label="علاش المغرب محتاج دستور جديد">
+          <p>{p2}</p>
+          <p>{p3}</p>
+          <h3>{subtitle}</h3>
+          <p>{p4}</p>
+          <p>{p5}</p>
+          <p>{p6}</p>
+          <p class="policy-pane__closing">{p7} <strong>{party}</strong>.</p>
+        </div>
+        <div class="policy-pane__fade" aria-hidden="true"></div>
       </div>
+      <footer class="policy-pane__foot">
+        <span>قرا النص</span>
+        <span class="policy-pane__progress" aria-hidden="true"><i></i></span>
+        <span data-pane-progress>0%</span>
+      </footer>
     </div>
-  </article>""".format(
-        slot="""<img class="story-panel__image" src="{}" width="1000" height="1000"
-             alt="قصاصة خبر على إلغاء الساعة الإضافية فالمغرب من بعد صيف 2026"
-             loading="lazy" decoding="async">""".format(asset("/img/from-002.png")),
-        title=esc("باش نقادو مغرب السرعتين، خاصنا مغرب الخطتين"),
-        p1=esc("5 سنين ديال بنكيران، و5 ديال العثماني، و5 ديال أخنوش، وفالأخير: كارثة سبتة."),
+  </div>""".format(
+        image=asset("/img/from-002.png"),
         p2=esc("دستور 2011 خرّج على البلاد، وأحسن مثال هو مطالبة المواطنين بإلغاء الساعة الإضافية. رغم الوقفات الاحتجاجية والعريضة اللي وقّعها عشرات الآلاف من المغاربة، والمشاكل الصحية اللي عاناو منها المغاربة وأطفالهم، عطى الدستور لذاك الانتهازي ديال أخنوش السلطة باش يلغي الساعة الإضافية فقط من أجل الانتخابات، ماشي من أجل المغاربة."),
         p3=esc("أملنا فـ ولد سيدنا أعزّه الله، وفالدستور اللي الحزب موجد ليه؛ الدستور اللي غادي يحل كاع المشاكل، منها: مشكل الهجرة، والصحة، والتعليم، واللي غادي يهني ولد سيدنا من بنكيران وأخنوش ديال المستقبل."),
         subtitle=esc("علاش دستور 2011 ما صالحش من بعد المونديال؟"),
@@ -559,11 +563,15 @@ def home():
 
     parts.append("""<section class="bay bay--greenback" id="two-speeds-plans" data-parallax-bg>
   <div class="shell">
-    <div class="story-reader story-reader--flush">
-      {panel}
-    </div>
+    <p class="label" data-rise="30">{label}</p>
+    <h2 class="bay__title" data-rise="46">{title}</h2>
+    {reader}
   </div>
-</section>""".format(panel=two_speeds_panel))
+</section>""".format(
+        label=esc("5 سنين ديال بنكيران، و5 ديال العثماني، و5 ديال أخنوش، وفالأخير: كارثة سبتة."),
+        title=esc("باش نقادو مغرب السرعتين، خاصنا مغرب الخطتين"),
+        reader=two_speeds_reader,
+    ))
 
     parts.append("""<section class="bay bay--redback" id="plan-a-b" data-parallax-bg>
   <div class="shell">

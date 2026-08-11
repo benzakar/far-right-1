@@ -123,6 +123,36 @@
     set(cine.slogan, "--y", lerp(26, 0, sl).toFixed(1));
   }
 
+  /* ---- bounded reading panes ----
+   *
+   * Mirrors the GenioPolicy reader: the passage scrolls inside a fixed-height
+   * window, reports progress, and removes its bottom fade at the end. We do
+   * not contain overscroll, so the wheel naturally returns to the page once
+   * the passage reaches either boundary.
+   */
+  Array.prototype.forEach.call(document.querySelectorAll("[data-text-pane]"), function (pane) {
+    var scroller = pane.querySelector(".policy-pane__scroll");
+    var bar = pane.querySelector(".policy-pane__progress i");
+    var label = pane.querySelector("[data-pane-progress]");
+    if (!scroller) return;
+
+    function updatePane() {
+      var max = scroller.scrollHeight - scroller.clientHeight;
+      var pct = max > 4 ? Math.min(100, Math.round((scroller.scrollTop / max) * 100)) : 100;
+      if (bar) bar.style.width = pct + "%";
+      if (label) label.textContent = pct + "%";
+      pane.setAttribute("data-at-end", String(pct >= 99));
+    }
+
+    scroller.addEventListener("scroll", updatePane, { passive: true });
+    window.addEventListener("resize", updatePane, { passive: true });
+    if (scroller.scrollHeight > scroller.clientHeight + 4) {
+      scroller.setAttribute("tabindex", "0");
+      scroller.setAttribute("role", "region");
+    }
+    updatePane();
+  });
+
   /* ---- reveal on entry (independent of the rise engine) ---- */
 
   var reveals = document.querySelectorAll("[data-reveal]");
