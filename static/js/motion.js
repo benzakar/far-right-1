@@ -162,11 +162,6 @@
     ticking = false;
     var vh = window.innerHeight || root.clientHeight;
 
-    /* page progress drives the carved axis traveller */
-    var doc = document.documentElement;
-    var max = doc.scrollHeight - vh;
-    root.style.setProperty("--scroll", max > 0 ? clamp(window.scrollY / max).toFixed(4) : "0");
-
     /* the opening sequence */
     if (cinema) {
       var span = cinema.offsetHeight - vh;

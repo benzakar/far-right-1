@@ -108,7 +108,6 @@ def head(title, desc, canonical, hero=False):
 </head>
 <body{hero_attr}>
 <a class="skip" href="#main">{skip}</a>
-<div class="axis" aria-hidden="true"></div>
 """.format(
         title=esc(title), desc=esc(desc), origin=ORIGIN, canonical=canonical,
         favicon=asset("/img/party-logo.svg"),

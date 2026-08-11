@@ -151,40 +151,6 @@ button, button *,
   margin-inline: auto;
 }
 
-/* ---------- The carved axis (site signature) ----------
-   The hero diptych meets on a seam. That seam continues down the
-   whole document as an architectural centre axis, with a traveller
-   marking scroll progress. It is the one ornament the page repeats. */
-
-.axis {
-  position: fixed;
-  inset-block: 0;
-  inset-inline-start: 50%;
-  inline-size: 2px;
-  transform: translateX(-50%);
-  pointer-events: none;
-  z-index: 1;
-  background: linear-gradient(
-    to bottom,
-    transparent 0,
-    rgba(168, 130, 60, 0.11) 12%,
-    rgba(168, 130, 60, 0.11) 88%,
-    transparent 100%);
-}
-
-.axis::before {
-  content: "";
-  position: absolute;
-  inset-inline: -1px;
-  block-size: 12vh;
-  top: calc(var(--scroll, 0) * 88vh);
-  background: linear-gradient(to bottom,
-    transparent, var(--gold) 42%, var(--gold-lit) 58%, transparent);
-  opacity: 0.34;
-}
-
-@media (max-width: 900px) { .axis { display: none; } }
-
 /* ---------- Header ---------- */
 
 .masthead {
@@ -266,10 +232,6 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
   border-color: rgba(251, 247, 239, 0.5);
 }
 
-body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
-  background: var(--gold-lit);
-}
-
 /* the panel is opaque ivory when open, so invert back inside it */
 @media (max-width: 940px) {
   body[data-hero-page] .masthead:not(.is-stuck) .nav.is-open .nav__link {
@@ -294,20 +256,6 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
   color: var(--ink);
 }
 
-.nav__link::after {
-  content: "";
-  position: absolute;
-  inset-inline: 0;
-  inset-block-end: 0;
-  block-size: 1px;
-  background: var(--gold);
-  transform: scaleX(0);
-  transform-origin: var(--edge, left);
-  transition: transform 0.32s var(--ease);
-}
-
-.nav__link:hover::after,
-.nav__link[aria-current="page"]::after { transform: scaleX(1); }
 .nav__link[aria-current="page"] { font-weight: 600; }
 
 .burger {
@@ -359,7 +307,6 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
     padding-block: 0.75rem;
     border-block-end: var(--rule);
   }
-  .nav__link::after { display: none; }
 }
 
 /* ---------- Hero ----------
@@ -403,7 +350,7 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
 .hero__half--left img  { object-position: 60% 42%; }
 .hero__half--right img { object-position: 58% 40%; }
 
-/* the seam: a narrow ivory breath plus a single gold thread */
+/* the seam: a narrow ivory breath between the two panels */
 .hero__seam {
   position: absolute;
   inset-block: 0;
@@ -417,23 +364,6 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
     rgba(251, 247, 239, 0.78) 50%,
     rgba(243, 237, 225, 0.55) 66%,
     rgba(243, 237, 225, 0) 100%);
-}
-
-/* the gold thread: the axis the whole site is built on, introduced here */
-.hero__seam::after {
-  content: "";
-  position: absolute;
-  inset-block: 4%;
-  inset-inline-start: 50%;
-  inline-size: 2px;
-  transform: translateX(-50%);
-  background: linear-gradient(to bottom,
-    transparent 0%,
-    rgba(201, 164, 94, 0.85) 14%,
-    rgba(233, 209, 160, 0.95) 50%,
-    rgba(201, 164, 94, 0.85) 86%,
-    transparent 100%);
-  box-shadow: 0 0 14px rgba(201, 164, 94, 0.5);
 }
 
 /* Legibility layer.
@@ -618,16 +548,6 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
     transform: translateY(-50%);
     background: linear-gradient(to bottom,
       rgba(243,237,225,0) 0%, rgba(251,247,239,0.6) 50%, rgba(243,237,225,0) 100%);
-  }
-  .hero__seam::after {
-    inset-block: auto;
-    inset-block-start: 50%;
-    inset-inline: 8%;
-    inline-size: auto;
-    block-size: 1px;
-    transform: translateY(-50%);
-    background: linear-gradient(to right,
-      transparent, rgba(201,164,94,0.7) 50%, transparent);
   }
   .hero__content {
     position: relative;
@@ -980,7 +900,6 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
 }
 .bay--deep h2, .bay--deep h3 { color: var(--ivory-0); }
 .bay--deep .label { color: var(--gold-lit); }
-.bay--deep .label::before { background: var(--gold); }
 
 /* Homepage leather backdrops.
    One lightweight neutral tile is reused for both colours. It repeats on an
@@ -1080,9 +999,6 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
 .bay--redback .label,
 .bay--redback .news__kicker,
 .bay--redback .ledger__term { color: var(--gold-pale); }
-
-.bay--greenback .label::before,
-.bay--redback .label::before { background: var(--gold-lit); }
 
 .bay--greenback .ledger,
 .bay--greenback .ledger__row,
@@ -1418,14 +1334,6 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
 }
 
 .label { letter-spacing: 0.03em; text-transform: none; font-size: var(--step-0); }
-
-.label::before {
-  content: "";
-  inline-size: clamp(22px, 4vw, 54px);
-  block-size: 1px;
-  background: var(--gold);
-  flex: 0 0 auto;
-}
 
 .bay__title {
   font-size: var(--step-4);
@@ -1786,7 +1694,6 @@ html[dir="rtl"] .register__item:hover .register__go::after { transform: translat
 
 .bus .bay__lead { color: rgba(243, 237, 225, 0.85); }
 .bus .label { color: var(--gold-lit); }
-.bus .label::before { background: var(--gold-lit); }
 .bus h2, .bus h3 { color: var(--ivory-0); }
 
 .road {
@@ -1901,8 +1808,7 @@ html[dir="rtl"] .road__bus { transform: scaleX(-1); }
   align-items: center;
   flex-wrap: wrap;
 }
-.crumbs a { text-decoration: none; border-block-end: 1px solid var(--ivory-4); }
-.crumbs a:hover { border-block-end-color: var(--gold); }
+.crumbs a { text-decoration: none; }
 .crumbs span[aria-hidden] { color: var(--gold); }
 
 /* ---------- Petition ----------
@@ -2104,7 +2010,6 @@ html[dir="rtl"] .road__bus { transform: scaleX(-1); }
 /* Static fallback when scripting is unavailable. */
 .no-js [data-rise] { transform: none; opacity: 1; }
 .no-js [data-reveal] { opacity: 1; transform: none; }
-.no-js .axis::before { display: none; }
 .no-js .bus { --p: 0.72; }
 .no-js .road__bus { inset-inline-start: 62%; }
 .no-js .bay--greenback::before,
