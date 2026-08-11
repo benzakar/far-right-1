@@ -64,8 +64,10 @@
     /* The background travels on a slower plane than the foreground beats.
        The previous 46px drift across 460vh was effectively imperceptible on
        desktop; the extra overscan keeps this stronger parallax edge-free. */
-    var bgTravel = narrow.matches ? 46 : 116;
-    var bgZoom = narrow.matches ? 0.07 : 0.12;
+    /* Mobile scales the visible 16:9 plate itself, so a stronger zoom reads
+       clearly even across a short thumb-scroll. */
+    var bgTravel = narrow.matches ? 18 : 116;
+    var bgZoom = narrow.matches ? 0.22 : 0.12;
     set(cine.bg, "--bg-scale", (1 + p * bgZoom).toFixed(4));
 
     /* Travel strongly through the sequence, then settle before the stage
