@@ -1193,11 +1193,19 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
 .story-panel--longform .story-panel__visual {
   position: sticky;
   inset-block-start: clamp(6rem, 12vh, 9rem);
-  block-size: min(72svh, 640px);
+  aspect-ratio: 1;
+  block-size: auto;
   overflow: hidden;
   border: 1px solid rgba(196, 179, 147, 0.82);
   background: var(--ivory-0);
   box-shadow: var(--lift);
+}
+
+.story-panel__image {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
 }
 
 .story-panel--longform .story-panel__copy {
