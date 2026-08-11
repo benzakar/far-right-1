@@ -93,10 +93,10 @@ by section, beginning with green on the Morocco Bus. Their oversized image
 layers travel independently as each section crosses the viewport, creating
 the section-level parallax without `background-attachment: fixed`.
 
-`prefers-reduced-motion: reduce` removes the scroll stage, unpins the
-hero, disables smooth scrolling and the axis traveller, collapses every
-transform, and pins the Morocco Bus to its daylight state. All content
-stays present and readable.
+Motion runs through the same transform-only engine on desktop and mobile.
+If JavaScript is unavailable, the `no-js` fallback resolves the opening
+sequence to a complete static frame, reveals all content, and leaves every
+section readable.
 
 ## القواعد التحريرية — editorial rules
 

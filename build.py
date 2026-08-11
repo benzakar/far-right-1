@@ -82,10 +82,11 @@ def head(title, desc, canonical, hero=False):
         for f in critical
     )
     return """<!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" class="no-js">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>document.documentElement.classList.remove("no-js");</script>
   <title>{title}</title>
   <meta name="description" content="{desc}">
   <link rel="canonical" href="{origin}{canonical}">

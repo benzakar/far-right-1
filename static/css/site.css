@@ -824,40 +824,38 @@ body[data-hero-page] .masthead:not(.is-stuck) .nav__link::after {
   .cinema__slogan { inset-block-start: 84%; }
 }
 
-/* Reduced motion: no pinning, no sequence. The stage resolves to its
-   final frame — the party mark and the slogan over the image — and both
-   Darija lines are shown in flow underneath so nothing is lost. */
-@media (prefers-reduced-motion: reduce) {
-  .cinema { block-size: auto; }
-  .cinema__stage { position: relative; block-size: 100svh; }
-  .cinema__bg { transform: none; }
-  .cinema__dim { opacity: 0.54; }
-  .cinema__parties { display: none; }
-  .cinema__line {
-    position: static;
-    transform: none;
-    opacity: 1;
-    max-inline-size: 28ch;
-    margin: 0 auto 1rem;
-    font-size: clamp(1.2rem, 0.9rem + 1.4vw, 1.9rem);
-  }
-  .cinema__line::before { display: none; }
-  .cinema__stage {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 6rem var(--gutter) 3rem;
-    text-align: center;
-  }
-  .cinema__logo {
-    position: static;
-    transform: none;
-    opacity: 1;
-    margin-block: 1.5rem 1rem;
-  }
-  .cinema__slogan { position: static; transform: none; opacity: 1; }
+/* No-JS fallback: resolve the stage to a complete static composition.
+   JavaScript removes .no-js in the head before the stylesheet is parsed,
+   so normal browsers always receive the scroll sequence. */
+.no-js .cinema { block-size: auto; }
+.no-js .cinema__stage { position: relative; block-size: 100svh; }
+.no-js .cinema__bg { transform: none; }
+.no-js .cinema__dim { opacity: 0.54; }
+.no-js .cinema__parties { display: none; }
+.no-js .cinema__line {
+  position: static;
+  transform: none;
+  opacity: 1;
+  max-inline-size: 28ch;
+  margin: 0 auto 1rem;
+  font-size: clamp(1.2rem, 0.9rem + 1.4vw, 1.9rem);
 }
+.no-js .cinema__line::before { display: none; }
+.no-js .cinema__stage {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 6rem var(--gutter) 3rem;
+  text-align: center;
+}
+.no-js .cinema__logo {
+  position: static;
+  transform: none;
+  opacity: 1;
+  margin-block: 1.5rem 1rem;
+}
+.no-js .cinema__slogan { position: static; transform: none; opacity: 1; }
 
 /* ---------- Buttons ---------- */
 
@@ -1755,31 +1753,11 @@ html[dir="rtl"] .road__bus { transform: scaleX(-1); }
 }
 [data-reveal].is-in { opacity: 1; transform: none; }
 
-/* ---------- Reduced motion ----------
-   Collapse every transform to nothing and keep all content present.
-   The bus keeps its daylight end-state so the section still reads. */
-
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-
-  *, *::before, *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-  }
-
-  [data-rise],
-  .hero__content,
-  .hero__half img { transform: none !important; opacity: 1 !important; }
-
-  [data-reveal] { opacity: 1; transform: none; }
-
-  .hero { block-size: auto; min-block-size: 100svh; }
-  .hero__media { position: relative; }
-  .hero__scroll span { animation: none; block-size: 22px; }
-  .axis::before { display: none; }
-  .bus { --p: 0.72; }
-  .road__bus { inset-inline-start: 62%; }
-  .bay--greenback::before,
-  .bay--redback::before { transform: none; will-change: auto; }
-}
+/* Static fallback when scripting is unavailable. */
+.no-js [data-rise] { transform: none; opacity: 1; }
+.no-js [data-reveal] { opacity: 1; transform: none; }
+.no-js .axis::before { display: none; }
+.no-js .bus { --p: 0.72; }
+.no-js .road__bus { inset-inline-start: 62%; }
+.no-js .bay--greenback::before,
+.no-js .bay--redback::before { transform: none; will-change: auto; }

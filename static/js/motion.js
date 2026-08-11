@@ -13,7 +13,6 @@
 (function () {
   "use strict";
 
-  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
   var narrow = window.matchMedia("(max-width: 820px)");
 
   var root = document.documentElement;
@@ -112,7 +111,7 @@
 
   var reveals = document.querySelectorAll("[data-reveal]");
   if (reveals.length) {
-    if (reduced.matches || !("IntersectionObserver" in window)) {
+    if (!("IntersectionObserver" in window)) {
       for (var r = 0; r < reveals.length; r++) reveals[r].classList.add("is-in");
     } else {
       var revealObs = new IntersectionObserver(function (entries) {
@@ -126,8 +125,6 @@
       for (var i = 0; i < reveals.length; i++) revealObs.observe(reveals[i]);
     }
   }
-
-  if (reduced.matches) return;
 
   /* ---- only animate what is on screen ---- */
 
