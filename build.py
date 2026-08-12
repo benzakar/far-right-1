@@ -545,6 +545,23 @@ def home():
         <span data-pane-progress>0%</span>
       </footer>
     </div>
+    <article class="policy-tweet" dir="rtl" aria-label="تغريدة عبدالله بن زكار">
+      <header class="policy-tweet__head">
+        <div class="policy-tweet__identity">
+          <span class="policy-tweet__avatar" aria-hidden="true">BZ</span>
+          <span>
+            <strong>Abdellah Ben Zakar</strong>
+            <span class="policy-tweet__handle">@benzakarMorocco</span>
+          </span>
+        </div>
+        <span class="policy-tweet__mark" aria-hidden="true">𝕏</span>
+      </header>
+      <p class="policy-tweet__copy">{tweet}</p>
+      <footer class="policy-tweet__foot">
+        <time datetime="2026-08-11T19:43:00Z">Aug 11, 2026</time>
+        <a href="https://x.com/benzakarMorocco/status/2087324035004682646" target="_blank" rel="noopener noreferrer">شوف التغريدة على X <span aria-hidden="true">↗</span></a>
+      </footer>
+    </article>
   </div>""".format(
         image=asset("/img/from-002.png"),
         p2=esc("دستور 2011 خرّج على البلاد، وأحسن مثال هو مطالبة المواطنين بإلغاء الساعة الإضافية. رغم الوقفات الاحتجاجية والعريضة اللي وقّعها عشرات الآلاف من المغاربة، والمشاكل الصحية اللي عاناو منها المغاربة وأطفالهم، عطى الدستور لذاك الانتهازي ديال أخنوش السلطة باش يلغي الساعة الإضافية فقط من أجل الانتخابات، ماشي من أجل المغاربة."),
@@ -553,6 +570,7 @@ def home():
         p4=esc("زيادة على أن التغيير سنة الحياة، وأن العالم غادي بواحد السرعة كبيرة خاصها دستور خاص، وزيادة على هاد الأسباب، المغاربة كلهم سمعو من بنكيران كيفاش سيدنا كان كيهدر معاه على البلوكاج الحكومي."),
         p5=esc("سيدنا عيا مع حكومات الأحزاب، وعيا ما ينبه ويوجّه فالخطابات ديالو."),
         p6=esc("حنا جايين باش ولد سيدنا يلقى حزب كيهنيه من صداع المناورات السياسية، ومن أي بلوكاج حكومي مستقبلي. الحزب هو مشروع مغربي، داعم للملكية، رأسمالي ومنتج، كيبدا من الحل، ماشي من المنصب؛ بمعنى كنبينو للمغاربة الحل قبل ما نطلبو منهم المنصب."),
+        tweet=esc("ما كنطلبوش من المغاربة يصدقونا بالسمع؛ كنطلبو منهم يشوفو بعينيهم الفرق الواضح ما بين 36 حزب ديال الهضرة، وحزب ديال الابتكار والخدمة: حزب اليمين المغربي."),
     )
 
     # Concrete proposals lead the homepage. The Bus remains available later as
@@ -564,20 +582,11 @@ def home():
     <p class="label" data-rise="30">{label}</p>
     <h2 class="bay__title" data-rise="46">{title}</h2>
     {reader}
-    <div class="tweet-heading tweet-heading--after" data-rise="38">
-      <blockquote class="twitter-tweet" data-dnt="true" data-lang="en">
-        <p lang="ar" dir="rtl">{tweet}</p>
-        &mdash; Abdellah Ben Zakar (@benzakarMorocco)
-        <a href="https://x.com/benzakarMorocco/status/2087324035004682646?ref_src=twsrc%5Etfw">August 11, 2026</a>
-      </blockquote>
-    </div>
-    <script async src="https://platform.x.com/widgets.js" charset="utf-8"></script>
   </div>
 </section>""".format(
         label=esc("5 سنين ديال بنكيران، و5 ديال العثماني، و5 ديال أخنوش، وفالأخير: كارثة سبتة."),
         title=esc("باش نقادو مغرب السرعتين، خاصنا مغرب الخطتين"),
         reader=two_speeds_reader,
-        tweet=esc("ما كنطلبوش من المغاربة يصدقونا بالسمع؛ كنطلبو منهم يشوفو بعينيهم الفرق الواضح ما بين 36 حزب ديال الهضرة، وحزب ديال الابتكار والخدمة: حزب اليمين المغربي."),
     ))
 
     parts.append("""<section class="bay bay--redback" id="plan-a-b" data-parallax-bg>
