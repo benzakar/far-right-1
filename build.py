@@ -548,9 +548,9 @@ def home():
     <article class="policy-tweet" dir="rtl" aria-label="تغريدة عبدالله بن زكار">
       <header class="policy-tweet__head">
         <div class="policy-tweet__identity">
-          <span class="policy-tweet__avatar" aria-hidden="true">BZ</span>
+          <img class="policy-tweet__avatar" src="{avatar}" width="96" height="96" alt="">
           <span>
-            <strong>Abdellah Ben Zakar</strong>
+            <strong>Ben Zakar</strong>
             <span class="policy-tweet__handle">@benzakarMorocco</span>
           </span>
         </div>
@@ -564,6 +564,7 @@ def home():
     </article>
   </div>""".format(
         image=asset("/img/from-002.png"),
+        avatar=asset("/img/ben-zakar-x-profile.jpg"),
         p2=esc("دستور 2011 خرّج على البلاد، وأحسن مثال هو مطالبة المواطنين بإلغاء الساعة الإضافية. رغم الوقفات الاحتجاجية والعريضة اللي وقّعها عشرات الآلاف من المغاربة، والمشاكل الصحية اللي عاناو منها المغاربة وأطفالهم، عطى الدستور لذاك الانتهازي ديال أخنوش السلطة باش يلغي الساعة الإضافية فقط من أجل الانتخابات، ماشي من أجل المغاربة."),
         p3=esc("أملنا فـ ولد سيدنا أعزّه الله، وفالدستور اللي الحزب موجد ليه؛ الدستور اللي غادي يحل كاع المشاكل، منها: مشكل الهجرة، والصحة، والتعليم، واللي غادي يهني ولد سيدنا من بنكيران وأخنوش ديال المستقبل."),
         subtitle=esc("علاش دستور 2011 ما صالحش من بعد المونديال؟"),

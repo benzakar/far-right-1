@@ -1337,18 +1337,14 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
 }
 
 .policy-tweet__avatar {
-  display: grid;
+  display: block;
   flex: 0 0 auto;
-  place-items: center;
   inline-size: 46px;
   block-size: 46px;
   border: 1px solid #536471;
   border-radius: 50%;
-  background: linear-gradient(145deg, var(--madder), var(--green-deep));
-  color: #fff;
-  font-family: system-ui, sans-serif;
-  font-size: 0.82rem;
-  font-weight: 800;
+  background: #0f1419;
+  object-fit: cover;
 }
 
 .policy-tweet__mark {
