@@ -723,7 +723,7 @@ def apply_page_overrides(page_key, markup):
     for edit_id, op in overrides.items():
         if not isinstance(op, dict):
             continue
-        if not any(k in op for k in ("removed", "tag", "text")):
+        if not any(k in op for k in ("removed", "tag", "text", "after")):
             continue
         found = _find_element(markup, edit_id)
         if not found:
@@ -738,25 +738,41 @@ def apply_page_overrides(page_key, markup):
         if new_tag not in TEXT_TAGS | {tag}:
             new_tag = tag
 
+        pieces = []
+
         if "text" in op and tag in TEXT_TAGS:
-            # A blank line means "start a new paragraph here".
-            chunks = [c.strip() for c in re.split(r'\n\s*\n', str(op["text"])) if c.strip()]
-            if not chunks:
+            text = str(op["text"]).strip()
+            if not text and not op.get("after"):
                 markup = markup[:start] + markup[end:]
                 continue
-            pieces = []
-            for i, chunk in enumerate(chunks):
-                head = _retag(open_tag, tag, new_tag)
-                if i:
-                    head = re.sub(r'data-edit-id="[^"]*"',
-                                  'data-edit-id="{}-{}"'.format(edit_id, i), head)
-                pieces.append("{}{}</{}>".format(head, esc(chunk), new_tag))
-            markup = markup[:start] + "\n".join(pieces) + markup[end:]
+            if text:
+                pieces.append("{}{}</{}>".format(
+                    _retag(open_tag, tag, new_tag), esc(text), new_tag))
+        elif new_tag != tag:
+            pieces.append(_retag(open_tag, tag, new_tag) + inner + "</{}>".format(new_tag))
+        elif op.get("after"):
+            pieces.append(markup[start:end])
+        else:
             continue
 
-        if new_tag != tag:
-            markup = (markup[:start] + _retag(open_tag, tag, new_tag) + inner
-                      + "</{}>".format(new_tag) + markup[end:])
+        # Blocks added underneath this one. They carry ids derived from their
+        # anchor, so inserting never renumbers the positional ids that
+        # everything else is addressed by.
+        for i, block in enumerate(op.get("after") or []):
+            if not isinstance(block, dict):
+                continue
+            body = str(block.get("text", "")).strip()
+            if not body:
+                continue
+            btag = str(block.get("tag", "p")).lower()
+            if btag not in TEXT_TAGS:
+                btag = "p"
+            style = str(block.get("style", "")).strip()
+            pieces.append('<{tag}{style} data-edit-id="{eid}-add{n}">{text}</{tag}>'.format(
+                tag=btag, style=' style="{}"'.format(esc(style)) if style else "",
+                eid=edit_id, n=i + 1, text=esc(body)))
+
+        markup = markup[:start] + "\n".join(pieces) + markup[end:]
 
     return markup
 

@@ -60,12 +60,19 @@
       <div class="grid">
         <label class="wide" id="text-field">النص
           <textarea id="selected-text" rows="6"></textarea>
-          <small class="hint">سطر خاوي بين جوجت أسطر = فقرة جديدة. مسح النص كامل = تمسح الفقرة.</small>
+          <small class="hint">إلا خويتي النص كامل، العنصر كيتمسح.</small>
         </label>
         <fieldset class="wide tweet" id="shape-tools"><legend>نوع العنصر</legend><div class="chips">
           <button type="button" data-tag="h3">دير منو عنوان</button>
           <button type="button" data-tag="p">رجّعو فقرة</button>
         </div></fieldset>
+        <fieldset class="wide tweet" id="insert-tools"><legend>زيد تحت هاد العنصر</legend>
+          <p class="hint">كيزيد فقرة ولا عنوان جديد مباشرة من تحت. من بعد كليكي عليه فالمعاينة باش تكتب فيه.</p>
+          <div class="chips">
+            <button type="button" data-add="p">زيد فقرة تحت</button>
+            <button type="button" data-add="h3">زيد عنوان تحت</button>
+          </div>
+        </fieldset>
         <fieldset class="wide tweet"><legend>الخط</legend><div class="chips">
           <button type="button" data-style="font-size" data-value="0.85em">صغير</button><button type="button" data-style="font-size" data-value="1em">عادي</button><button type="button" data-style="font-size" data-value="1.25em">كبير</button><button type="button" data-style="font-size" data-value="1.6em">كبير بزاف</button>
           <button type="button" data-style="font-weight" data-value="700">غامق</button><button type="button" data-style="font-weight" data-value="400">عادي</button>

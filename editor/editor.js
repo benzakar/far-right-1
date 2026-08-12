@@ -55,38 +55,50 @@
   function wireFrame(){var doc=frame.contentDocument;if(!doc||!doc.getElementById("main"))return;var style=doc.createElement("style");style.textContent='[data-edit-id]{transition:outline-color .15s}[data-edit-id]:hover{outline:2px dashed #c9a45e!important;outline-offset:2px;cursor:pointer}.editor-selected{outline:4px solid #8c2f23!important;outline-offset:3px}';doc.head.appendChild(style);doc.addEventListener("click",function(e){var el=e.target.closest("[data-edit-id]");if(!el)return;e.preventDefault();e.stopPropagation();doc.querySelectorAll(".editor-selected").forEach(function(n){n.classList.remove("editor-selected")});el.classList.add("editor-selected");selected={el:el,id:el.dataset.editId};if(mode!=="click")setMode("click");else drawSelection();document.getElementById("form").scrollIntoView({behavior:"smooth",block:"start"})},true)}
   function mergeStyle(existing,prop,value){var out={};String(existing||"").split(";").forEach(function(d){var i=d.indexOf(":");if(i>0)out[d.slice(0,i).trim()]=d.slice(i+1).trim()});if(value)out[prop]=value;else delete out[prop];return Object.keys(out).map(function(k){return k+":"+out[k]}).join("; ")}
   function styleValue(style,prop){var found="";String(style||"").split(";").forEach(function(d){var i=d.indexOf(":");if(i>0&&d.slice(0,i).trim()===prop)found=d.slice(i+1).trim()});return found}
-  function setStyle(prop,value){if(!selected)return;var o=op(selected.id);o.style=mergeStyle(o.style||selected.el.getAttribute("style"),prop,value);selected.el.style.setProperty(prop,value);mark();drawSelection()}
+  function setStyle(prop,value){if(!selected)return;var o=target();o.style=mergeStyle(o.style||selected.el.getAttribute("style"),prop,value);selected.el.style.setProperty(prop,value);mark();drawSelection()}
   function setAttr(name,value){if(!selected)return;op(selected.id)[name]=value;selected.el.setAttribute(name,value);mark()}
-  function drawSelection(){if(!selected)return;var el=selected.el,tag=el.tagName.toLowerCase(),o=op(selected.id);document.getElementById("selection-empty").hidden=true;document.getElementById("selection-controls").hidden=false;document.getElementById("selection-name").textContent=describe(el)+" · "+selected.id;var textual=/^(h1|h2|h3|p|blockquote|a)$/.test(tag);document.getElementById("text-field").hidden=!textual;
+  function drawSelection(){if(!selected)return;var el=selected.el,tag=el.tagName.toLowerCase(),o=target();document.getElementById("selection-empty").hidden=true;document.getElementById("selection-controls").hidden=false;document.getElementById("selection-name").textContent=describe(el)+" · "+selected.id;var textual=/^(h1|h2|h3|p|blockquote|a)$/.test(tag);document.getElementById("text-field").hidden=!textual;
     /* a paragraph can become a heading and back; nothing else re-tags */
     document.getElementById("shape-tools").hidden=!/^(p|h3)$/.test(tag);
     document.querySelectorAll("[data-tag]").forEach(function(b){b.classList.toggle("active",b.dataset.tag===tag)});
     document.getElementById("remove-element").hidden=!!o.removed;
     document.getElementById("restore-element").hidden=!o.removed;var ta=document.getElementById("selected-text");ta.value=o.text!==undefined?o.text:el.textContent.trim();document.getElementById("box-tools").hidden=!/^(section|article|div)$/.test(tag);document.getElementById("image-tools").hidden=tag!=="img";document.getElementById("link-tools").hidden=tag!=="a";document.getElementById("quote-tool").hidden=tag!=="p";document.getElementById("selected-quote").checked=(o.class||el.className).split(/\s+/).indexOf("section-quote")>=0;if(tag==="img")document.getElementById("selected-src").value=o.src||el.getAttribute("src")||"";if(tag==="a")document.getElementById("selected-href").value=o.href||el.getAttribute("href")||"";document.querySelectorAll("[data-style]").forEach(function(b){b.classList.toggle("active",styleValue(o.style||el.getAttribute("style"),b.dataset.style)===b.dataset.value)})}
-  /* The preview mirrors a split so the result is visible before saving; the
-     authoritative rewrite happens at build time. */
-  function paintSplit(el,value){
-    var chunks=String(value).split(/\n\s*\n/).map(function(c){return c.trim()}).filter(Boolean);
-    while(el.nextSibling&&el.nextSibling.dataset&&/-\d+$/.test(el.nextSibling.dataset.editId||"")
-          &&(el.nextSibling.dataset.editId||"").indexOf(el.dataset.editId+"-")===0){
-      el.nextSibling.remove();
-    }
-    el.textContent=chunks[0]||"";
-    var after=el;
-    chunks.slice(1).forEach(function(chunk,i){
-      var clone=el.cloneNode(false);
-      clone.dataset.editId=el.dataset.editId+"-"+(i+1);
-      clone.textContent=chunk;
-      after.insertAdjacentElement("afterend",clone);
-      after=clone;
-    });
+  /* Blocks added underneath an element live in that element's `after` list,
+     not as overrides of their own. `p-5-add2` means "the second block added
+     under p-5", so editing one routes back into that list. */
+  var ADDED=/^(.*)-add(\d+)$/;
+  function addedRef(id){
+    var m=ADDED.exec(id||"");
+    if(!m)return null;
+    var list=op(m[1]).after;
+    if(!Array.isArray(list))return null;
+    var item=list[Number(m[2])-1];
+    return item?{list:list,index:Number(m[2])-1,item:item}:null;
   }
-  function wireControls(){document.getElementById("selected-text").oninput=function(){if(!selected)return;op(selected.id).text=this.value;paintSplit(selected.el,this.value);mark()};
+  /* One place decides where an edit lands, so every control works the same
+     on a generated element and on one that was added underneath. */
+  function target(){
+    if(!selected)return null;
+    var ref=addedRef(selected.id);
+    return ref?ref.item:op(selected.id);
+  }
+  function drawEmpty(){document.getElementById("selection-empty").hidden=false;document.getElementById("selection-controls").hidden=true}
+  function wireControls(){document.getElementById("selected-text").oninput=function(){if(!selected)return;target().text=this.value;selected.el.textContent=this.value;mark()};
+    document.querySelectorAll("[data-add]").forEach(function(b){b.onclick=function(){
+      if(!selected)return;
+      var anchorId=selected.id, ref=addedRef(anchorId);
+      /* adding under an added block appends to the same anchor's list */
+      if(ref)anchorId=ADDED.exec(anchorId)[1];
+      var o=op(anchorId), list=o.after||(o.after=[]);
+      list.push({tag:b.dataset.add,text:b.dataset.add==="h3"?"عنوان جديد":"فقرة جديدة"});
+      mark();
+      say("زدنا "+(b.dataset.add==="h3"?"عنوان":"فقرة")+". دير حفظ باش تبان فالمعاينة وتقدر تكليكي عليها");
+    }});
     document.querySelectorAll("[data-tag]").forEach(function(b){b.onclick=function(){
       if(!selected)return;
       var want=b.dataset.tag, el=selected.el, cur=el.tagName.toLowerCase();
       if(cur===want)return;
-      op(selected.id).tag=want;
+      target().tag=want;
       /* swap the node in the preview so the change is visible at once */
       var replacement=frame.contentDocument.createElement(want);
       replacement.innerHTML=el.innerHTML;
@@ -99,6 +111,9 @@
     document.getElementById("remove-element").onclick=function(){
       if(!selected)return;
       if(!confirm("تمسح هاد العنصر من الصفحة؟"))return;
+      var ref=addedRef(selected.id);
+      if(ref){ref.list.splice(ref.index,1);selected.el.remove();selected=null;
+        say("تمسح. دير حفظ باش يتأكد");drawEmpty();mark();return}
       op(selected.id).removed=true;
       selected.el.hidden=true;selected.el.style.display="none";
       mark();drawSelection();
