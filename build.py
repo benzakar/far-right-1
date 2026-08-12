@@ -288,7 +288,7 @@ def crumbs(trail):
 
 def pagehead(trail, label, title, standfirst=""):
     sf = '<p class="pagehead__standfirst">{}</p>'.format(esc(standfirst)) if standfirst else ""
-    return """<section class="pagehead">
+    return """<section class="pagehead bay--greenback" data-parallax-bg>
   <div class="shell">
     {crumbs}
     <p class="label" style="margin-block-start:1.4rem">{label}</p>
@@ -312,7 +312,8 @@ def cinema_block():
         return ", ".join(asset("/img/{}-{}.jpg".format(name, w)) + " {}w".format(w)
                          for w in (640, 960, 1280, 1920, 2560, 3840))
 
-    return """<section class="cinema" data-cinema>
+    return """<h1 class="vh">{page_h1}</h1>
+<section class="cinema" data-cinema>
   <div class="cinema__stage">
 
     <img class="cinema__bg" data-cine="bg" src="{src}" srcset="{ss}" sizes="100vw"
@@ -337,7 +338,8 @@ def cinema_block():
 
   </div>
 </section>
-""".format(src=asset("/img/hero9-1920.jpg"), ss=srcset("hero9"),
+""".format(page_h1=esc("{} — {}".format(UI["party_name"], CINEMA["line_2"])),
+           src=asset("/img/hero9-1920.jpg"), ss=srcset("hero9"),
            arrow=asset("/img/arrow.gif"),
            hero_alt=esc(CINEMA["hero_alt"]),
            line1=esc(CINEMA["line_1"]), line2=esc(CINEMA["line_2"]),
@@ -490,6 +492,76 @@ def _story_panel(key, image_label, eyebrow, title, body, actions=(), flip=False,
         actions=actions_html)
 
 
+def policy_reader(key, image_label, blocks, aria, actions=(), tweet_id=None,
+                  image=None):
+    """The reading treatment used by the second section, made reusable.
+
+    A framed visual beside a bounded, independently scrollable passage with a
+    fade and live progress. This is the house style for every prose section;
+    `_story_panel` remains only for short card-like blocks.
+
+    `blocks` is a list of strings (paragraphs) or ("h3", text) pairs. When no
+    artwork exists for `key` yet, the visual falls back to the same labelled
+    placeholder the rest of the site uses, so the geometry is identical and
+    the image can be dropped in later without touching the layout.
+    """
+    # Deliberately does NOT read `content_overrides`. Those entries are the
+    # one-paragraph defaults snapshotted for the old story panels, and they
+    # would silently truncate a reader back to a single block. Text here is
+    # editable through the click editor's per-element `data-edit-id` path,
+    # which covers every paragraph without a parallel copy of the content.
+    parts = []
+    for block in blocks:
+        if isinstance(block, (list, tuple)) and len(block) == 2:
+            tag, text = block
+        else:
+            tag, text = "p", block
+        if not str(text).strip():
+            continue
+        parts.append("<{tag}>{text}</{tag}>".format(tag=tag, text=esc(text)))
+    body_html = "\n          ".join(parts)
+
+    configured = image or EDITOR_CONFIG.get("images", {}).get(key, "")
+    if configured:
+        visual = """<figure class="policy-reader__visual">
+      <img class="policy-reader__image" src="{src}" width="1000" height="1000"
+           alt="{label}" loading="lazy" decoding="async">
+    </figure>""".format(src=asset(str(configured)), label=esc(image_label))
+    else:
+        visual = """<figure class="policy-reader__visual">
+      {slot}
+    </figure>""".format(slot=_image_slot(key, image_label))
+
+    links = []
+    for href, label, external in actions:
+        attrs = ' rel="noopener noreferrer" target="_blank"' if external else ""
+        arrow = " ↗" if external else ""
+        links.append('<a class="btn btn--outline" href="{}"{}>{}{}</a>'.format(
+            href, attrs, esc(label), arrow))
+    actions_html = ('\n    <div class="policy-reader__actions">{}</div>'.format(
+        "\n      ".join(links))) if links else ""
+
+    return """<div class="policy-reader" data-reveal>
+    {visual}
+    <div class="policy-pane" data-text-pane>
+      <div class="policy-pane__window">
+        <div class="policy-pane__scroll" aria-label="{aria}">
+          {body}
+        </div>
+        <div class="policy-pane__fade" aria-hidden="true"></div>
+      </div>
+      <footer class="policy-pane__foot">
+        <span>قرا النص</span>
+        <span class="policy-pane__progress" aria-hidden="true"><i></i></span>
+        <span data-pane-progress>0%</span>
+      </footer>
+    </div>{actions}
+    {tweet}
+  </div>""".format(visual=visual, aria=esc(aria), body=body_html,
+                   actions=actions_html,
+                   tweet=section_tweet(tweet_id) if tweet_id else "")
+
+
 def section_intro(section_id, label, title, lead=""):
     label = section_value(section_id, "label", label)
     title = section_value(section_id, "title", title)
@@ -637,58 +709,8 @@ def home():
         d for d in DOCTRINES if d["slug"] not in ("bronx", "lalla-khadija")
     ]
 
-    about_points = """<ul class="story-panel__points">
-          {items}
-        </ul>""".format(items="\n          ".join(
-            "<li>{}</li>".format(esc(title))
-            for title, _ in WHO["distinctions"]))
 
-    example_panels = "\n".join([
-        _story_panel(
-            "doctrine-bronx", bronx["name"], "المثال اللول", bronx["name"],
-            [bronx["summary"], bronx["slogan"]],
-            actions=[(url("doctrines/bronx/"), UI["read_more"], False)],
-            level=3,
-        ),
-        _story_panel(
-            "doctrine-lalla-khadija", lalla["name"], "المثال الثاني", lalla["name"],
-            [lalla["summary"], lalla["slogan"]],
-            actions=[(url("doctrines/lalla-khadija/"), UI["read_more"], False)],
-            flip=True, level=3,
-        ),
-        _story_panel(
-            "project-taxis", "خطة باء ديال الطاكسيات", "المثال الثالث",
-            VISION["example_title"],
-            [(
-                "خطة باء ديال الطاكسيات كتجمع المأذونيات المنظمة، وحماية السائقين، "
-                "والتطبيقات المرخصة، والأثمنة الواضحة، والتأمين، ومراقبة الجودة فمنظومة "
-                "وحدة عادلة."
-            )],
-            actions=[(url("vision/"), "شوف خطة ألف وخطة باء", False)], level=3,
-        ),
-    ])
 
-    identity_panels = "\n".join([
-        _story_panel(
-            "section-monarchy", "الملكية والاستمرارية", MONARCHY["label"],
-            MONARCHY["title"], [MONARCHY["body"][1]],
-            actions=[(url("monarchy/"), UI["more"], False)], flip=True, level=3,
-        ),
-        _story_panel(
-            "about-identity", "هوية الحزب", WHO["label"], WHO["title"],
-            [WHO["lead"]],
-            actions=[(url("about/"), "تعرف علينا بلا لف ودوران", False)], level=3,
-        ),
-        _story_panel(
-            "about-founder", "عبدالله بن زكار", FOUNDER["label"], FOUNDER["name"],
-            [FOUNDER["standfirst"], FOUNDER["message"][5]],
-            actions=[
-                (url("about/#founder"), "شوف المؤسس وسط قصة الحزب", False),
-                (SITE["youtube"], FOUNDER["youtube_label"], True),
-            ],
-            flip=True, panel_id="founder", level=3,
-        ),
-    ])
 
     two_speeds_reader = """<div class="policy-reader" data-reveal>
     <figure class="policy-reader__visual">
@@ -744,53 +766,94 @@ def home():
     parts.append("""<section class="{classes}" id="plan-a-b" data-parallax-bg>
   <div class="shell">
     {intro}
-    <div class="story-reader">
-      {panel}
-    </div>
-    {tweet}
+    {reader}
   </div>
-</section>""".format(classes=section_class("plan-a-b"), intro=section_intro("plan-a-b", "من هنا كتبدا الفكرة", "خطة ألف وخطة باء", "خطة ألف كتوجد المغرب للمسار المتوقع. خطة باء كتوجد المغرب للي ما كانش فالحساب."), tweet=section_tweet("plan-a-b"), panel=_story_panel(
-    "section-vision", "خطة ألف وخطة باء", VISION["label"], VISION["plan_title"],
-    [VISION["plan_lead"]],
-    actions=[(url("vision/"), "شوف الرؤية كاملة", False)], level=3)))
+</section>""".format(
+        classes=section_class("plan-a-b"),
+        intro=section_intro("plan-a-b", "من هنا كتبدا الفكرة", "خطة ألف وخطة باء", "خطة ألف كتوجد المغرب للمسار المتوقع. خطة باء كتوجد المغرب للي ما كانش فالحساب."),
+        reader=policy_reader(
+            "section-vision", "خطة ألف وخطة باء",
+            [VISION["plan_lead"]] + list(VISION["plan_body"]) + [
+                ("h3", VISION["example_title"]),
+                VISION["example_body"],
+            ],
+            aria="خطة ألف وخطة باء",
+            actions=[(url("vision/"), "شوف الرؤية كاملة", False)],
+            tweet_id="plan-a-b")))
 
     parts.append("""<section class="{classes}" id="examples" data-parallax-bg>
   <div class="shell">
     {intro}
-    <div class="story-reader">
-      {panels}
-    </div>
+    {reader}
     <div class="status" data-reveal>
       <span class="status__tag">اللي جاي</span>
       <p>وهادي غير البداية. عقائد ومشاريع أخرى كيبانو لتحت، وأخرى غادي تزيد من بعد.</p>
     </div>
-    {tweet}
   </div>
-</section>""".format(classes=section_class("examples"), intro=section_intro("examples", "من الفكرة للمشروع", "ثلاثة أمثلة كيبينو كيفاش كنفكرو", "ماشي شعارات عامة: كل مثال كيبدا من مشكل باين، وكيقترح تصميم يمكن يتجرب ويتقاس."), panels=example_panels, tweet=section_tweet("examples")))
+</section>""".format(
+        classes=section_class("examples"),
+        intro=section_intro("examples", "من الفكرة للمشروع", "ثلاثة أمثلة كيبينو كيفاش كنفكرو", "ماشي شعارات عامة: كل مثال كيبدا من مشكل باين، وكيقترح تصميم يمكن يتجرب ويتقاس."),
+        reader=policy_reader(
+            "doctrine-bronx", "الأمثلة الثلاثة",
+            [
+                ("h3", "المثال اللول — " + bronx["name"]),
+                bronx["summary"], bronx["intro"],
+                ("h3", "المثال الثاني — " + lalla["name"]),
+                lalla["summary"], lalla["intro"],
+                ("h3", "المثال الثالث — " + VISION["example_title"]),
+                VISION["example_body"],
+            ],
+            aria="ثلاثة أمثلة كيبينو كيفاش كنفكرو",
+            actions=[
+                (url("doctrines/bronx/"), bronx["name"], False),
+                (url("doctrines/lalla-khadija/"), lalla["name"], False),
+                (url("vision/"), "خطة ألف وخطة باء", False),
+            ],
+            tweet_id="examples")))
 
     parts.append("""<section class="{classes}" id="latest-news" data-parallax-bg>
   <div class="shell">
     {intro}
-    <div class="story-reader">
-      {panel}
-    </div>
-    {tweet}
+    {reader}
   </div>
-</section>""".format(classes=section_class("latest-news"), intro=section_intro("latest-news", "آخر المستجدات", "شنو واقع دابا", "الخبر كيتنشر ملي يتأكد. دابا هادي مبادرة فمرحلة التحضير، ماشي لقاء وقع."), tweet=section_tweet("latest-news"), panel=_story_panel(
-    "news-immigration-equality", "المساواة فالهجرة", "آخر المستجدات · 10 غشت 2026",
-    NEWS_FEATURED["title"], [NEWS_FEATURED["standfirst"], NEWS_FEATURED["status_note"]],
-    actions=[(url("news/{}/".format(NEWS_FEATURED["slug"])), UI["more"], False)],
-    flip=True, level=3)))
+</section>""".format(
+        classes=section_class("latest-news"),
+        intro=section_intro("latest-news", "آخر المستجدات", "شنو واقع دابا", "الخبر كيتنشر ملي يتأكد. دابا هادي مبادرة فمرحلة التحضير، ماشي لقاء وقع."),
+        reader=policy_reader(
+            "news-immigration-equality", "المساواة فالهجرة",
+            [
+                ("h3", NEWS_FEATURED["title"]),
+                NEWS_FEATURED["standfirst"],
+            ] + list(NEWS_FEATURED["body"]) + [
+                ("h3", "حالة الملف"),
+                NEWS_FEATURED["status_note"],
+            ],
+            aria=NEWS_FEATURED["title"],
+            actions=[(url("news/{}/".format(NEWS_FEATURED["slug"])), UI["more"], False)],
+            tweet_id="latest-news")))
 
     parts.append("""<section class="{classes}" id="about" data-parallax-bg>
   <div class="shell">
     {intro}
-    <div class="story-reader">
-      {panels}
-    </div>
-    {tweet}
+    {reader}
   </div>
-</section>""".format(classes=section_class("about"), intro=section_intro("about", "الموقف والهوية", "حنا شكون، وشنو كيميزنا", "البراركية، هوية الحزب، والمؤسس مجموعين هنا بلا ما يتفرّقو على الزائر."), panels=identity_panels, tweet=section_tweet("about")))
+</section>""".format(
+        classes=section_class("about"),
+        intro=section_intro("about", "الموقف والهوية", "حنا شكون، وشنو كيميزنا", "البراركية، هوية الحزب، والمؤسس مجموعين هنا بلا ما يتفرّقو على الزائر."),
+        reader=policy_reader(
+            "about-identity", "هوية الحزب",
+            [
+                ("h3", WHO["title"]), WHO["lead"],
+                ("h3", MONARCHY["title"]), MONARCHY["body"][1], MONARCHY["body"][3],
+                ("h3", FOUNDER["name"]), FOUNDER["standfirst"], FOUNDER["message"][5],
+            ],
+            aria="حنا شكون، وشنو كيميزنا",
+            actions=[
+                (url("about/"), "تعرف علينا بلا لف ودوران", False),
+                (url("monarchy/"), UI["more"], False),
+                (SITE["youtube"], FOUNDER["youtube_label"], True),
+            ],
+            tweet_id="about")))
 
     parts.append("""<section class="{classes}" id="doctrines" data-parallax-bg>
   <div class="shell">
@@ -806,42 +869,65 @@ def home():
     parts.append("""<section class="{classes}" id="bus-summary" data-parallax-bg>
   <div class="shell">
     {intro}
-    <div class="story-reader">
-      {panel}
-    </div>
-    {tweet}
+    {reader}
   </div>
-</section>""".format(classes=section_class("bus-summary"), intro=section_intro("bus-summary", "", "", ""), tweet=section_tweet("bus-summary"), panel=_story_panel(
-    "section-bus", "حافلة المغرب", BUS["label"], BUS["title"], [BUS["lead"]],
-    actions=[(url("bus/"), "شوف حافلة المغرب", False)], flip=True)))
+</section>""".format(
+        classes=section_class("bus-summary"),
+        intro=section_intro("bus-summary", BUS["label"], BUS["title"], BUS["lead"]),
+        reader=policy_reader(
+            "section-bus", "حافلة المغرب",
+            [item for stage in BUS["stages"] for item in (
+                ("h3", stage["role"] + " — " + stage["subtitle"]),
+                stage["body"],
+            )] + [("h3", BUS["note_title"]), BUS["note_body"]],
+            aria=BUS["title"],
+            actions=[(url("bus/"), "شوف حافلة المغرب", False)],
+            tweet_id="bus-summary")))
 
     parts.append("""<section class="{classes}" id="accountability" data-parallax-bg>
   <div class="shell">
     {intro}
-    <div class="story-reader">
-      {panel}
-    </div>
-    {tweet}
+    {reader}
   </div>
-</section>""".format(classes=section_class("accountability"), intro=section_intro("accountability", "كيفاش غادي تحاسبونا", "القياس قبل الثقة", "الفرق ماشي فالنوايا. الفرق فالحل، والتجربة، والنتيجة اللي كتتنشر."), tweet=section_tweet("accountability"), panel=_story_panel(
-    "section-accountability", "المساءلة والنتائج", ACCOUNTABILITY["label"],
-    ACCOUNTABILITY["title"], [ACCOUNTABILITY["summary"]],
-    actions=[(url("accountability/"), UI["more"], False)],
-    extra=about_points, level=3)))
+</section>""".format(
+        classes=section_class("accountability"),
+        intro=section_intro("accountability", "كيفاش غادي تحاسبونا", "القياس قبل الثقة", "الفرق ماشي فالنوايا. الفرق فالحل، والتجربة، والنتيجة اللي كتتنشر."),
+        reader=policy_reader(
+            "section-accountability", "المساءلة والنتائج",
+            [
+                ("h3", ACCOUNTABILITY["title"]), ACCOUNTABILITY["summary"],
+                ("h3", "شنو كيميزنا"),
+            ] + [t for t, _ in WHO["distinctions"]] + [
+                ("h3", ACCOUNTABILITY["ladder_title"]),
+            ] + ["{}: {}".format(rank, body)
+                 for rank, body in ACCOUNTABILITY["ladder"]] + [
+                ACCOUNTABILITY["disclaimer"],
+            ],
+            aria=ACCOUNTABILITY["title"],
+            actions=[(url("accountability/"), UI["more"], False)],
+            tweet_id="accountability")))
 
     parts.append("""<section class="{classes}" id="join" data-parallax-bg>
   <div class="shell">
     {intro}
-    <div class="story-reader">
-      {panel}
-    </div>
+    {reader}
     {petition}
-    {tweet}
   </div>
-</section>""".format(classes=section_class("join"), intro=section_intro("join", "", "", ""), tweet=section_tweet("join"), panel=_story_panel(
-    "section-join", "الحركة والبنّايين", JOIN["label"], JOIN["title"], [JOIN["lead"]],
-    actions=[(url("join/"), JOIN["label"], False)]),
-    petition=petition_block(compact=True)))
+</section>""".format(
+        classes=section_class("join"),
+        intro=section_intro("join", JOIN["label"], JOIN["title"], JOIN["lead"]),
+        reader=policy_reader(
+            "section-join", "الحركة والبنّايين",
+            [("h3", "طرق المساهمة")] + [
+                "{} — {}".format(title, body) for title, body in JOIN["paths"]
+            ] + [
+                ("h3", JOIN["how_title"]), JOIN["how_body"],
+                ("h3", JOIN["contact_title"]), JOIN["contact_note"],
+            ],
+            aria=JOIN["title"],
+            actions=[(url("join/"), JOIN["label"], False)],
+            tweet_id="join"),
+        petition=petition_block(compact=True)))
 
     parts.append("""<section class="{classes}" id="declaration" data-parallax-bg>
   <div class="shell declaration">
@@ -910,14 +996,14 @@ def about_page():
         actions=[(url("vision/"), "الرؤية كاملة", False)],
     )
 
-    body += """<section class="bay bay--raised">
+    body += """<section class="bay bay--greenback">
   <div class="shell">
     <div class="story-reader">
       {about_story}
     </div>
   </div>
 </section>
-<section class="bay bay--recessed">
+<section class="bay bay--redback">
   <div class="shell">
     <p class="label">علاش حنا مختلفين</p>
     <h2 class="bay__title">أربع فروق كتقاس</h2>
@@ -926,7 +1012,7 @@ def about_page():
     </div>
   </div>
 </section>
-<section class="bay bay--raised">
+<section class="bay bay--greenback">
   <div class="shell">
     <div class="story-reader">
       {vision_story}
@@ -944,8 +1030,9 @@ def doctrines_index():
                     "كل عقيدة كتبدا من مشكل مغربي محدد، وكتشرح علاش ما تحلاش، ومن بعد "
                     "كتقترح حل والتزام يمكن يتقاس.")
 
-    body += """<section class="bay bay--recessed">
+    body += """<section class="bay bay--redback">
   <div class="shell">
+    <h2 class="vh">لائحة العقائد</h2>
     <div class="doctrine-cards doctrine-cards--index">
       {cards}
     </div>
@@ -966,7 +1053,7 @@ def doctrine_page(d):
                      (None, d["name"])],
                     "عقيدة {:02d}".format(d["order"]), d["name"], d["declaration"])
 
-    body += """<section class="bay bay--raised">
+    body += """<section class="bay bay--greenback">
   <div class="shell shell--narrow prose">
     <p>{intro}</p>
 
@@ -1002,7 +1089,7 @@ def doctrine_page(d):
     <p style="font-family:var(--display);font-size:var(--step-2);color:var(--green)">{slogan}</p>
   </div>
 </section>
-<section class="bay bay--recessed">
+<section class="bay bay--redback">
   <div class="shell">
     <p><a class="btn btn--outline" href="{index}">{back}</a></p>
   </div>
@@ -1031,7 +1118,7 @@ def vision_page():
     body = pagehead([(url(), UI["home"]), (None, VISION["label"])],
                     VISION["label"], VISION["title"], VISION["lead"])
 
-    body += """<section class="bay bay--raised" aria-labelledby="pillars-h">
+    body += """<section class="bay bay--greenback" aria-labelledby="pillars-h">
   <div class="shell">
     <h2 class="vh" id="pillars-h">ركائز الرؤية</h2>
     <div class="pillars" style="margin-block-start:0">
@@ -1039,7 +1126,7 @@ def vision_page():
     </div>
   </div>
 </section>
-<section class="bay bay--recessed">
+<section class="bay bay--redback">
   <div class="shell shell--narrow prose">
     <h2>{plan_title}</h2>
     <p>{plan_lead}</p>
@@ -1064,7 +1151,7 @@ def news_index():
                     "كنعلنو هنا المبادرات والمواقف. اللي ما تأكدش بعد كينشر بحال اقتراح، "
                     "ماشي بحال أمر واقع.")
 
-    body += """<section class="bay bay--raised">
+    body += """<section class="bay bay--greenback">
   <div class="shell">
     <article class="news">
       <div>
@@ -1107,7 +1194,7 @@ def news_article():
                     NEWS_FEATURED["kicker"], NEWS_FEATURED["title"],
                     NEWS_FEATURED["standfirst"])
 
-    body += """<section class="bay bay--raised">
+    body += """<section class="bay bay--greenback">
   <div class="shell shell--narrow prose">
     <div class="status">
       <span class="status__tag">{tag}</span>
@@ -1146,12 +1233,12 @@ def join_page():
     body = pagehead([(url(), UI["home"]), (None, JOIN["label"])],
                     JOIN["label"], JOIN["title"], JOIN["lead"])
 
-    body += """<section class="bay bay--raised">
+    body += """<section class="bay bay--greenback">
   <div class="shell shell--narrow">
     {petition}
   </div>
 </section>
-<section class="bay bay--recessed" aria-labelledby="paths-h">
+<section class="bay bay--redback" aria-labelledby="paths-h">
   <div class="shell">
     <h2 class="vh" id="paths-h">طرق المساهمة</h2>
     <div class="pillars" style="margin-block-start:0">
@@ -1159,7 +1246,7 @@ def join_page():
     </div>
   </div>
 </section>
-<section class="bay bay--raised">
+<section class="bay bay--greenback">
   <div class="shell shell--narrow prose">
     <h2>{how_t}</h2>
     <p>{how_b}</p>
@@ -1187,7 +1274,7 @@ def monarchy_page():
     examples = "\n      ".join("<li><strong>{}</strong> — {}</li>".format(esc(t), esc(b))
                               for t, b in MONARCHY["examples"])
 
-    body += """<section class="bay bay--raised">
+    body += """<section class="bay bay--greenback">
   <div class="shell shell--narrow prose">
     {paras}
 
@@ -1237,7 +1324,7 @@ def accountability_page():
                     ACCOUNTABILITY["label"], ACCOUNTABILITY["title"],
                     ACCOUNTABILITY["summary"])
 
-    body += """<section class="bay bay--raised">
+    body += """<section class="bay bay--greenback">
   <div class="shell shell--narrow prose">
     <div class="status">
       <span class="status__tag">{tag}</span>

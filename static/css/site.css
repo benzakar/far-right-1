@@ -167,7 +167,7 @@ button, button *,
 /* The transparent masthead carries ivory type over a bright carved
    image. It gets its own scrim rather than depending on the hero's,
    which is tuned for the copy at the foot of the frame. */
-body[data-hero-page] .masthead:not(.is-stuck)::before {
+body .masthead:not(.is-stuck)::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -225,19 +225,19 @@ body[data-hero-page] .masthead:not(.is-stuck)::before {
 /* Over the hero the masthead is transparent, so its type inverts to
    ivory and rides on the wash's top scrim. Once the page scrolls it
    becomes a glass surface and the type returns to ink. */
-body[data-hero-page] .masthead:not(.is-stuck) .wordmark__text,
-body[data-hero-page] .masthead:not(.is-stuck) .nav__link,
-body[data-hero-page] .masthead:not(.is-stuck) .burger {
+body .masthead:not(.is-stuck) .wordmark__text,
+body .masthead:not(.is-stuck) .nav__link,
+body .masthead:not(.is-stuck) .burger {
   color: var(--ivory-0);
 }
 
-body[data-hero-page] .masthead:not(.is-stuck) .burger {
+body .masthead:not(.is-stuck) .burger {
   border-color: rgba(251, 247, 239, 0.5);
 }
 
 /* the panel is opaque ivory when open, so invert back inside it */
 @media (max-width: 940px) {
-  body[data-hero-page] .masthead:not(.is-stuck) .nav.is-open .nav__link {
+  body .masthead:not(.is-stuck) .nav.is-open .nav__link {
     color: var(--ink);
   }
 }
@@ -333,16 +333,16 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
   .nav { z-index: 1; }
   .wordmark, .burger { position: relative; z-index: 3; }
   /* the toggle sits above the panel; keep it legible against it */
-  body[data-hero-page] .masthead:not(.is-stuck):has(.nav.is-open)::before { opacity: 0; }
-  body[data-hero-page] .masthead:not(.is-stuck):has(.nav.is-open) .wordmark__text,
-  body[data-hero-page] .masthead:not(.is-stuck):has(.nav.is-open) .burger {
+  body .masthead:not(.is-stuck):has(.nav.is-open)::before { opacity: 0; }
+  body .masthead:not(.is-stuck):has(.nav.is-open) .wordmark__text,
+  body .masthead:not(.is-stuck):has(.nav.is-open) .burger {
     color: var(--ink);
     border-color: var(--ivory-4);
   }
   /* Give the mobile toggle a solid brand surface in both states. The old
      transparent button disappeared over the pale hero and open menu. */
   .burger,
-  body[data-hero-page] .masthead:not(.is-stuck) .burger {
+  body .masthead:not(.is-stuck) .burger {
     background: var(--green-deep);
     color: var(--ivory-0);
     border: 2px solid var(--gold-pale);
@@ -352,7 +352,7 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
       border-color 0.22s var(--ease), box-shadow 0.22s var(--ease);
   }
   .masthead:has(.nav.is-open) .burger,
-  body[data-hero-page] .masthead:not(.is-stuck):has(.nav.is-open) .burger {
+  body .masthead:not(.is-stuck):has(.nav.is-open) .burger {
     background: var(--madder);
     color: var(--ivory-0);
     border-color: var(--gold-pale);
@@ -1272,6 +1272,76 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
   overflow: hidden;
   border-radius: 999px;
   background: rgba(20, 80, 58, 0.14);
+}
+
+/* ---------- Long-form on leather ----------
+   Inner pages carry continuous prose, so trapping them in the bounded
+   reading pane would nest a scroller inside the page. They use the same
+   materials instead — leather ground, cream sheet, green headings — with
+   the sheet running to its natural height. */
+
+.bay--greenback .prose,
+.bay--redback .prose,
+.bay--greenback .ledger,
+.bay--redback .ledger,
+.bay--greenback .marks,
+.bay--redback .marks {
+  background: var(--ivory-0);
+  border: 1px solid rgba(196, 179, 147, 0.82);
+  border-radius: var(--panel-radius, clamp(18px, 2vw, 28px));
+  box-shadow: var(--lift);
+  padding: clamp(1.4rem, 3.4vw, 2.6rem);
+  color: var(--ink-soft);
+}
+
+/* the sheet already carries the rule, so the ledger drops its own */
+.bay--greenback .ledger,
+.bay--redback .ledger { border-block-start: 1px solid rgba(196, 179, 147, 0.82); }
+
+.bay--greenback .marks,
+.bay--redback .marks { max-inline-size: none; }
+
+.bay--greenback .prose h2,
+.bay--redback .prose h2,
+.bay--greenback .prose h3,
+.bay--redback .prose h3 { color: var(--green-deep); }
+
+.bay--greenback .prose > p:first-of-type,
+.bay--redback .prose > p:first-of-type { color: var(--ink); }
+
+/* The page header is a leather plane now, so its type inverts to match the
+   sections beneath it. */
+.pagehead {
+  padding-block: clamp(7rem, 14vh, 11rem) clamp(2.5rem, 5vw, 4rem);
+  box-shadow: none;
+}
+.pagehead .pagehead__title { color: var(--ivory-0); }
+.pagehead .pagehead__standfirst { color: rgba(243, 237, 225, 0.86); }
+.pagehead .crumbs { color: rgba(243, 237, 225, 0.72); }
+.pagehead .crumbs a { color: inherit; border-block-end-color: rgba(243, 237, 225, 0.4); }
+.pagehead .crumbs a:hover { border-block-end-color: var(--gold-lit); }
+.pagehead .crumbs span[aria-hidden] { color: var(--gold-lit); }
+.pagehead .label { color: var(--gold-lit); }
+.pagehead .label::before { background: var(--gold-lit); }
+
+/* Actions belong to the reader as a whole, so they span both tracks and sit
+   under the pane rather than scrolling away inside it. */
+.policy-reader__actions {
+  grid-column: 1 / -1;
+  direction: rtl;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-block-start: 0.2rem;
+}
+
+/* The placeholder stands in for artwork that has not been produced yet. It
+   fills the visual track exactly as a real image would, so dropping the
+   picture in later changes nothing about the layout. */
+.policy-reader__visual .media-slot {
+  block-size: 100%;
+  inline-size: 100%;
+  margin: 0;
 }
 
 .policy-pane__progress i {

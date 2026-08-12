@@ -126,6 +126,57 @@ These are enforced throughout `content/` and should be kept:
 - ما كاينش إحصائيات ولا تأييدات ولا لقاءات ولا عضويات مخترعة.
 - التسمية الرسمية هي «حزب اليمين المغربي».
 
+## The visual editor
+
+`editor/server.py` serves a click-to-edit page that writes into
+`content/editor.json`, rebuilds a preview, and can publish to GitHub. It
+binds `127.0.0.1` only — nothing is exposed to the network.
+
+You do **not** need a terminal open. Build the launcher once:
+
+```sh
+sh editor/make-app.sh
+```
+
+That writes `~/Applications/FromParty Editor.app`. Double-click it, allow
+access to your Documents folder when macOS asks, and the editor opens in
+your browser. Running it again when the server is already up just reopens
+the tab. To have it ready after every restart, add it under
+**System Settings → General → Login Items → Open at Login**.
+
+A background `launchd` agent was tried first and does not work here: the
+repository lives under `~/Documents`, which macOS protects, and a launchd
+job gets no access there. The only workaround would be granting Full Disk
+Access to the `python3` binary itself, which is far too broad a permission
+for this. An app bundle asks for that one folder, by name, once.
+
+To stop it: quit the `python3` process, or run
+
+```sh
+lsof -ti tcp:8765 | xargs kill
+```
+
+## Section styles
+
+The homepage and the inner pages share one visual language:
+
+- **Leather grounds** — sections alternate `bay--greenback` and
+  `bay--redback`, set per section in `content/editor.json`.
+- **The reader** — `policy_reader()` in `build.py` renders the treatment the
+  second section established: a framed visual beside a bounded, independently
+  scrollable passage with a fade and live progress. Every prose section on
+  the homepage uses it.
+- **The sheet** — inner pages carry continuous long-form text, so they use a
+  cream sheet on leather rather than the bounded pane. Nesting a scroller
+  inside a long page would fight the page's own scroll.
+- **Cards** — the doctrines index stays a card grid. It is a ten-item
+  navigation surface, not prose, and a reading pane would not suit it.
+
+Where a section has no artwork yet, the visual falls back to a labelled
+placeholder with the same geometry, so dropping an image in later changes
+nothing about the layout. Upload images through the editor, or add them
+under `images` in `content/editor.json`.
+
 ## Deploying
 
 ### GitHub Pages
