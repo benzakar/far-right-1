@@ -249,7 +249,7 @@ def cinema_block():
     """
     def srcset(name):
         return ", ".join(asset("/img/{}-{}.jpg".format(name, w)) + " {}w".format(w)
-                         for w in (640, 960, 1280))
+                         for w in (640, 960, 1280, 1920, 2560, 3840))
 
     return """<section class="cinema" data-cinema>
   <div class="cinema__stage">
@@ -276,7 +276,7 @@ def cinema_block():
 
   </div>
 </section>
-""".format(src=asset("/img/hero7-1280.jpg"), ss=srcset("hero7"),
+""".format(src=asset("/img/hero8-1920.jpg"), ss=srcset("hero8"),
            arrow=asset("/img/arrow.gif"),
            hero_alt=esc(CINEMA["hero_alt"]),
            line1=esc(CINEMA["line_1"]), line2=esc(CINEMA["line_2"]),
