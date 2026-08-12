@@ -79,7 +79,6 @@ def head(title, desc, canonical, hero=False):
         "reem-kufi-700-arabic.woff2",
         "zain-400-arabic.woff2",
         "cairo-variable-arabic.woff2",
-        "lalezar-400-arabic.woff2",
     ]
     preloads = "\n".join(
         '  <link rel="preload" href="{}" as="font" type="font/woff2" crossorigin>'.format(
