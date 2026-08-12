@@ -160,7 +160,7 @@ def head(title, desc, canonical, hero=False):
   <meta property="og:url" content="{origin}{canonical}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#F3EDE1">
-  <link rel="icon" href="{favicon}" type="image/svg+xml">
+  <link rel="icon" href="{favicon}" type="image/png" sizes="48x48">
 {preloads}
   <link rel="stylesheet" href="{fontcss}">
   <link rel="stylesheet" href="{sitecss}">
@@ -170,7 +170,7 @@ def head(title, desc, canonical, hero=False):
 <a class="skip" href="#main">{skip}</a>
 """.format(
         title=esc(title), desc=esc(desc), origin=ORIGIN, canonical=canonical,
-        favicon=asset("/img/party-logo.svg"),
+        favicon=asset("/img/favicon2.png"),
         fontcss=versioned("/css/fonts-ar.css"), sitecss=versioned("/css/site.css"),
         theme_style=theme_style(),
         preloads=preloads, skip=esc(UI["skip"]),
@@ -337,7 +337,7 @@ def cinema_block():
 
   </div>
 </section>
-""".format(src=asset("/img/hero8-1920.jpg"), ss=srcset("hero8"),
+""".format(src=asset("/img/hero9-1920.jpg"), ss=srcset("hero9"),
            arrow=asset("/img/arrow.gif"),
            hero_alt=esc(CINEMA["hero_alt"]),
            line1=esc(CINEMA["line_1"]), line2=esc(CINEMA["line_2"]),
