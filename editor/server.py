@@ -46,6 +46,23 @@ def editable_blocks():
     return blocks
 
 
+PAGES = {
+    "home": ("الرئيسية", "/preview/"),
+    "about": ("من حنا", "/preview/about/"),
+    "doctrines": ("عقائدنا", "/preview/doctrines/"),
+    "vision": ("رؤيتنا", "/preview/vision/"),
+    "news": ("الأخبار", "/preview/news/"),
+    "news-article": ("مقال المساواة فالهجرة", "/preview/news/immigration-equality/"),
+    "join": ("انضم لينا", "/preview/join/"),
+    "monarchy": ("الملكية والاستمرارية", "/preview/monarchy/"),
+    "bus": ("حافلة المغرب", "/preview/bus/"),
+    "accountability": ("المساءلة", "/preview/accountability/"),
+}
+for doctrine in DOCTRINES:
+    PAGES["doctrine-" + doctrine["slug"]] = (
+        doctrine["name"], "/preview/doctrines/{}/".format(doctrine["slug"]))
+
+
 class Handler(SimpleHTTPRequestHandler):
     server_version = "FromPartyEditor/1.0"
 
@@ -78,6 +95,7 @@ class Handler(SimpleHTTPRequestHandler):
                 if isinstance(overrides.get(key), dict):
                     block.update(overrides[key])
             data["_blocks"] = defaults
+            data["_pages"] = {key: {"name": value[0], "url": value[1]} for key, value in PAGES.items()}
             data["_token"] = TOKEN
             data["_git"] = run("git", "status", "--short").stdout
             return self.send_json(200, data)
@@ -102,6 +120,7 @@ class Handler(SimpleHTTPRequestHandler):
                 data.pop("_token", None)
                 data.pop("_git", None)
                 blocks = data.pop("_blocks", {})
+                data.pop("_pages", None)
                 if isinstance(blocks, dict):
                     data["content_overrides"] = {
                         key: {field: value for field, value in block.items() if field in ("eyebrow", "title", "body")}

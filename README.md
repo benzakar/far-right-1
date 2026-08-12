@@ -31,10 +31,12 @@ On macOS, double-click `edit-site.command`. The editor opens at
 
 It can edit homepage section titles and introductions, alternate red/green
 leather backgrounds, add quotes and optional X cards, adjust the core palette
-and panel radius, rebuild a local preview, and publish an explicit commit to
-`main`. Content is saved in `content/editor.json`, so edits survive every site
-rebuild. Keep the terminal window open while editing; close it or press Ctrl+C
-to stop the editor.
+and panel radius. Like the reference editor, its default mode lets you click a
+title, paragraph, image, link, card, or section directly inside the live
+preview; the matching controls then appear beside it. It can rebuild a local
+preview and publish an explicit commit to `main`. Content is saved in
+`content/editor.json`, so edits survive every site rebuild. Keep the terminal
+window open while editing; close it or press Ctrl+C to stop the editor.
 
 ## Layout
 

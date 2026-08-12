@@ -16,6 +16,7 @@ import json
 import os
 import shutil
 import sys
+import re
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -248,8 +249,9 @@ def footer():
            navjs=versioned("/js/nav.js"), motionjs=versioned("/js/motion.js"))
 
 
-def page(key, active, body, hero=False):
+def page(key, active, body, hero=False, override_key=None):
     title, desc = META[key]
+    body = apply_page_overrides(override_key or key, body)
     return (head(title, desc, url(active), hero=hero)
             + masthead(active)
             + '<main id="main">\n' + body + "\n</main>\n"
@@ -531,6 +533,46 @@ def section_tweet(section_id):
 
 def clean_markup(markup):
     return "\n".join(line.rstrip() for line in markup.splitlines())
+
+
+EDITABLE_TAG_RE = re.compile(r"<(h[1-3]|p|blockquote|a|img|article|section|div)\b([^>]*)>", re.I)
+
+
+def apply_page_overrides(page_key, markup):
+    """Apply click-editor changes to generated markup using stable edit IDs."""
+    overrides = EDITOR_CONFIG.get("page_overrides", {}).get(page_key, {})
+    if not isinstance(overrides, dict):
+        overrides = {}
+    counters = {}
+
+    def decorate(match):
+        tag, attrs = match.group(1).lower(), match.group(2)
+        counters[tag] = counters.get(tag, 0) + 1
+        edit_id = "{}-{}".format(tag, counters[tag])
+        op = overrides.get(edit_id, {})
+        attrs = re.sub(r'\sdata-edit-id="[^"]*"', "", attrs)
+
+        def set_attr(text, name, value):
+            text = re.sub(r'\s{}="[^"]*"'.format(re.escape(name)), "", text)
+            return text + ' {}="{}"'.format(name, esc(value)) if value else text
+
+        if isinstance(op, dict):
+            for name in ("src", "href", "class", "style"):
+                if name in op:
+                    attrs = set_attr(attrs, name, str(op[name]))
+        return '<{}{} data-edit-id="{}">'.format(tag, attrs, edit_id)
+
+    markup = EDITABLE_TAG_RE.sub(decorate, markup)
+    text_ops = {key: value.get("text") for key, value in overrides.items()
+                if isinstance(value, dict) and "text" in value}
+    for edit_id, text in text_ops.items():
+        tag = edit_id.rsplit("-", 1)[0]
+        if tag not in ("h1", "h2", "h3", "p", "blockquote", "a"):
+            continue
+        pattern = re.compile(r'(<{tag}\b[^>]*data-edit-id="{eid}"[^>]*>)(.*?)(</{tag}>)'.format(
+            tag=re.escape(tag), eid=re.escape(edit_id)), re.I | re.S)
+        markup = pattern.sub(lambda m: m.group(1) + esc(text) + m.group(3), markup, count=1)
+    return markup
 
 
 def _doctrine_cards(doctrines):
@@ -978,6 +1020,7 @@ def doctrine_page(d):
 
     title = "{} — {}".format(d["name"], UI["party_name"])
     canonical = url("doctrines/{}/".format(d["slug"]))
+    body = apply_page_overrides("doctrine-" + d["slug"], body)
     return (head(title, d["summary"], canonical)
             + masthead("doctrines/")
             + '<main id="main">\n' + body + "\n</main>\n"
@@ -1092,6 +1135,7 @@ def news_article():
 
     title = "{} — {}".format(NEWS_FEATURED["title"], UI["party_name"])
     canonical = url("news/{}/".format(NEWS_FEATURED["slug"]))
+    body = apply_page_overrides("news-article", body)
     return (head(title, NEWS_FEATURED["standfirst"], canonical)
             + masthead("news/")
             + '<main id="main">\n' + body + "\n</main>\n"

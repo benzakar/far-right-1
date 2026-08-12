@@ -8,17 +8,22 @@
   <link rel="stylesheet" href="/editor/editor.css">
 </head>
 <body>
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="brand"><img src="/img/party-logo.png" alt=""><div><strong>محرر الموقع</strong><span>fromparty.com</span></div></div>
-    <nav id="sections"></nav>
-    <button class="theme-button" data-view="blocks">النصوص والصور داخل المقاطع</button>
-    <button class="theme-button" data-view="theme">ألوان الموقع والزوايا</button>
+    <label class="page-picker">الصفحة<select id="page"></select></label>
+    <nav class="mode-nav">
+      <button class="active" data-view="click">اختار من المعاينة</button>
+      <button data-view="sections">إعدادات مقاطع الرئيسية</button>
+      <button data-view="blocks">النصوص والصور داخل المقاطع</button>
+      <button data-view="theme">ألوان الموقع والزوايا</button>
+    </nav>
+    <nav id="sections" hidden></nav>
     <p class="security">كيخدم غير فهاد الحاسوب على 127.0.0.1</p>
   </aside>
 
   <main>
     <header class="toolbar">
-      <div><h1 id="view-title">المقاطع</h1><p id="status">حمّلنا الإعدادات…</p></div>
+      <div><h1 id="view-title">اختار من المعاينة</h1><p id="status">حمّلنا الإعدادات…</p></div>
       <div class="actions">
         <button id="preview">شوف المعاينة</button>
         <button id="save" class="primary">حفظ وبناء المعاينة</button>
@@ -49,6 +54,30 @@
           <label class="wide">صورة الحساب<input data-tweet="avatar" dir="ltr" placeholder="/img/..."></label>
         </div>
       </fieldset>
+    </div>
+  </template>
+  <template id="click-template">
+    <div id="selection-empty" class="selection-empty">كليكي على عنوان، فقرة، صورة، زر، بطاقة، أو مقطع فالمعاينة. الأدوات ديالو غادي يبانوا هنا.</div>
+    <div id="selection-controls" hidden>
+      <p class="selection-kicker">العنصر المختار</p><h2 id="selection-name"></h2>
+      <div class="grid">
+        <label class="wide" id="text-field">النص<textarea id="selected-text" rows="5"></textarea></label>
+        <fieldset class="wide tweet"><legend>الخط</legend><div class="chips">
+          <button type="button" data-style="font-size" data-value="0.85em">صغير</button><button type="button" data-style="font-size" data-value="1em">عادي</button><button type="button" data-style="font-size" data-value="1.25em">كبير</button><button type="button" data-style="font-size" data-value="1.6em">كبير بزاف</button>
+          <button type="button" data-style="font-weight" data-value="700">غامق</button><button type="button" data-style="font-weight" data-value="400">عادي</button>
+        </div></fieldset>
+        <fieldset class="wide tweet"><legend>اللون</legend><div class="chips colors">
+          <button type="button" data-style="color" data-value="var(--green-deep)">أخضر</button><button type="button" data-style="color" data-value="var(--madder)">أحمر</button><button type="button" data-style="color" data-value="var(--gold)">ذهبي</button><button type="button" data-style="color" data-value="var(--ink)">أسود</button><button type="button" data-style="color" data-value="var(--ivory-0)">أبيض</button>
+        </div></fieldset>
+        <fieldset class="wide tweet" id="box-tools"><legend>الصندوق أو المقطع</legend><div class="chips">
+          <button type="button" data-style="border-color" data-value="var(--green)">حد أخضر</button><button type="button" data-style="border-color" data-value="var(--madder)">حد أحمر</button><button type="button" data-style="border-color" data-value="var(--gold)">حد ذهبي</button>
+          <button type="button" data-style="border-radius" data-value="28px">مدوّر</button><button type="button" data-style="border-radius" data-value="2px">مربّع</button>
+          <button type="button" data-section-tone="green">خلفية خضرا</button><button type="button" data-section-tone="red">خلفية حمرا</button>
+        </div></fieldset>
+        <fieldset class="wide tweet" id="image-tools"><legend>الصورة</legend><div class="grid"><label class="wide">المسار<input id="selected-src" dir="ltr"></label><label class="wide">حمّل صورة<input id="selected-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></label></div></fieldset>
+        <fieldset class="wide tweet" id="link-tools"><legend>الرابط</legend><label>الرابط<input id="selected-href" dir="ltr"></label></fieldset>
+        <label class="switch wide" id="quote-tool"><input id="selected-quote" type="checkbox"> حوّل الفقرة لاقتباس</label>
+      </div>
     </div>
   </template>
   <template id="block-template">
