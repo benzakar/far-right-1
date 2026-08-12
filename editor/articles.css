@@ -1,0 +1,105 @@
+/* Articles editor — layered on top of editor.css, only what it adds. */
+
+.new-article {
+  inline-size: 100%;
+  margin-block: 0.6rem 1rem;
+  padding: 0.7rem 1rem;
+  border: 1px dashed rgba(201, 164, 94, 0.6);
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.new-article:hover { border-style: solid; }
+
+.article-list { display: flex; flex-direction: column; gap: 0.25rem; }
+
+.article-list button {
+  text-align: start;
+  padding: 0.6rem 0.7rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  line-height: 1.4;
+}
+.article-list button:hover { background: rgba(255, 255, 255, 0.06); }
+.article-list button[aria-current="true"] { background: rgba(201, 164, 94, 0.18); }
+.article-list small { display: block; opacity: 0.6; font-size: 0.75rem; }
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+
+.imgrow { display: flex; gap: 0.5rem; align-items: center; }
+.imgrow input[type="text"] { flex: 1; }
+
+.blocks-title { font-size: 1rem; margin-block: 1.6rem 0.6rem; }
+
+.blocks { display: flex; flex-direction: column; gap: 0.8rem; }
+
+.block {
+  border: 1px solid rgba(196, 179, 147, 0.5);
+  border-radius: 12px;
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.block__head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-block-end: 0.5rem;
+}
+
+.block__kind {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  opacity: 0.75;
+  margin-inline-end: auto;
+}
+
+.block__head button {
+  border: 1px solid rgba(196, 179, 147, 0.5);
+  background: transparent;
+  color: inherit;
+  border-radius: 6px;
+  inline-size: 1.9rem;
+  block-size: 1.9rem;
+  cursor: pointer;
+  font: inherit;
+  line-height: 1;
+}
+.block__head button:hover { border-color: var(--gold, #A8823C); }
+
+.block textarea, .block input {
+  inline-size: 100%;
+  font: inherit;
+}
+
+.addrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block-start: 1rem;
+}
+.addrow button {
+  padding: 0.5rem 0.9rem;
+  border: 1px solid rgba(196, 179, 147, 0.5);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.addrow button:hover { border-color: var(--gold, #A8823C); }
+
+.dangerzone {
+  margin-block-start: 2rem;
+  padding-block-start: 1rem;
+  border-block-start: 1px solid rgba(196, 179, 147, 0.35);
+}
+
+.hint { font-size: 0.8rem; opacity: 0.7; margin-block-start: 0.3rem; }

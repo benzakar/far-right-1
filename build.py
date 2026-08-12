@@ -215,23 +215,24 @@ def footer():
     legal = "\n        ".join("<li>{}</li>".format(esc(x)) for x in FOOTER["legal"])
     return """<footer class="footer">
   <div class="shell">
-    <div class="footer__top">
-      <div>
-        <img class="footer__mark" src="{logo}" alt="{logo_alt}" width="96" height="133" loading="lazy">
+    <div class="footer__imprint">
+      <img class="footer__mark" src="{logo}" alt="{logo_alt}" width="96" height="133" loading="lazy">
+      <div class="footer__id">
+        <p class="footer__name">{name}</p>
         <p class="footer__tagline">{tagline}</p>
       </div>
-      <div>
-        <nav class="footer__nav" aria-label="{name}">
+      <nav class="footer__nav" aria-label="{name}">
       {nav}
-        </nav>
-        <div class="footer__legal">
-          <h2>{legal_title}</h2>
-          <ul style="list-style:none;padding:0;margin:0">
-        {legal}
-          </ul>
-        </div>
-      </div>
+      </nav>
     </div>
+
+    <section class="footer__legal" aria-labelledby="legal-title">
+      <h2 class="footer__legal-title" id="legal-title">{legal_title}</h2>
+      <ol class="footer__notes">
+        {legal}
+      </ol>
+    </section>
+
     <div class="footer__base">
       <span>{rights}</span>
       <a href="{yt}" rel="noopener noreferrer" target="_blank">يوتيوب ↗</a>
@@ -430,6 +431,11 @@ def _pillar_grid(items):
         for i, (t, b) in enumerate(items))
 
 
+# Stands in until each section gets its own artwork. Swap per section under
+# `images` in content/editor.json, or upload through the editor.
+DEFAULT_READER_IMAGE = "/img/from-002.png"
+
+
 def _image_slot(key, label, compact=False):
     """An intentional empty image plane.
 
@@ -437,19 +443,16 @@ def _image_slot(key, label, compact=False):
     artwork is still being produced. `data-image-slot` is the stable hook used
     when the matching image is uploaded later.
     """
-    image_path = EDITOR_CONFIG.get("images", {}).get(key, "")
-    if image_path:
-        return """<figure class="media-slot media-slot--image{compact}" data-image-slot="{key}">
+    # Always a real picture. The old ornamental box assumed square, hard-edged
+    # artwork and fell apart the moment an image with rounded corners or its
+    # own frame was dropped in. Anything without artwork yet borrows the
+    # second section's, so replacing one is a straight image swap.
+    image_path = EDITOR_CONFIG.get("images", {}).get(key, "") or DEFAULT_READER_IMAGE
+    return """<figure class="media-slot media-slot--image{compact}" data-image-slot="{key}">
       <img src="{src}" alt="{label}" loading="lazy" decoding="async">
     </figure>""".format(
-            compact=" media-slot--compact" if compact else "",
-            key=esc(key), src=asset(str(image_path)), label=esc(label))
-    cls = "media-slot media-slot--compact" if compact else "media-slot"
-    return """<div class="{cls}" data-image-slot="{key}" role="img" aria-label="بلاصة مخصصة لصورة {label}">
-      <span class="media-slot__ornament" aria-hidden="true"></span>
-      <span class="media-slot__label">بلاصة الصورة</span>
-      <span class="media-slot__name">{label}</span>
-    </div>""".format(cls=cls, key=esc(key), label=esc(label))
+        compact=" media-slot--compact" if compact else "",
+        key=esc(key), src=asset(str(image_path)), label=esc(label))
 
 
 def _story_panel(key, image_label, eyebrow, title, body, actions=(), flip=False,
@@ -492,6 +495,8 @@ def _story_panel(key, image_label, eyebrow, title, body, actions=(), flip=False,
         actions=actions_html)
 
 
+
+
 def policy_reader(key, image_label, blocks, aria, actions=(), tweet_id=None,
                   image=None):
     """The reading treatment used by the second section, made reusable.
@@ -521,16 +526,18 @@ def policy_reader(key, image_label, blocks, aria, actions=(), tweet_id=None,
         parts.append("<{tag}>{text}</{tag}>".format(tag=tag, text=esc(text)))
     body_html = "\n          ".join(parts)
 
-    configured = image or EDITOR_CONFIG.get("images", {}).get(key, "")
-    if configured:
-        visual = """<figure class="policy-reader__visual">
+    # Always a real image, never the ornamental placeholder box. The box
+    # assumed a square, hard-edged picture and broke as soon as artwork with
+    # rounded corners or its own frame was dropped in. Sections without their
+    # own artwork yet borrow the second section's, so replacing one is a
+    # straight image swap with nothing else to adjust.
+    configured = (image
+                  or EDITOR_CONFIG.get("images", {}).get(key, "")
+                  or DEFAULT_READER_IMAGE)
+    visual = """<figure class="policy-reader__visual">
       <img class="policy-reader__image" src="{src}" width="1000" height="1000"
            alt="{label}" loading="lazy" decoding="async">
     </figure>""".format(src=asset(str(configured)), label=esc(image_label))
-    else:
-        visual = """<figure class="policy-reader__visual">
-      {slot}
-    </figure>""".format(slot=_image_slot(key, image_label))
 
     links = []
     for href, label, external in actions:
@@ -1368,6 +1375,221 @@ def accountability_page():
     return page("accountability", "accountability/", body)
 
 
+# ---------------------------------------------------------------- المقالات
+
+ARTICLES_PATH = os.path.join(ROOT, "content", "articles.json")
+
+
+def load_articles():
+    """Articles, newest first. Missing or broken file yields an empty list."""
+    try:
+        with open(ARTICLES_PATH, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+    except (OSError, ValueError):
+        return []
+    items = data.get("articles") if isinstance(data, dict) else None
+    if not isinstance(items, list):
+        return []
+    clean = [a for a in items if isinstance(a, dict) and a.get("slug") and a.get("title")]
+    return sorted(clean, key=lambda a: str(a.get("date", "")), reverse=True)
+
+
+# Only these hosts can be embedded. Anything else is rendered as a plain
+# link, so a typo or a hostile paste cannot inject a third-party frame.
+EMBED_HOSTS = {
+    "youtube": ("youtube.com", "www.youtube.com", "youtu.be", "m.youtube.com"),
+    "x": ("twitter.com", "www.twitter.com", "x.com", "www.x.com"),
+    "instagram": ("instagram.com", "www.instagram.com"),
+    "tiktok": ("tiktok.com", "www.tiktok.com"),
+}
+
+EMBED_NAMES = {
+    "youtube": "يوتيوب",
+    "x": "X",
+    "instagram": "إنستغرام",
+    "tiktok": "تيك توك",
+}
+
+
+def _youtube_id(parsed):
+    if parsed.netloc.endswith("youtu.be"):
+        return parsed.path.strip("/").split("/")[0]
+    qs = dict(pair.split("=", 1) for pair in parsed.query.split("&") if "=" in pair)
+    if qs.get("v"):
+        return qs["v"]
+    parts = [p for p in parsed.path.split("/") if p]
+    if len(parts) >= 2 and parts[0] in ("embed", "shorts", "live"):
+        return parts[1]
+    return ""
+
+
+def embed_block(url_, caption=""):
+    """A social or video embed that loads nothing until asked.
+
+    Every one of these providers ships tracking with its player. Loading them
+    on page view would put a third-party profile cookie on every reader of a
+    political site, which is exactly the reason the fonts here are
+    self-hosted. So the article ships a still card plus a real link, and the
+    provider's own code is fetched only when the reader presses play.
+    """
+    from urllib.parse import urlparse
+
+    raw = str(url_ or "").strip()
+    parsed = urlparse(raw)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+        return ""
+
+    host = parsed.netloc.lower()
+    provider = next((p for p, hosts in EMBED_HOSTS.items() if host in hosts), "")
+    if not provider:
+        return '<p class="article__link"><a href="{u}" rel="noopener noreferrer" target="_blank">{u} ↗</a></p>'.format(
+            u=esc(raw))
+
+    frame = ""
+    if provider == "youtube":
+        vid = _youtube_id(parsed)
+        if not vid:
+            return ""
+        # nocookie host, and still only fetched on demand
+        frame = "https://www.youtube-nocookie.com/embed/{}?rel=0".format(esc(vid))
+
+    label = EMBED_NAMES.get(provider, provider)
+    return """<figure class="embed" data-embed="{provider}" data-url="{url}"{frame_attr}>
+      <button class="embed__load" type="button">
+        <span class="embed__provider">{label}</span>
+        <span class="embed__play" aria-hidden="true">▶</span>
+        <span class="embed__hint">اضغط باش تشغّل — {label} غادي يحمّل الكود ديالو دابا</span>
+      </button>
+      <figcaption class="embed__caption">
+        <a href="{url}" rel="noopener noreferrer" target="_blank">{caption} ↗</a>
+      </figcaption>
+    </figure>""".format(
+        provider=esc(provider), url=esc(raw), label=esc(label),
+        frame_attr=' data-frame="{}"'.format(frame) if frame else "",
+        caption=esc(caption or "شوف على {}".format(label)))
+
+
+def article_blocks(blocks):
+    out = []
+    for block in blocks or []:
+        if not isinstance(block, dict):
+            continue
+        kind = block.get("type", "p")
+        text = str(block.get("text", "")).strip()
+        if kind == "h3" and text:
+            out.append("<h3>{}</h3>".format(esc(text)))
+        elif kind == "p" and text:
+            out.append("<p>{}</p>".format(esc(text)))
+        elif kind == "quote" and text:
+            out.append('<blockquote class="article__quote">{}</blockquote>'.format(esc(text)))
+        elif kind == "note" and text:
+            out.append("""<div class="status">
+      <span class="status__tag">{tag}</span>
+      <p>{text}</p>
+    </div>""".format(tag=esc(block.get("tag", "ملاحظة")), text=esc(text)))
+        elif kind == "image" and block.get("src"):
+            out.append("""<figure class="article__figure">
+      <img src="{src}" alt="{alt}" loading="lazy" decoding="async">{cap}
+    </figure>""".format(
+                src=asset(str(block["src"])), alt=esc(block.get("alt", "")),
+                cap="\n      <figcaption>{}</figcaption>".format(esc(block["caption"]))
+                    if block.get("caption") else ""))
+        elif kind == "embed" and block.get("url"):
+            out.append(embed_block(block["url"], block.get("caption", "")))
+    return "\n    ".join(out)
+
+
+def _keywords(article):
+    words = [str(k).strip() for k in article.get("keywords", []) if str(k).strip()]
+    if not words:
+        return ""
+    tags = "\n        ".join(
+        '<li lang="en" dir="ltr">{}</li>'.format(esc(w)) for w in words)
+    return """<div class="article__keys">
+      <h2 class="article__keys-title">Keywords</h2>
+      <ul class="article__keys-list">
+        {tags}
+      </ul>
+    </div>""".format(tags=tags)
+
+
+def articles_index():
+    items = load_articles()
+    body = pagehead([(url(), UI["home"]), (None, "مقالات")],
+                    "مقالات", "مقالات وتحاليل",
+                    "كتابات على السياسة، الاقتصاد، والهجرة. كل مقال فيه "
+                    "الكلمات المفتاحية بالإنجليزية باش يتلقى بسهولة.")
+
+    if not items:
+        cards = """<p class="articles__empty">مازال ما كاين حتى مقال منشور.
+      زيد واحد من صفحة التحرير المحلية.</p>"""
+    else:
+        cards = "\n      ".join(
+            """<article class="article-card" data-reveal="{delay}">
+        <a class="article-card__link" href="{href}">
+          <img class="article-card__image" src="{img}" alt="{alt}" loading="lazy" decoding="async">
+          <div class="article-card__copy">
+            <time class="article-card__date" datetime="{date}">{date}</time>
+            <h3 class="article-card__title">{title}</h3>
+            <p class="article-card__summary">{summary}</p>
+            <span class="article-card__more">قرا المقال</span>
+          </div>
+        </a>
+      </article>""".format(
+                delay=(i % 3) * 60, href=url("articles/{}/".format(a["slug"])),
+                img=asset(str(a.get("image") or DEFAULT_READER_IMAGE)),
+                alt=esc(a.get("image_alt", "")), date=esc(a.get("date", "")),
+                title=esc(a["title"]), summary=esc(a.get("summary", "")))
+            for i, a in enumerate(items))
+
+    body += """<section class="bay bay--redback" data-parallax-bg>
+  <div class="shell">
+    <h2 class="vh">لائحة المقالات</h2>
+    <div class="articles">
+      {cards}
+    </div>
+  </div>
+</section>""".format(cards=cards)
+
+    return page("articles", "articles/", body)
+
+
+def article_page(article):
+    body = pagehead([(url(), UI["home"]),
+                     (url("articles/"), "مقالات"),
+                     (None, article["title"])],
+                    esc(article.get("date", "")), article["title"],
+                    article.get("summary", ""))
+
+    body += """<section class="bay bay--greenback" data-parallax-bg>
+  <div class="shell shell--narrow">
+    <figure class="article__lead">
+      <img src="{img}" alt="{alt}" width="1000" height="1000" loading="eager" decoding="async">
+    </figure>
+    <h2 class="vh">نص المقال</h2>
+    <div class="prose article__body">
+    {blocks}
+    </div>
+    {keys}
+    <p style="margin-block-start:2.4rem">
+      <a class="btn btn--outline" href="{back}">كل المقالات</a>
+    </p>
+  </div>
+</section>""".format(
+        img=asset(str(article.get("image") or DEFAULT_READER_IMAGE)),
+        alt=esc(article.get("image_alt", "")),
+        blocks=article_blocks(article.get("blocks")),
+        keys=_keywords(article), back=url("articles/"))
+
+    title = "{} — {}".format(article["title"], UI["party_name"])
+    canonical = url("articles/{}/".format(article["slug"]))
+    markup = apply_page_overrides("article-" + article["slug"], body)
+    return (head(title, article.get("summary", ""), canonical)
+            + masthead("articles/")
+            + '<main id="main">\n' + markup + "\n</main>\n"
+            + footer())
+
+
 # ---------------------------------------------------------------- الكتابة
 
 def write(path, content):
@@ -1397,11 +1619,15 @@ def build():
         ("founder/index.html", redirect_page(url("about/#founder"), url("about/"))),
         ("join/index.html", join_page()),
         ("monarchy/index.html", monarchy_page()),
+        ("articles/index.html", articles_index()),
         ("bus/index.html", bus_page()),
         ("accountability/index.html", accountability_page()),
     ]
     for d in DOCTRINES:
         routes.append(("doctrines/{}/index.html".format(d["slug"]), doctrine_page(d)))
+
+    for a in load_articles():
+        routes.append(("articles/{}/index.html".format(a["slug"]), article_page(a)))
 
     for path, content in routes:
         write(path, content)
@@ -1410,6 +1636,7 @@ def build():
              "news/{}/".format(NEWS_FEATURED["slug"]), "join/",
              "monarchy/", "bus/", "accountability/"]
     paths += ["doctrines/{}/".format(d["slug"]) for d in DOCTRINES]
+    paths += ["articles/"] + ["articles/{}/".format(a["slug"]) for a in load_articles()]
 
     sitemap = ['<?xml version="1.0" encoding="UTF-8"?>',
                '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']

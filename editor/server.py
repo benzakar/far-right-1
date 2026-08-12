@@ -14,6 +14,7 @@ from urllib.parse import unquote, urlparse
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 EDITOR = os.path.join(ROOT, "editor")
 CONFIG = os.path.join(ROOT, "content", "editor.json")
+ARTICLES = os.path.join(ROOT, "content", "articles.json")
 UPLOADS = os.path.join(ROOT, "static", "img", "editor")
 TOKEN = secrets.token_urlsafe(24)
 
@@ -99,6 +100,18 @@ class Handler(SimpleHTTPRequestHandler):
             data["_token"] = TOKEN
             data["_git"] = run("git", "status", "--short").stdout
             return self.send_json(200, data)
+        if path == "/articles-edit" or path == "/articles-edit/":
+            self.path = "/editor/articles.html"
+            return super().do_GET()
+        if path == "/api/articles":
+            try:
+                with open(ARTICLES, "r", encoding="utf-8") as fh:
+                    data = json.load(fh)
+            except (OSError, ValueError):
+                data = {"articles": []}
+            data["_token"] = TOKEN
+            data["_git"] = run("git", "status", "--short").stdout
+            return self.send_json(200, data)
         if path.startswith("/preview"):
             rel = unquote(path[len("/preview"):]).lstrip("/") or "index.html"
             self.path = "/" + rel
@@ -113,6 +126,37 @@ class Handler(SimpleHTTPRequestHandler):
         if size > 25 * 1024 * 1024:
             return self.send_json(413, {"ok": False, "error": "File is larger than 25 MB"})
         body = self.rfile.read(size)
+
+        if path == "/api/articles/save":
+            try:
+                data = json.loads(body.decode("utf-8"))
+                data.pop("_token", None)
+                data.pop("_git", None)
+                items = data.get("articles")
+                if not isinstance(items, list):
+                    raise ValueError("articles must be a list")
+                seen = set()
+                for item in items:
+                    if not isinstance(item, dict):
+                        raise ValueError("every article must be an object")
+                    slug = str(item.get("slug", "")).strip()
+                    if not re.fullmatch(r"[a-z0-9][a-z0-9-]*", slug):
+                        raise ValueError(
+                            "slug must be lowercase latin letters, digits and dashes: " + repr(slug))
+                    if slug in seen:
+                        raise ValueError("duplicate slug: " + slug)
+                    seen.add(slug)
+                    if not str(item.get("title", "")).strip():
+                        raise ValueError("article '%s' has no title" % slug)
+                with open(ARTICLES, "w", encoding="utf-8") as fh:
+                    json.dump(data, fh, ensure_ascii=False, indent=2)
+                    fh.write("\n")
+                result = run("./publish.sh")
+                if result.returncode:
+                    return self.send_json(500, {"ok": False, "error": result.stderr or result.stdout})
+                return self.send_json(200, {"ok": True, "message": "تسجلات المقالات وتبنات المعاينة"})
+            except (ValueError, json.JSONDecodeError) as exc:
+                return self.send_json(400, {"ok": False, "error": str(exc)})
 
         if path == "/api/save":
             try:

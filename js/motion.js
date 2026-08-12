@@ -261,3 +261,75 @@
     }
   }
 })();
+
+/* ---- embeds, loaded only when asked ----
+ *
+ * YouTube, X, Instagram and TikTok all ship tracking with their players.
+ * Loading them on page view would drop a third-party profile cookie on every
+ * reader of a political site — the same reason the fonts here are
+ * self-hosted. So an article ships a still card and a real link, and the
+ * provider's code is fetched only after a deliberate press.
+ */
+(function () {
+  "use strict";
+
+  var SCRIPTS = {
+    x: "https://platform.twitter.com/widgets.js",
+    instagram: "https://www.instagram.com/embed.js",
+    tiktok: "https://www.tiktok.com/embed.js"
+  };
+  var loaded = {};
+
+  function script(src) {
+    if (loaded[src]) return;
+    loaded[src] = true;
+    var s = document.createElement("script");
+    s.src = src;
+    s.async = true;
+    s.charset = "utf-8";
+    document.body.appendChild(s);
+  }
+
+  document.addEventListener("click", function (e) {
+    var button = e.target.closest(".embed__load");
+    if (!button) return;
+
+    var fig = button.closest(".embed");
+    var provider = fig.getAttribute("data-embed");
+    var url = fig.getAttribute("data-url");
+    var frame = fig.getAttribute("data-frame");
+
+    if (frame) {
+      var iframe = document.createElement("iframe");
+      iframe.src = frame + "&autoplay=1";
+      iframe.title = "فيديو";
+      iframe.allow = "accelerometer; autoplay; encrypted-media; picture-in-picture";
+      iframe.setAttribute("allowfullscreen", "");
+      iframe.loading = "lazy";
+      button.replaceWith(iframe);
+      return;
+    }
+
+    /* The social providers build their own markup from a blockquote. */
+    var quote = document.createElement("blockquote");
+    if (provider === "x") {
+      quote.className = "twitter-tweet";
+      quote.setAttribute("data-dnt", "true");
+      quote.innerHTML = '<a href="' + url + '"></a>';
+    } else if (provider === "instagram") {
+      quote.className = "instagram-media";
+      quote.setAttribute("data-instgrm-permalink", url);
+      quote.setAttribute("data-instgrm-version", "14");
+    } else if (provider === "tiktok") {
+      quote.className = "tiktok-embed";
+      quote.setAttribute("cite", url);
+      quote.innerHTML = '<a href="' + url + '"></a>';
+    } else {
+      window.open(url, "_blank", "noopener");
+      return;
+    }
+
+    button.replaceWith(quote);
+    if (SCRIPTS[provider]) script(SCRIPTS[provider]);
+  });
+})();
