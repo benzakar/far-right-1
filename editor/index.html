@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>محرر fromparty.com</title>
+  <link rel="stylesheet" href="/css/fonts-ar.css">
+  <link rel="stylesheet" href="/editor/editor.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><img src="/img/party-logo.png" alt=""><div><strong>محرر الموقع</strong><span>fromparty.com</span></div></div>
+    <nav id="sections"></nav>
+    <button class="theme-button" data-view="blocks">النصوص والصور داخل المقاطع</button>
+    <button class="theme-button" data-view="theme">ألوان الموقع والزوايا</button>
+    <p class="security">كيخدم غير فهاد الحاسوب على 127.0.0.1</p>
+  </aside>
+
+  <main>
+    <header class="toolbar">
+      <div><h1 id="view-title">المقاطع</h1><p id="status">حمّلنا الإعدادات…</p></div>
+      <div class="actions">
+        <button id="preview">شوف المعاينة</button>
+        <button id="save" class="primary">حفظ وبناء المعاينة</button>
+        <button id="publish" class="danger">نشر فـ GitHub</button>
+      </div>
+    </header>
+
+    <section id="form" class="editor-card"></section>
+    <section class="preview-card">
+      <div class="preview-head"><strong>المعاينة المحلية</strong><span>كتتبدل من بعد الحفظ</span></div>
+      <iframe id="frame" src="/preview/"></iframe>
+    </section>
+  </main>
+
+  <template id="section-template">
+    <div class="grid">
+      <label>الاسم داخل المحرر<input data-field="name"></label>
+      <label>لون خلفية المقطع<select data-field="background"><option value="green">أخضر</option><option value="red">أحمر</option></select></label>
+      <label class="wide">العنوان الصغير<input data-field="label"></label>
+      <label class="wide">العنوان الكبير<textarea data-field="title" rows="2"></textarea></label>
+      <label class="wide">المقدمة<textarea data-field="lead" rows="3"></textarea></label>
+      <label class="wide">اقتباس اختياري<textarea data-field="quote" rows="3" placeholder="خليه خاوي إلا ما بغيتيش اقتباس"></textarea></label>
+      <fieldset class="wide tweet"><legend><label class="switch"><input type="checkbox" data-tweet="enabled"> زيد تغريدة تحت صندوق النص</label></legend>
+        <div class="grid">
+          <label>الاسم<input data-tweet="name"></label><label>الحساب<input data-tweet="handle" dir="ltr"></label>
+          <label class="wide">نص التغريدة<textarea data-tweet="text" rows="4"></textarea></label>
+          <label>التاريخ<input data-tweet="date" dir="ltr"></label><label>رابط X<input data-tweet="url" dir="ltr"></label>
+          <label class="wide">صورة الحساب<input data-tweet="avatar" dir="ltr" placeholder="/img/..."></label>
+        </div>
+      </fieldset>
+    </div>
+  </template>
+  <template id="block-template">
+    <div class="grid">
+      <label class="wide">اختار صندوق الصورة والنص<select id="block-select"></select></label>
+      <label class="wide">العنوان الصغير<input data-block="eyebrow"></label>
+      <label class="wide">العنوان الكبير<textarea data-block="title" rows="2"></textarea></label>
+      <label class="wide">النص — فرّق بين الفقرات بسطر خاوي<textarea data-block="body" rows="9"></textarea></label>
+      <fieldset class="wide tweet"><legend>الصورة</legend>
+        <div class="grid"><label class="wide">المسار الحالي<input id="image-path" dir="ltr" placeholder="/img/editor/..."></label>
+        <label class="wide">حمّل صورة جديدة<input id="image-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></label></div>
+      </fieldset>
+    </div>
+  </template>
+  <script src="/editor/editor.js"></script>
+</body>
+</html>

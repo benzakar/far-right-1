@@ -24,6 +24,18 @@ python3 -m http.server 4321 --directory dist
 
 Then open <http://127.0.0.1:4321/>.
 
+## Local visual editor
+
+On macOS, double-click `edit-site.command`. The editor opens at
+<http://127.0.0.1:8765/> and is deliberately bound to this computer only.
+
+It can edit homepage section titles and introductions, alternate red/green
+leather backgrounds, add quotes and optional X cards, adjust the core palette
+and panel radius, rebuild a local preview, and publish an explicit commit to
+`main`. Content is saved in `content/editor.json`, so edits survive every site
+rebuild. Keep the terminal window open while editing; close it or press Ctrl+C
+to stop the editor.
+
 ## Layout
 
 ```

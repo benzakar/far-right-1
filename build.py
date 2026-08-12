@@ -12,6 +12,7 @@
 
 import hashlib
 import html
+import json
 import os
 import shutil
 import sys
@@ -28,6 +29,63 @@ from content.doctrines import DOCTRINES  # noqa: E402
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DIST = os.path.join(ROOT, "dist")
 STATIC = os.path.join(ROOT, "static")
+EDITOR_CONFIG_PATH = os.path.join(ROOT, "content", "editor.json")
+
+
+def _load_editor_config():
+    try:
+        with open(EDITOR_CONFIG_PATH, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+            return data if isinstance(data, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+EDITOR_CONFIG = _load_editor_config()
+EDITOR_SECTIONS = EDITOR_CONFIG.get("sections", {})
+
+
+def section_config(section_id):
+    data = EDITOR_SECTIONS.get(section_id, {})
+    return data if isinstance(data, dict) else {}
+
+
+def section_value(section_id, key, fallback=""):
+    value = section_config(section_id).get(key, fallback)
+    return fallback if value is None else value
+
+
+def section_class(section_id, extra=""):
+    tone = section_value(section_id, "background", "green")
+    tone = tone if tone in ("green", "red") else "green"
+    classes = ["bay", "bay--{}back".format(tone)]
+    if extra:
+        classes.extend(extra.split())
+    return " ".join(classes)
+
+
+def theme_style():
+    theme = EDITOR_CONFIG.get("theme", {})
+    if not isinstance(theme, dict):
+        return ""
+    colors = {
+        "green": "--green-deep",
+        "red": "--section-red",
+        "gold": "--gold",
+        "panel": "--ivory-0",
+        "ink": "--ink",
+    }
+    declarations = []
+    for key, css_var in colors.items():
+        value = str(theme.get(key, "")).strip()
+        if value.startswith("#") and len(value) in (4, 7):
+            declarations.append("{}:{}".format(css_var, value))
+    try:
+        radius = max(8, min(48, int(theme.get("radius", 28))))
+        declarations.append("--panel-radius:{}px".format(radius))
+    except (TypeError, ValueError):
+        pass
+    return ":root{{{}}}".format(";".join(declarations)) if declarations else ""
 
 # فين غادي يتقدم الموقع.
 #
@@ -105,6 +163,7 @@ def head(title, desc, canonical, hero=False):
 {preloads}
   <link rel="stylesheet" href="{fontcss}">
   <link rel="stylesheet" href="{sitecss}">
+  <style>{theme_style}</style>
 </head>
 <body{hero_attr}>
 <a class="skip" href="#main">{skip}</a>
@@ -112,6 +171,7 @@ def head(title, desc, canonical, hero=False):
         title=esc(title), desc=esc(desc), origin=ORIGIN, canonical=canonical,
         favicon=asset("/img/party-logo.svg"),
         fontcss=versioned("/css/fonts-ar.css"), sitecss=versioned("/css/site.css"),
+        theme_style=theme_style(),
         preloads=preloads, skip=esc(UI["skip"]),
         hero_attr=' data-hero-page' if hero else '',
     )
@@ -373,6 +433,13 @@ def _image_slot(key, label, compact=False):
     artwork is still being produced. `data-image-slot` is the stable hook used
     when the matching image is uploaded later.
     """
+    image_path = EDITOR_CONFIG.get("images", {}).get(key, "")
+    if image_path:
+        return """<figure class="media-slot media-slot--image{compact}" data-image-slot="{key}">
+      <img src="{src}" alt="{label}" loading="lazy" decoding="async">
+    </figure>""".format(
+            compact=" media-slot--compact" if compact else "",
+            key=esc(key), src=asset(str(image_path)), label=esc(label))
     cls = "media-slot media-slot--compact" if compact else "media-slot"
     return """<div class="{cls}" data-image-slot="{key}" role="img" aria-label="بلاصة مخصصة لصورة {label}">
       <span class="media-slot__ornament" aria-hidden="true"></span>
@@ -383,6 +450,13 @@ def _image_slot(key, label, compact=False):
 
 def _story_panel(key, image_label, eyebrow, title, body, actions=(), flip=False,
                  panel_id="", level=2, extra=""):
+    override = EDITOR_CONFIG.get("content_overrides", {}).get(key, {})
+    if isinstance(override, dict):
+        eyebrow = override.get("eyebrow", eyebrow)
+        title = override.get("title", title)
+        body = override.get("body", body)
+    if isinstance(body, str):
+        body = [body]
     body_html = "\n        ".join(
         '<p class="story-panel__text">{}</p>'.format(esc(p)) for p in body)
     if extra:
@@ -414,8 +488,61 @@ def _story_panel(key, image_label, eyebrow, title, body, actions=(), flip=False,
         actions=actions_html)
 
 
+def section_intro(section_id, label, title, lead=""):
+    label = section_value(section_id, "label", label)
+    title = section_value(section_id, "title", title)
+    lead = section_value(section_id, "lead", lead)
+    quote = str(section_value(section_id, "quote", "")).strip()
+    bits = []
+    if label:
+        bits.append('<p class="label" data-rise="30">{}</p>'.format(esc(label)))
+    if title:
+        bits.append('<h2 class="bay__title" data-rise="46">{}</h2>'.format(esc(title)))
+    if lead:
+        bits.append('<p class="bay__lead" data-rise="36">{}</p>'.format(esc(lead)))
+    if quote:
+        bits.append('<blockquote class="section-quote">{}</blockquote>'.format(esc(quote)))
+    return "\n    ".join(bits).strip()
+
+
+def section_tweet(section_id):
+    tweet = section_config(section_id).get("tweet", {})
+    if not isinstance(tweet, dict) or not tweet.get("enabled") or not tweet.get("text"):
+        return ""
+    avatar = tweet.get("avatar", "/img/ben-zakar-x-profile.jpg")
+    avatar_html = ('<img class="policy-tweet__avatar" src="{}" width="96" height="96" alt="">'.format(
+        asset(str(avatar)))) if avatar else ""
+    url_ = str(tweet.get("url", "")).strip()
+    link = ('<a href="{}" target="_blank" rel="noopener noreferrer">شوف التغريدة على X '
+            '<span aria-hidden="true">↗</span></a>'.format(esc(url_))) if url_ else ""
+    return """<article class="policy-tweet section-tweet" dir="rtl" aria-label="تغريدة">
+      <header class="policy-tweet__head">
+        <div class="policy-tweet__identity">{avatar}<span><strong>{name}</strong>
+          <span class="policy-tweet__handle">{handle}</span></span></div>
+        <span class="policy-tweet__mark" aria-hidden="true">𝕏</span>
+      </header>
+      <p class="policy-tweet__copy">{text}</p>
+      <footer class="policy-tweet__foot"><time>{date}</time>{link}</footer>
+    </article>""".format(
+        avatar=avatar_html, name=esc(tweet.get("name", "Ben Zakar")),
+        handle=esc(tweet.get("handle", "@benzakarMorocco")),
+        text=esc(tweet.get("text", "")), date=esc(tweet.get("date", "")), link=link).strip()
+
+
+def clean_markup(markup):
+    return "\n".join(line.rstrip() for line in markup.splitlines())
+
+
 def _doctrine_cards(doctrines):
-    return "\n      ".join(
+    cards = []
+    for i, d_ in enumerate(doctrines):
+        override = EDITOR_CONFIG.get("content_overrides", {}).get("doctrine-" + d_["slug"], {})
+        title = override.get("title", d_["name"]) if isinstance(override, dict) else d_["name"]
+        body = override.get("body", [d_["summary"]]) if isinstance(override, dict) else [d_["summary"]]
+        if isinstance(body, str):
+            body = [body]
+        summary = body[0] if body else d_["summary"]
+        cards.append(
         """<article class="doctrine-card" data-reveal="{delay}">
         {slot}
         <div class="doctrine-card__copy">
@@ -427,9 +554,10 @@ def _doctrine_cards(doctrines):
       </article>""".format(
             delay=(i % 2) * 70,
             slot=_image_slot("doctrine-" + d_["slug"], d_["name"], compact=True),
-            idx=d_["order"], name=esc(d_["name"]), summary=esc(d_["summary"]),
+            idx=d_["order"], name=esc(title), summary=esc(summary),
             href=url("doctrines/{}/".format(d_["slug"])), more=esc(UI["read_more"]))
-        for i, d_ in enumerate(doctrines))
+        )
+    return "\n      ".join(cards)
 
 
 def petition_block(compact=False, level=3):
@@ -544,70 +672,49 @@ def home():
         <span data-pane-progress>0%</span>
       </footer>
     </div>
-    <article class="policy-tweet" dir="rtl" aria-label="تغريدة عبدالله بن زكار">
-      <header class="policy-tweet__head">
-        <div class="policy-tweet__identity">
-          <img class="policy-tweet__avatar" src="{avatar}" width="96" height="96" alt="">
-          <span>
-            <strong>Ben Zakar</strong>
-            <span class="policy-tweet__handle">@benzakarMorocco</span>
-          </span>
-        </div>
-        <span class="policy-tweet__mark" aria-hidden="true">𝕏</span>
-      </header>
-      <p class="policy-tweet__copy">{tweet}</p>
-      <footer class="policy-tweet__foot">
-        <time datetime="2026-08-11T19:43:00Z">Aug 11, 2026</time>
-        <a href="https://x.com/benzakarMorocco/status/2087324035004682646" target="_blank" rel="noopener noreferrer">شوف التغريدة على X <span aria-hidden="true">↗</span></a>
-      </footer>
-    </article>
+    {tweet}
   </div>""".format(
-        image=asset("/img/from-002.png"),
-        avatar=asset("/img/ben-zakar-x-profile.jpg"),
+        image=asset(str(section_value("two-speeds-plans", "image", "/img/from-002.png"))),
         p2=esc("دستور 2011 خرّج على البلاد، وأحسن مثال هو مطالبة المواطنين بإلغاء الساعة الإضافية. رغم الوقفات الاحتجاجية والعريضة اللي وقّعها عشرات الآلاف من المغاربة، والمشاكل الصحية اللي عاناو منها المغاربة وأطفالهم، عطى الدستور لذاك الانتهازي ديال أخنوش السلطة باش يلغي الساعة الإضافية فقط من أجل الانتخابات، ماشي من أجل المغاربة."),
         p3=esc("أملنا فـ ولد سيدنا أعزّه الله، وفالدستور اللي الحزب موجد ليه؛ الدستور اللي غادي يحل كاع المشاكل، منها: مشكل الهجرة، والصحة، والتعليم، واللي غادي يهني ولد سيدنا من بنكيران وأخنوش ديال المستقبل."),
         subtitle=esc("علاش دستور 2011 ما صالحش من بعد المونديال؟"),
         p4=esc("زيادة على أن التغيير سنة الحياة، وأن العالم غادي بواحد السرعة كبيرة خاصها دستور خاص، وزيادة على هاد الأسباب، المغاربة كلهم سمعو من بنكيران كيفاش سيدنا كان كيهدر معاه على البلوكاج الحكومي."),
         p5=esc("سيدنا عيا مع حكومات الأحزاب، وعيا ما ينبه ويوجّه فالخطابات ديالو."),
         p6=esc("حنا جايين باش ولد سيدنا يلقى حزب كيهنيه من صداع المناورات السياسية، ومن أي بلوكاج حكومي مستقبلي. الحزب هو مشروع مغربي، داعم للملكية، رأسمالي ومنتج، كيبدا من الحل، ماشي من المنصب؛ بمعنى كنبينو للمغاربة الحل قبل ما نطلبو منهم المنصب."),
-        tweet=esc("ما كنطلبوش من المغاربة يصدقونا بالسمع؛ كنطلبو منهم يشوفو بعينيهم الفرق الواضح ما بين 36 حزب ديال الهضرة، وحزب ديال الابتكار والخدمة: حزب اليمين المغربي."),
+        tweet=section_tweet("two-speeds-plans"),
     )
 
     # Concrete proposals lead the homepage. The Bus remains available later as
     # a summary metaphor, after visitors understand Plan A/B and see examples.
     parts = [cinema_block()]
 
-    parts.append("""<section class="bay bay--greenback" id="two-speeds-plans" data-parallax-bg>
+    parts.append("""<section class="{classes}" id="two-speeds-plans" data-parallax-bg>
   <div class="shell">
-    <p class="label" data-rise="30">{label}</p>
-    <h2 class="bay__title" data-rise="46">{title}</h2>
+    {intro}
     {reader}
   </div>
 </section>""".format(
-        label=esc("5 سنين ديال بنكيران، و5 ديال العثماني، و5 ديال أخنوش، وفالأخير: كارثة سبتة."),
-        title=esc("باش نقادو مغرب السرعتين، خاصنا مغرب الخطتين"),
+        classes=section_class("two-speeds-plans"),
+        intro=section_intro("two-speeds-plans", "5 سنين ديال بنكيران، و5 ديال العثماني، و5 ديال أخنوش، وفالأخير: كارثة سبتة.", "باش نقادو مغرب السرعتين، خاصنا مغرب الخطتين"),
         reader=two_speeds_reader,
     ))
 
-    parts.append("""<section class="bay bay--redback" id="plan-a-b" data-parallax-bg>
+    parts.append("""<section class="{classes}" id="plan-a-b" data-parallax-bg>
   <div class="shell">
-    <p class="label" data-rise="30">من هنا كتبدا الفكرة</p>
-    <h2 class="bay__title" data-rise="46">خطة ألف وخطة باء</h2>
-    <p class="bay__lead" data-rise="36">خطة ألف كتوجد المغرب للمسار المتوقع. خطة باء كتوجد المغرب للي ما كانش فالحساب.</p>
+    {intro}
     <div class="story-reader">
       {panel}
     </div>
+    {tweet}
   </div>
-</section>""".format(panel=_story_panel(
+</section>""".format(classes=section_class("plan-a-b"), intro=section_intro("plan-a-b", "من هنا كتبدا الفكرة", "خطة ألف وخطة باء", "خطة ألف كتوجد المغرب للمسار المتوقع. خطة باء كتوجد المغرب للي ما كانش فالحساب."), tweet=section_tweet("plan-a-b"), panel=_story_panel(
     "section-vision", "خطة ألف وخطة باء", VISION["label"], VISION["plan_title"],
     [VISION["plan_lead"]],
     actions=[(url("vision/"), "شوف الرؤية كاملة", False)], level=3)))
 
-    parts.append("""<section class="bay bay--greenback" id="examples" data-parallax-bg>
+    parts.append("""<section class="{classes}" id="examples" data-parallax-bg>
   <div class="shell">
-    <p class="label" data-rise="30">من الفكرة للمشروع</p>
-    <h2 class="bay__title" data-rise="46">ثلاثة أمثلة كيبينو كيفاش كنفكرو</h2>
-    <p class="bay__lead" data-rise="36">ماشي شعارات عامة: كل مثال كيبدا من مشكل باين، وكيقترح تصميم يمكن يتجرب ويتقاس.</p>
+    {intro}
     <div class="story-reader">
       {panels}
     </div>
@@ -615,93 +722,96 @@ def home():
       <span class="status__tag">اللي جاي</span>
       <p>وهادي غير البداية. عقائد ومشاريع أخرى كيبانو لتحت، وأخرى غادي تزيد من بعد.</p>
     </div>
+    {tweet}
   </div>
-</section>""".format(panels=example_panels))
+</section>""".format(classes=section_class("examples"), intro=section_intro("examples", "من الفكرة للمشروع", "ثلاثة أمثلة كيبينو كيفاش كنفكرو", "ماشي شعارات عامة: كل مثال كيبدا من مشكل باين، وكيقترح تصميم يمكن يتجرب ويتقاس."), panels=example_panels, tweet=section_tweet("examples")))
 
-    parts.append("""<section class="bay bay--redback" id="latest-news" data-parallax-bg>
+    parts.append("""<section class="{classes}" id="latest-news" data-parallax-bg>
   <div class="shell">
-    <p class="label" data-rise="30">آخر المستجدات</p>
-    <h2 class="bay__title" data-rise="46">شنو واقع دابا</h2>
-    <p class="bay__lead" data-rise="36">الخبر كيتنشر ملي يتأكد. دابا هادي مبادرة فمرحلة التحضير، ماشي لقاء وقع.</p>
+    {intro}
     <div class="story-reader">
       {panel}
     </div>
+    {tweet}
   </div>
-</section>""".format(panel=_story_panel(
+</section>""".format(classes=section_class("latest-news"), intro=section_intro("latest-news", "آخر المستجدات", "شنو واقع دابا", "الخبر كيتنشر ملي يتأكد. دابا هادي مبادرة فمرحلة التحضير، ماشي لقاء وقع."), tweet=section_tweet("latest-news"), panel=_story_panel(
     "news-immigration-equality", "المساواة فالهجرة", "آخر المستجدات · 10 غشت 2026",
     NEWS_FEATURED["title"], [NEWS_FEATURED["standfirst"], NEWS_FEATURED["status_note"]],
     actions=[(url("news/{}/".format(NEWS_FEATURED["slug"])), UI["more"], False)],
     flip=True, level=3)))
 
-    parts.append("""<section class="bay bay--greenback" id="about" data-parallax-bg>
+    parts.append("""<section class="{classes}" id="about" data-parallax-bg>
   <div class="shell">
-    <p class="label" data-rise="30">الموقف والهوية</p>
-    <h2 class="bay__title" data-rise="46">حنا شكون، وشنو كيميزنا</h2>
-    <p class="bay__lead" data-rise="36">البراركية، هوية الحزب، والمؤسس مجموعين هنا بلا ما يتفرّقو على الزائر.</p>
+    {intro}
     <div class="story-reader">
       {panels}
     </div>
+    {tweet}
   </div>
-</section>""".format(panels=identity_panels))
+</section>""".format(classes=section_class("about"), intro=section_intro("about", "الموقف والهوية", "حنا شكون، وشنو كيميزنا", "البراركية، هوية الحزب، والمؤسس مجموعين هنا بلا ما يتفرّقو على الزائر."), panels=identity_panels, tweet=section_tweet("about")))
 
-    parts.append("""<section class="bay bay--redback" id="doctrines" data-parallax-bg>
+    parts.append("""<section class="{classes}" id="doctrines" data-parallax-bg>
   <div class="shell">
-    <p class="label" data-rise="30">باقي العقائد</p>
-    <h2 class="bay__title" data-rise="46">الفكرة فالخلاصة، والتفاصيل اختيارية</h2>
-    <p class="bay__lead" data-rise="36">شفتي البرونكس ولالة خديجة. هنا باقي العقائد فبطاقات قصيرة.</p>
+    {intro}
     <p class="doctrine-cards__hint">جرّ البطاقات باش تشوف الباقي</p>
     <div class="doctrine-cards">
       {cards}
     </div>
+    {tweet}
   </div>
-</section>""".format(cards=_doctrine_cards(remaining_doctrines)))
+</section>""".format(classes=section_class("doctrines"), intro=section_intro("doctrines", "باقي العقائد", "الفكرة فالخلاصة، والتفاصيل اختيارية", "شفتي البرونكس ولالة خديجة. هنا باقي العقائد فبطاقات قصيرة."), cards=_doctrine_cards(remaining_doctrines), tweet=section_tweet("doctrines")))
 
-    parts.append("""<section class="bay bay--greenback" id="bus-summary" data-parallax-bg>
+    parts.append("""<section class="{classes}" id="bus-summary" data-parallax-bg>
   <div class="shell">
+    {intro}
     <div class="story-reader">
       {panel}
     </div>
+    {tweet}
   </div>
-</section>""".format(panel=_story_panel(
+</section>""".format(classes=section_class("bus-summary"), intro=section_intro("bus-summary", "", "", ""), tweet=section_tweet("bus-summary"), panel=_story_panel(
     "section-bus", "حافلة المغرب", BUS["label"], BUS["title"], [BUS["lead"]],
     actions=[(url("bus/"), "شوف حافلة المغرب", False)], flip=True)))
 
-    parts.append("""<section class="bay bay--redback" id="accountability" data-parallax-bg>
+    parts.append("""<section class="{classes}" id="accountability" data-parallax-bg>
   <div class="shell">
-    <p class="label" data-rise="30">كيفاش غادي تحاسبونا</p>
-    <h2 class="bay__title" data-rise="46">القياس قبل الثقة</h2>
-    <p class="bay__lead" data-rise="36">الفرق ماشي فالنوايا. الفرق فالحل، والتجربة، والنتيجة اللي كتتنشر.</p>
+    {intro}
     <div class="story-reader">
       {panel}
     </div>
+    {tweet}
   </div>
-</section>""".format(panel=_story_panel(
+</section>""".format(classes=section_class("accountability"), intro=section_intro("accountability", "كيفاش غادي تحاسبونا", "القياس قبل الثقة", "الفرق ماشي فالنوايا. الفرق فالحل، والتجربة، والنتيجة اللي كتتنشر."), tweet=section_tweet("accountability"), panel=_story_panel(
     "section-accountability", "المساءلة والنتائج", ACCOUNTABILITY["label"],
     ACCOUNTABILITY["title"], [ACCOUNTABILITY["summary"]],
     actions=[(url("accountability/"), UI["more"], False)],
     extra=about_points, level=3)))
 
-    parts.append("""<section class="bay bay--greenback" data-parallax-bg>
+    parts.append("""<section class="{classes}" id="join" data-parallax-bg>
   <div class="shell">
+    {intro}
     <div class="story-reader">
       {panel}
     </div>
     {petition}
+    {tweet}
   </div>
-</section>""".format(panel=_story_panel(
+</section>""".format(classes=section_class("join"), intro=section_intro("join", "", "", ""), tweet=section_tweet("join"), panel=_story_panel(
     "section-join", "الحركة والبنّايين", JOIN["label"], JOIN["title"], [JOIN["lead"]],
     actions=[(url("join/"), JOIN["label"], False)]),
     petition=petition_block(compact=True)))
 
-    parts.append("""<section class="bay bay--deep bay--greenback" data-parallax-bg>
+    parts.append("""<section class="{classes}" id="declaration" data-parallax-bg>
   <div class="shell declaration">
+    {intro}
     {lines}
     <a class="btn btn--primary" href="{href}">{cta}</a>
+    {tweet}
   </div>
-</section>""".format(lines=dec_lines, href=url("join/"),
-                     cta=esc(DECLARATION["cta"])))
+</section>""".format(classes=section_class("declaration", "bay--deep"), intro=section_intro("declaration", "", "", ""), lines=dec_lines, href=url("join/"),
+                     cta=esc(DECLARATION["cta"]), tweet=section_tweet("declaration")))
 
-    return page("home", "", "\n".join(parts), hero=True)
+    return page("home", "", clean_markup("\n".join(parts)), hero=True)
 
 
 # ------------------------------------------------------------ باقي الصفحات

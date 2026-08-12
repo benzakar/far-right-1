@@ -37,6 +37,8 @@
   --util:    "Reem Kufi", system-ui, sans-serif;
   --interactive: "Cairo", system-ui, sans-serif;
   --gold-display: "Cairo", system-ui, sans-serif;
+  --section-red: #5f1713;
+  --panel-radius: 28px;
 
   --step--1: clamp(0.82rem, 0.79rem + 0.14vw, 0.9rem);
   --step-0:  clamp(1rem, 0.96rem + 0.2vw, 1.13rem);
@@ -1064,7 +1066,7 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
 }
 
 .bay--redback::before {
-  background-color: #5f1713;
+  background-color: var(--section-red);
 }
 
 .bay--greenback::after,
@@ -1399,7 +1401,7 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
   background: var(--ivory-0);
   color: var(--ink);
   border: 1px solid rgba(196, 179, 147, 0.82);
-  border-radius: 2px;
+  border-radius: var(--panel-radius);
   box-shadow: var(--lift);
 }
 
@@ -1408,6 +1410,7 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
 .story-panel__visual {
   grid-area: visual;
   min-inline-size: 0;
+  overflow: hidden;
 }
 
 .story-panel__copy {
@@ -1495,6 +1498,41 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
     linear-gradient(145deg, var(--ivory-1), var(--ivory-3));
 }
 
+.media-slot--image {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.media-slot--image::before,
+.media-slot--image::after { display: none; }
+
+.media-slot--image img {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.section-quote {
+  max-inline-size: 34ch;
+  margin: clamp(1.4rem, 3vw, 2.2rem) 0 0;
+  padding: 1rem 1.25rem;
+  border-inline-start: 4px solid var(--gold-lit);
+  border-radius: 0 var(--panel-radius) var(--panel-radius) 0;
+  background: rgba(251, 247, 239, 0.1);
+  color: var(--ivory-0);
+  font-family: var(--display);
+  font-size: var(--step-1);
+  line-height: 1.7;
+}
+
+.section-tweet {
+  inline-size: min(100%, 850px);
+  margin-block-start: clamp(1.5rem, 3vw, 2.5rem);
+  margin-inline-start: auto;
+}
+
 .media-slot::before {
   content: "";
   position: absolute;
@@ -1561,6 +1599,7 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
   color: var(--ink);
   border: 1px solid rgba(196, 179, 147, 0.82);
   box-shadow: var(--lift);
+  border-radius: var(--panel-radius);
   scroll-snap-align: start;
 }
 
