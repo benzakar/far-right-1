@@ -36,6 +36,7 @@
   --body:    "Zain", system-ui, sans-serif;
   --util:    "Reem Kufi", system-ui, sans-serif;
   --interactive: "Cairo", system-ui, sans-serif;
+  --gold-display: "Lalezar", "Reem Kufi", system-ui, sans-serif;
 
   --step--1: clamp(0.82rem, 0.79rem + 0.14vw, 0.9rem);
   --step-0:  clamp(1rem, 0.96rem + 0.2vw, 1.13rem);
@@ -1662,7 +1663,7 @@ body[data-hero-page] .masthead:not(.is-stuck) .burger {
 .bus .label,
 .stage__sub,
 .declaration__line:nth-child(2) {
-  font-family: var(--display);
+  font-family: var(--gold-display);
   font-weight: 400;
 }
 
