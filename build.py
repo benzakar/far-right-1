@@ -586,16 +586,19 @@ def section_intro(section_id, label, title, lead=""):
     return "\n    ".join(bits).strip()
 
 
-def section_tweet(section_id):
-    tweet = section_config(section_id).get("tweet", {})
-    if not isinstance(tweet, dict) or not tweet.get("enabled") or not tweet.get("text"):
+X_HANDLE = "@benzakarMorocco"
+X_ACCOUNT = "https://x.com/benzakarMorocco"
+
+
+def _tweet_card(tweet):
+    if not isinstance(tweet, dict) or not str(tweet.get("text", "")).strip():
         return ""
-    avatar = tweet.get("avatar", "/img/ben-zakar-x-profile.jpg")
-    avatar_html = ('<img class="policy-tweet__avatar" src="{}" width="96" height="96" alt="">'.format(
-        asset(str(avatar)))) if avatar else ""
-    url_ = str(tweet.get("url", "")).strip()
-    link = ('<a href="{}" target="_blank" rel="noopener noreferrer">شوف التغريدة على X '
-            '<span aria-hidden="true">↗</span></a>'.format(esc(url_))) if url_ else ""
+    avatar = tweet.get("avatar") or "/img/ben-zakar-x-profile.jpg"
+    avatar_html = ('<img class="policy-tweet__avatar" src="{}" width="96" height="96" alt="">'
+                   .format(asset(str(avatar))))
+    # The card always links to the account itself, never a per-post URL. A
+    # status link rots the moment a post is edited or deleted, and every card
+    # here is the party's own voice, so the account is the honest destination.
     return """<article class="policy-tweet section-tweet" dir="rtl" aria-label="تغريدة">
       <header class="policy-tweet__head">
         <div class="policy-tweet__identity">{avatar}<span><strong>{name}</strong>
@@ -603,11 +606,40 @@ def section_tweet(section_id):
         <span class="policy-tweet__mark" aria-hidden="true">𝕏</span>
       </header>
       <p class="policy-tweet__copy">{text}</p>
-      <footer class="policy-tweet__foot"><time>{date}</time>{link}</footer>
+      <footer class="policy-tweet__foot"><time>{date}</time>
+        <a href="{account}" target="_blank" rel="noopener noreferrer">شوف الحساب على X
+          <span aria-hidden="true">↗</span></a></footer>
     </article>""".format(
-        avatar=avatar_html, name=esc(tweet.get("name", "Ben Zakar")),
-        handle=esc(tweet.get("handle", "@benzakarMorocco")),
-        text=esc(tweet.get("text", "")), date=esc(tweet.get("date", "")), link=link).strip()
+        avatar=avatar_html, name=esc(tweet.get("name") or "Ben Zakar"),
+        handle=esc(tweet.get("handle") or X_HANDLE),
+        text=esc(tweet.get("text", "")), date=esc(tweet.get("date", "")),
+        account=X_ACCOUNT).strip()
+
+
+def section_tweets(section_id):
+    """Every card configured for a section.
+
+    Accepts a `tweets` list, and still honours the older single `tweet`
+    object so existing configuration keeps working untouched.
+    """
+    config = section_config(section_id)
+    cards = []
+
+    single = config.get("tweet")
+    if isinstance(single, dict) and single.get("enabled"):
+        cards.append(_tweet_card(single))
+
+    listed = config.get("tweets")
+    if isinstance(listed, list):
+        for tweet in listed:
+            if isinstance(tweet, dict) and tweet.get("enabled", True):
+                cards.append(_tweet_card(tweet))
+
+    return "\n    ".join(c for c in cards if c)
+
+
+# kept so existing call sites read naturally
+section_tweet = section_tweets
 
 
 def clean_markup(markup):
@@ -617,8 +649,50 @@ def clean_markup(markup):
 EDITABLE_TAG_RE = re.compile(r"<(h[1-3]|p|blockquote|a|img|article|section|div)\b([^>]*)>", re.I)
 
 
+VOID_TAGS = {"img"}
+TEXT_TAGS = {"h1", "h2", "h3", "p", "blockquote", "a"}
+
+
+def _find_element(markup, edit_id):
+    """Span of the whole element carrying `edit_id`, nesting included.
+
+    Regex alone cannot do this: `div` and `section` nest inside themselves,
+    so a lazy match would stop at the first inner `</div>`. Walking the tag
+    stream and counting depth is the only way to get the real end.
+    """
+    opener = re.search(r'<([a-z0-9]+)\b[^>]*data-edit-id="{}"[^>]*>'.format(
+        re.escape(edit_id)), markup, re.I)
+    if not opener:
+        return None
+    tag = opener.group(1).lower()
+    if tag in VOID_TAGS:
+        return opener.start(), opener.end(), tag, opener.group(0), ""
+
+    depth, pos = 1, opener.end()
+    pattern = re.compile(r'<(/?){}\b[^>]*>'.format(re.escape(tag)), re.I)
+    while depth and pos < len(markup):
+        m = pattern.search(markup, pos)
+        if not m:
+            return None
+        depth += -1 if m.group(1) else 1
+        pos = m.end()
+        if not depth:
+            return (opener.start(), pos, tag, opener.group(0),
+                    markup[opener.end():m.start()])
+    return None
+
+
+def _retag(open_tag, old, new):
+    return re.sub(r'^<{}\b'.format(re.escape(old)), '<' + new, open_tag, flags=re.I)
+
+
 def apply_page_overrides(page_key, markup):
-    """Apply click-editor changes to generated markup using stable edit IDs."""
+    """Apply click-editor changes to generated markup using stable edit IDs.
+
+    Supported per element: `text` (blank lines split it into siblings),
+    `tag` (turn a paragraph into a heading or back), `removed`, plus the
+    plain attribute overrides `src`, `href`, `class` and `style`.
+    """
     overrides = EDITOR_CONFIG.get("page_overrides", {}).get(page_key, {})
     if not isinstance(overrides, dict):
         overrides = {}
@@ -641,16 +715,49 @@ def apply_page_overrides(page_key, markup):
                     attrs = set_attr(attrs, name, str(op[name]))
         return '<{}{} data-edit-id="{}">'.format(tag, attrs, edit_id)
 
+    # Ids are positional, so they are assigned once, before any structural
+    # rewrite. Paragraphs added by a split therefore carry derived ids and
+    # never shift the numbering of anything after them.
     markup = EDITABLE_TAG_RE.sub(decorate, markup)
-    text_ops = {key: value.get("text") for key, value in overrides.items()
-                if isinstance(value, dict) and "text" in value}
-    for edit_id, text in text_ops.items():
-        tag = edit_id.rsplit("-", 1)[0]
-        if tag not in ("h1", "h2", "h3", "p", "blockquote", "a"):
+
+    for edit_id, op in overrides.items():
+        if not isinstance(op, dict):
             continue
-        pattern = re.compile(r'(<{tag}\b[^>]*data-edit-id="{eid}"[^>]*>)(.*?)(</{tag}>)'.format(
-            tag=re.escape(tag), eid=re.escape(edit_id)), re.I | re.S)
-        markup = pattern.sub(lambda m: m.group(1) + esc(text) + m.group(3), markup, count=1)
+        if not any(k in op for k in ("removed", "tag", "text")):
+            continue
+        found = _find_element(markup, edit_id)
+        if not found:
+            continue
+        start, end, tag, open_tag, inner = found
+
+        if op.get("removed"):
+            markup = markup[:start] + markup[end:]
+            continue
+
+        new_tag = str(op.get("tag") or tag).lower()
+        if new_tag not in TEXT_TAGS | {tag}:
+            new_tag = tag
+
+        if "text" in op and tag in TEXT_TAGS:
+            # A blank line means "start a new paragraph here".
+            chunks = [c.strip() for c in re.split(r'\n\s*\n', str(op["text"])) if c.strip()]
+            if not chunks:
+                markup = markup[:start] + markup[end:]
+                continue
+            pieces = []
+            for i, chunk in enumerate(chunks):
+                head = _retag(open_tag, tag, new_tag)
+                if i:
+                    head = re.sub(r'data-edit-id="[^"]*"',
+                                  'data-edit-id="{}-{}"'.format(edit_id, i), head)
+                pieces.append("{}{}</{}>".format(head, esc(chunk), new_tag))
+            markup = markup[:start] + "\n".join(pieces) + markup[end:]
+            continue
+
+        if new_tag != tag:
+            markup = (markup[:start] + _retag(open_tag, tag, new_tag) + inner
+                      + "</{}>".format(new_tag) + markup[end:])
+
     return markup
 
 
