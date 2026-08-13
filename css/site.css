@@ -829,18 +829,37 @@ body .masthead:not(.is-stuck) .burger {
      marks use a pale plate; copy uses a translucent ink plate. */
   .cinema__dim { display: none; }
 
+  /* The arrow alone read as a button, so people tapped it and waited. The
+     word above it says what to actually do. */
   .cinema__scroll-hint {
     position: absolute;
     left: 50%;
     inset-block-start: 72%;
     z-index: 4;
-    display: block;
-    inline-size: clamp(70px, 21vw, 92px);
-    block-size: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
     opacity: var(--hint-o, 1);
     pointer-events: none;
     will-change: transform, opacity;
     transform: translate3d(-50%, calc(var(--hint-y, 0) * 1px), 0);
+  }
+
+  .cinema__scroll-word {
+    font-family: var(--util);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ivory-0);
+    text-shadow: 0 2px 12px rgba(13, 53, 39, 0.55);
+    white-space: nowrap;
+  }
+
+  .cinema__scroll-arrow {
+    inline-size: clamp(70px, 21vw, 92px);
+    block-size: auto;
     filter: drop-shadow(0 10px 18px rgba(13, 53, 39, 0.18));
   }
 
@@ -1307,6 +1326,301 @@ body .masthead:not(.is-stuck) .burger {
 .bay--redback .policy-pane__foot {
   background: color-mix(in oklab, var(--ivory-1) 86%, var(--section-red));
 }
+
+/* ---------- Landing header ----------
+   No menu, so the mark is the header. Centred, stacked over the tagline. */
+
+.masthead--bare .masthead__inner {
+  justify-content: center;
+  padding-block: clamp(0.7rem, 2vw, 1.2rem);
+}
+
+.masthead--bare .wordmark {
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  text-align: center;
+}
+
+.masthead--bare .wordmark__mark {
+  inline-size: clamp(46px, 7vw, 74px);
+  block-size: auto;
+  object-fit: contain;
+}
+
+.wordmark__tagline {
+  font-family: var(--display);
+  font-size: clamp(0.95rem, 0.8rem + 0.7vw, 1.35rem);
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--ivory-0);
+  text-shadow: 0 2px 14px rgba(13, 53, 39, 0.5);
+}
+
+.masthead.is-stuck .wordmark__tagline {
+  color: var(--green-deep);
+  text-shadow: none;
+}
+
+/* ---------- Footer socials ---------- */
+
+.footer__socials {
+  display: flex;
+  gap: 0.7rem;
+  margin-block-start: 1.1rem;
+}
+
+.footer__socials .social {
+  inline-size: 42px;
+  block-size: 42px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ivory-4);
+  border-radius: 50%;
+  color: var(--ink-soft);
+  transition: color 0.25s var(--ease), border-color 0.25s var(--ease),
+              background-color 0.25s var(--ease);
+}
+
+.footer__socials .social:hover {
+  color: var(--ivory-0);
+  background: var(--green);
+  border-color: var(--green);
+}
+
+.footer__coming { margin-block-end: 2rem; }
+
+.footer__coming h2,
+.footer__legal h2 {
+  font-family: var(--util);
+  font-size: var(--step-0);
+  color: var(--ink);
+  margin-block-end: 0.4rem;
+}
+
+.footer__hint {
+  font-size: var(--step--1);
+  color: var(--ink-mute);
+  margin-block-end: 0.8rem;
+}
+
+/* Deliberately not links: these pages are still being written. */
+.footer__pages {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.6rem;
+}
+
+.footer__pages li {
+  font-family: var(--util);
+  font-size: var(--step--1);
+  color: var(--ink-mute);
+  border: 1px dashed var(--ivory-4);
+  border-radius: 999px;
+  padding: 0.28rem 0.8rem;
+}
+
+/* ---------- Sliders ----------
+   One item at a time with an arrow each side. Built on scroll-snap rather
+   than a transform carousel so it still works with no JavaScript, keeps
+   native swipe on touch, and stays keyboard reachable. The arrows only
+   nudge the same scroll container. */
+
+.slider {
+  position: relative;
+  margin-block-start: clamp(1.8rem, 4vw, 3rem);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(0.4rem, 1.5vw, 1rem);
+}
+
+.slider__track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
+  gap: clamp(1rem, 3vw, 2rem);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  padding-block: 0.4rem;
+}
+
+.slider__track::-webkit-scrollbar { display: none; }
+.slider__track > * { scroll-snap-align: center; }
+
+.slider__track:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+.slider__arrow {
+  inline-size: clamp(38px, 5vw, 52px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(243, 237, 225, 0.4);
+  border-radius: 50%;
+  background: rgba(12, 9, 4, 0.34);
+  color: var(--ivory-0);
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.25s var(--ease), border-color 0.25s var(--ease),
+              opacity 0.25s var(--ease);
+}
+
+.slider__arrow:hover { background: rgba(12, 9, 4, 0.55); border-color: var(--gold-lit); }
+.slider__arrow[disabled] { opacity: 0.3; cursor: default; }
+
+.slider__count {
+  grid-column: 1 / -1;
+  margin: 0.4rem 0 0;
+  text-align: center;
+  font-family: var(--util);
+  font-size: var(--step--1);
+  color: rgba(243, 237, 225, 0.72);
+  font-variant-numeric: tabular-nums;
+}
+
+/* one doctrine per slide */
+.doctrine-slide {
+  display: grid;
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+  gap: clamp(1rem, 3vw, 2rem);
+  align-items: center;
+  background: var(--pane-bg, var(--ivory-0));
+  border: 1px solid rgba(196, 179, 147, 0.82);
+  border-radius: var(--panel-radius, clamp(18px, 2vw, 28px));
+  box-shadow: var(--lift);
+  padding: clamp(1.2rem, 3vw, 2.2rem);
+}
+
+.doctrine-slide .media-slot,
+.doctrine-slide img { border-radius: calc(var(--panel-radius, 20px) - 6px); }
+
+.doctrine-slide__index {
+  font-family: var(--util);
+  font-size: var(--step--1);
+  letter-spacing: 0.12em;
+  color: var(--gold);
+}
+
+/* The slide is a cream panel sitting on a leather section, so it has to
+   win against the section's own ivory heading colour. */
+.doctrine-slide .doctrine-slide__title {
+  font-size: var(--step-2);
+  margin-block: 0.3rem 0.6rem;
+  color: var(--green-deep);
+}
+
+.doctrine-slide .doctrine-slide__summary {
+  color: var(--ink-soft);
+  margin-block-end: 1rem;
+}
+
+.doctrine-slide .doctrine-slide__index { color: var(--gold); }
+
+.doctrine-slide__link {
+  font-family: var(--util);
+  font-size: var(--step--1);
+  color: var(--green);
+  border-block-end: 1px solid currentColor;
+  text-decoration: none;
+}
+
+/* news slides are pure artwork */
+.slider--news .slider__track { grid-auto-columns: min(100%, 720px); }
+
+.news-slide {
+  border-radius: var(--panel-radius, clamp(18px, 2vw, 28px));
+  overflow: hidden;
+  box-shadow: var(--lift);
+  background: rgba(12, 9, 4, 0.18);
+}
+
+.news-slide__image {
+  inline-size: 100%;
+  block-size: auto;
+  display: block;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+@media (max-width: 760px) {
+  .doctrine-slide { grid-template-columns: 1fr; }
+  .slider { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .slider__arrow { inline-size: 40px; }
+  .slider--news .slider__track { grid-auto-columns: 100%; }
+}
+
+/* The petition keeps the reader's shape but its panel is not a scroller,
+   so the passage runs to its natural height. */
+.petition-reader .policy-pane__window--free { position: static; }
+.petition-reader .policy-pane__scroll--free {
+  position: static;
+  overflow: visible;
+  inset: auto;
+}
+.petition-reader .policy-pane { block-size: auto; align-self: center; }
+.petition__cta { margin-block-start: 1.4rem; }
+
+/* ---------- The archive (Z) ----------
+   A working surface, not a public page. The way in is deliberately quiet:
+   present for whoever is looking for it, easy to miss otherwise, but still
+   a real focusable link that meets contrast on hover and focus. */
+
+.footer__z {
+  margin-inline-start: auto;
+  font-family: var(--util);
+  font-size: var(--step--1);
+  letter-spacing: 0.2em;
+  text-decoration: none;
+  color: rgba(243, 237, 225, 0.3);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  transition: color 0.25s var(--ease), background-color 0.25s var(--ease);
+}
+.footer__z:hover,
+.footer__z:focus-visible {
+  color: var(--gold-lit);
+  background: rgba(243, 237, 225, 0.08);
+}
+
+.z-list {
+  display: grid;
+  gap: clamp(1rem, 2.5vw, 1.6rem);
+  margin-block-start: clamp(2rem, 4vw, 3rem);
+}
+
+/* Each block is its own sheet, so a passage can be selected cleanly
+   without dragging half the page along with it. */
+.z-block {
+  background: var(--pane-bg, var(--ivory-0));
+  border: 1px solid rgba(196, 179, 147, 0.82);
+  border-radius: var(--panel-radius, clamp(18px, 2vw, 28px));
+  padding: clamp(1.2rem, 3vw, 2rem);
+  box-shadow: var(--lift);
+}
+
+.z-block__title {
+  font-size: var(--step-1);
+  color: var(--green-deep);
+  margin-block-end: 0.9rem;
+}
+
+.z-block p {
+  color: var(--ink-soft);
+  max-inline-size: none;
+  margin-block-end: 0.75rem;
+}
+.z-block p:last-child { margin-block-end: 0; }
 
 /* ---------- Long-form on leather ----------
    Inner pages carry continuous prose, so trapping them in the bounded

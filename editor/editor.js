@@ -578,6 +578,69 @@
     load();
   }
 
+  function newsSlides() {
+    if (!Array.isArray(config.news_slides)) config.news_slides = [];
+    return config.news_slides;
+  }
+
+  function drawNews() {
+    var list = document.getElementById("news-list");
+    if (!list) return;
+    var items = newsSlides();
+    list.innerHTML = items.length ? "" : '<p class="hint">ما كايناش صور. زيد وحدة.</p>';
+
+    items.forEach(function (slide, index) {
+      var box = document.createElement("div");
+      box.className = "tweet-item";
+      box.innerHTML =
+        '<div class="tweet-item__head"><strong>خبر ' + (index + 1) + '</strong>' +
+        '<button type="button" data-up ' + (index ? "" : "disabled") + '>▲</button>' +
+        '<button type="button" data-down ' + (index === items.length - 1 ? "disabled" : "") + '>▼</button>' +
+        '<button type="button" class="danger" data-remove>امسح</button></div>' +
+        '<div class="grid">' +
+        '<label class="wide">الصورة<input data-n="image" dir="ltr" value="' + esc(slide.image || "") + '" placeholder="/img/..."></label>' +
+        '<label class="wide">حمّل صورة<input type="file" data-n-file accept="image/png,image/jpeg,image/webp,image/gif"></label>' +
+        '<label class="wide">وصف الصورة<input data-n="alt" value="' + esc(slide.alt || "") + '"></label>' +
+        '<label class="wide">رابط اختياري<input data-n="link" dir="ltr" value="' + esc(slide.link || "") + '"></label>' +
+        '</div>' +
+        (slide.image ? '<img class="news-thumb" src="' + esc(slide.image) + '" alt="">' : "");
+
+      box.querySelectorAll("[data-n]").forEach(function (field) {
+        field.oninput = function () { slide[field.dataset.n] = field.value; mark(); };
+      });
+      box.querySelector("[data-n-file]").onchange = function () {
+        upload(this.files[0], "news-" + (index + 1), function (path) {
+          slide.image = path; mark(); drawNews();
+        });
+      };
+      box.querySelector("[data-remove]").onclick = function () {
+        if (!confirm("تمسح هاد الصورة؟")) return;
+        items.splice(index, 1); mark(); drawNews();
+      };
+      box.querySelector("[data-up]").onclick = function () {
+        if (!index) return;
+        items.splice(index - 1, 0, items.splice(index, 1)[0]); mark(); drawNews();
+      };
+      box.querySelector("[data-down]").onclick = function () {
+        if (index === items.length - 1) return;
+        items.splice(index + 1, 0, items.splice(index, 1)[0]); mark(); drawNews();
+      };
+      list.appendChild(box);
+    });
+  }
+
+  function showNews() {
+    el.title.textContent = "صور الأخبار";
+    el.form.innerHTML = "";
+    el.form.appendChild(document.getElementById("news-template").content.cloneNode(true));
+    drawNews();
+    document.getElementById("news-add").onclick = function () {
+      newsSlides().push({ image: "", alt: "", link: "" });
+      mark();
+      drawNews();
+    };
+  }
+
   function showClick() {
     el.title.textContent = "اختار من المعاينة";
     el.form.innerHTML = "";
@@ -596,6 +659,7 @@
     if (next === "click") showClick();
     if (next === "sections") { current = Object.keys(config.sections)[0]; nav(); showSection(current); }
     if (next === "blocks") showBlocks();
+    if (next === "news") showNews();
     if (next === "theme") showTheme();
   }
 

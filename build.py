@@ -133,7 +133,7 @@ def url(path=""):
 
 # ---------------------------------------------------------------- الهيكل
 
-def head(title, desc, canonical, hero=False):
+def head(title, desc, canonical, hero=False, noindex=False):
     critical = [
         "reem-kufi-700-arabic.woff2",
         "zain-400-arabic.woff2",
@@ -153,6 +153,7 @@ def head(title, desc, canonical, hero=False):
   <title>{title}</title>
   <meta name="description" content="{desc}">
   <link rel="canonical" href="{origin}{canonical}">
+{robots}
   <meta property="og:type" content="website">
   <meta property="og:title" content="{title}">
   <meta property="og:description" content="{desc}">
@@ -170,6 +171,7 @@ def head(title, desc, canonical, hero=False):
 <a class="skip" href="#main">{skip}</a>
 """.format(
         title=esc(title), desc=esc(desc), origin=ORIGIN, canonical=canonical,
+        robots='  <meta name="robots" content="noindex, nofollow">\n' if noindex else "",
         favicon=asset("/img/favicon2.png"),
         fontcss=versioned("/css/fonts-ar.css"), sitecss=versioned("/css/site.css"),
         theme_style=theme_style(),
@@ -178,64 +180,108 @@ def head(title, desc, canonical, hero=False):
     )
 
 
+# Inline so the icons need no extra request and inherit the current colour.
+FACEBOOK_ICON = (
+    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="20" height="20">'
+    '<path fill="currentColor" d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 '
+    '3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0 0 22 12Z"/>'
+    "</svg>")
+X_ICON = (
+    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="18" height="18">'
+    '<path fill="currentColor" d="M18.2 2H21l-6.5 7.4L22 22h-6l-4.7-6.2L5.9 22H3l7-8L2 2h6.2l4.3 5.7L18.2 2Zm-1 18h1.7L7.9 3.8H6.1L17.2 20Z"/>'
+    "</svg>")
+YOUTUBE_ICON = (
+    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="22" height="22">'
+    '<path fill="currentColor" d="M23 12s0-3.2-.4-4.7a2.5 2.5 0 0 0-1.8-1.8C19.3 5 12 5 12 5s-7.3 '
+    '0-8.8.5a2.5 2.5 0 0 0-1.8 1.8C1 8.8 1 12 1 12s0 3.2.4 4.7a2.5 2.5 0 0 0 1.8 1.8C4.7 19 12 19 12 '
+    '19s7.3 0 8.8-.5a2.5 2.5 0 0 0 1.8-1.8C23 15.2 23 12 23 12ZM9.8 15.1V8.9l6 3.1-6 3.1Z"/>'
+    "</svg>")
+INSTAGRAM_ICON = (
+    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="20" height="20">'
+    '<path fill="currentColor" d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 '
+    '1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 '
+    '.4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2C2.2 '
+    '15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4C8.4 2.2 '
+    '8.8 2.2 12 2.2Zm0 1.8c-3.1 0-3.5 0-4.7.1-.9 0-1.4.2-1.7.3-.4.2-.7.4-1 .7-.3.3-.5.6-.7 1-.1.3-.3.8-.3 1.7-.1 '
+    '1.2-.1 1.6-.1 4.7s0 3.5.1 4.7c0 .9.2 1.4.3 1.7.2.4.4.7.7 1 .3.3.6.5 1 .7.3.1.8.3 1.7.3 1.2.1 1.6.1 4.7.1s3.5 '
+    '0 4.7-.1c.9 0 1.4-.2 1.7-.3.4-.2.7-.4 1-.7.3-.3.5-.6.7-1 .1-.3.3-.8.3-1.7.1-1.2.1-1.6.1-4.7s0-3.5-.1-4.7c0-.9-.2-1.4-.3-1.7-.2-.4-.4-.7-.7-1-.3-.3-.6-.5-1-.7-.3-.1-.8-.3-1.7-.3-1.2-.1-1.6-.1-4.7-.1Zm0 '
+    '3.1a4.9 4.9 0 1 1 0 9.8 4.9 4.9 0 0 1 0-9.8Zm0 8.1a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Zm6.2-8.3a1.1 1.1 0 '
+    '1 1-2.3 0 1.1 1.1 0 0 1 2.3 0Z"/>'
+    "</svg>")
+
+
 def masthead(active):
-    items = []
-    for path, label in NAV:
-        cur = ' aria-current="page"' if path == active else ""
-        items.append('<a class="nav__link" href="{}"{}>{}</a>'.format(
-            url(path), cur, esc(label)))
-    return """<header class="masthead" data-masthead>
+    """A landing page, not a site with a menu.
+
+    Other pages are still built and reachable by URL, but nothing links to
+    them yet, so a navigation bar would advertise unfinished work. The
+    header is reduced to the mark and the tagline.
+    """
+    return """<header class="masthead masthead--bare" data-masthead>
   <div class="shell masthead__inner">
     <a class="wordmark" href="{home}">
-      <img class="wordmark__mark" src="{logo}" alt="" width="34" height="47" loading="eager">
-      <span class="wordmark__text">{name}</span>
+      <img class="wordmark__mark" src="{logo}" alt="{name}" width="120" height="166" loading="eager">
+      <span class="wordmark__tagline">{tagline}</span>
     </a>
-    <button class="burger" type="button" data-burger aria-expanded="false" aria-controls="sitenav"
-            aria-label="{menu}" data-label-menu="{menu}" data-label-close="{close}">
-      <span class="burger__icon" aria-hidden="true"><span></span><span></span><span></span></span>
-    </button>
-    <nav class="nav" id="sitenav" data-nav aria-label="{name}">
-      {items}
-    </nav>
   </div>
 </header>
-""".format(home=url(), logo=asset("/img/party-logo.svg"),
-           name=esc(UI["party_name"]), menu=esc(UI["menu"]), close=esc(UI["close"]),
-           items="\n      ".join(items))
+""".format(home=url(), logo=asset("/img/party-logo.png"),
+           name=esc(UI["party_name"]), tagline=esc(SITE["tagline"]))
 
 
 def footer():
-    links = [(p, l) for p, l in NAV] + [
-        ("monarchy/", "الملكية والاستمرارية"),
-        ("bus/", "حافلة المغرب"),
-        ("accountability/", "المساءلة والأدلة"),
+    """No links to pages that are not finished.
+
+    Listing them as plain text says what is coming without sending anyone
+    to a page that is still being written.
+    """
+    pages = [
+        "من حنا", "عقائدنا", "رؤيتنا", "الأخبار", "المقالات", "انضم لينا",
+        "الملكية والاستمرارية", "حافلة المغرب", "المساءلة والأدلة",
     ]
-    nav_html = "\n      ".join(
-        '<a href="{}">{}</a>'.format(url(p), esc(l)) for p, l in links)
+    coming = "\n        ".join(
+        "<li>{}</li>".format(esc(name)) for name in pages)
     legal = "\n        ".join("<li>{}</li>".format(esc(x)) for x in FOOTER["legal"])
+    socials = [
+        (SITE["facebook"], "فيسبوك", FACEBOOK_ICON),
+        (SITE["instagram"], "إنستغرام", INSTAGRAM_ICON),
+        (SITE["x"], "إكس", X_ICON),
+        (SITE["youtube"], "يوتيوب", YOUTUBE_ICON),
+    ]
+    social_html = "\n        ".join(
+        '<a class="social" href="{href}" rel="noopener noreferrer" target="_blank" '
+        'aria-label="{label}">{icon}</a>'.format(href=href, label=esc(label), icon=icon)
+        for href, label, icon in socials)
+
     return """<footer class="footer">
   <div class="shell">
-    <div class="footer__imprint">
-      <img class="footer__mark" src="{logo}" alt="{logo_alt}" width="96" height="133" loading="lazy">
-      <div class="footer__id">
-        <p class="footer__name">{name}</p>
+    <div class="footer__top">
+      <div class="footer__brand">
+        <img class="footer__mark" src="{logo}" alt="{logo_alt}" width="96" height="133" loading="lazy">
         <p class="footer__tagline">{tagline}</p>
+        <div class="footer__socials">
+        {socials}
+        </div>
       </div>
-      <nav class="footer__nav" aria-label="{name}">
-      {nav}
-      </nav>
-    </div>
-
-    <section class="footer__legal" aria-labelledby="legal-title">
-      <h2 class="footer__legal-title" id="legal-title">{legal_title}</h2>
-      <ol class="footer__notes">
+      <div>
+        <div class="footer__coming">
+          <h2>صفحات فطور التطوير</h2>
+          <p class="footer__hint">هاد الصفحات مازال كنخدمو عليها، غادي تتحل وحدة بوحدة.</p>
+          <ul class="footer__pages">
+        {coming}
+          </ul>
+        </div>
+        <div class="footer__legal">
+          <h2>{legal_title}</h2>
+          <ul>
         {legal}
-      </ol>
-    </section>
-
+          </ul>
+        </div>
+      </div>
+    </div>
     <div class="footer__base">
       <span>{rights}</span>
-      <a href="{yt}" rel="noopener noreferrer" target="_blank">يوتيوب ↗</a>
+      <a class="footer__z" href="{z}" aria-label="أرشيف النصوص">Z</a>
     </div>
   </div>
 </footer>
@@ -244,9 +290,9 @@ def footer():
 </body>
 </html>
 """.format(logo=asset("/img/party-logo.svg"), logo_alt=esc(UI["logo_alt"]),
-           tagline=esc(FOOTER["tagline"]), name=esc(UI["party_name"]), nav=nav_html,
+           tagline=esc(FOOTER["tagline"]), coming=coming, socials=social_html,
            legal_title=esc(FOOTER["legal_title"]), legal=legal,
-           rights=esc(FOOTER["rights"]), yt=SITE["youtube"],
+           rights=esc(FOOTER["rights"]), z=url("z/"),
            navjs=versioned("/js/nav.js"), motionjs=versioned("/js/motion.js"))
 
 
@@ -322,8 +368,11 @@ def cinema_block():
 
     <div class="cinema__dim" data-cine="dim" aria-hidden="true"></div>
 
-    <img class="cinema__scroll-hint" data-cine="hint" src="{arrow}"
-         width="500" height="500" alt="" aria-hidden="true" decoding="async">
+    <div class="cinema__scroll-hint" data-cine="hint" aria-hidden="true">
+      <span class="cinema__scroll-word">Scroll Down</span>
+      <img class="cinema__scroll-arrow" src="{arrow}"
+           width="500" height="500" alt="" decoding="async">
+    </div>
 
     <p class="cinema__line" data-cine="line1">{line1}</p>
 
@@ -804,6 +853,96 @@ def _doctrine_cards(doctrines):
     return "\n      ".join(cards)
 
 
+def _news_slider():
+    """Images only — the owner designs each news card and uploads it.
+
+    Slides come from `news_slides` in content/editor.json so they can be
+    added and reordered from the editor without touching the build.
+    """
+    slides = EDITOR_CONFIG.get("news_slides", [])
+    if not isinstance(slides, list) or not slides:
+        slides = [{"image": DEFAULT_READER_IMAGE, "alt": "خبر"}]
+
+    items = []
+    for i, slide in enumerate(slides):
+        if not isinstance(slide, dict):
+            continue
+        src = str(slide.get("image", "")).strip() or DEFAULT_READER_IMAGE
+        alt = str(slide.get("alt", "")).strip() or "صورة خبر"
+        link = str(slide.get("link", "")).strip()
+        picture = """<img class="news-slide__image" src="{src}" alt="{alt}"
+             loading="lazy" decoding="async">""".format(src=asset(src), alt=esc(alt))
+        if link:
+            picture = '<a href="{}" class="news-slide__link">{}</a>'.format(esc(link), picture)
+        items.append("""<article class="news-slide" role="group"
+             aria-roledescription="خبر" aria-label="{n} من {total}">
+        {picture}
+      </article>""".format(n=i + 1, total=len(slides), picture=picture))
+
+    return """<div class="slider slider--news" data-slider>
+      <button class="slider__arrow slider__arrow--prev" type="button"
+              data-slide="prev" aria-label="الخبر اللي قبل">
+        <span aria-hidden="true">‹</span>
+      </button>
+      <div class="slider__track" data-slider-track tabindex="0"
+           role="region" aria-label="الأخبار">
+        {items}
+      </div>
+      <button class="slider__arrow slider__arrow--next" type="button"
+              data-slide="next" aria-label="الخبر اللي من بعد">
+        <span aria-hidden="true">›</span>
+      </button>
+      <p class="slider__count" data-slider-count aria-live="polite">1 / {total}</p>
+    </div>""".format(items="\n        ".join(items), total=len(items))
+
+
+def _doctrine_slider(doctrines):
+    """One doctrine at a time, with an arrow on each side.
+
+    The track is a scroll-snap row rather than a transform carousel, so it
+    still works with no JavaScript, keeps native swipe on touch, and stays
+    keyboard reachable. The arrows only nudge the same scroll container.
+    """
+    slides = []
+    for i, d_ in enumerate(doctrines):
+        override = EDITOR_CONFIG.get("content_overrides", {}).get("doctrine-" + d_["slug"], {})
+        name = override.get("title", d_["name"]) if isinstance(override, dict) else d_["name"]
+        body = override.get("body", [d_["summary"]]) if isinstance(override, dict) else [d_["summary"]]
+        if isinstance(body, str):
+            body = [body]
+        slides.append("""<article class="doctrine-slide" id="doctrine-slide-{n}"
+             role="group" aria-roledescription="عقيدة" aria-label="{n} من {total}">
+        {slot}
+        <div class="doctrine-slide__copy">
+          <span class="doctrine-slide__index">عقيدة {idx:02d}</span>
+          <h3 class="doctrine-slide__title">{name}</h3>
+          <p class="doctrine-slide__summary">{summary}</p>
+          <a class="doctrine-slide__link" href="{href}">{more}</a>
+        </div>
+      </article>""".format(
+            n=i + 1, total=len(doctrines),
+            slot=_image_slot("doctrine-" + d_["slug"], d_["name"], compact=True),
+            idx=d_["order"], name=esc(name),
+            summary=esc(body[0] if body else d_["summary"]),
+            href=url("doctrines/{}/".format(d_["slug"])), more=esc(UI["read_more"])))
+
+    return """<div class="slider" data-slider>
+      <button class="slider__arrow slider__arrow--prev" type="button"
+              data-slide="prev" aria-label="العقيدة اللي قبل">
+        <span aria-hidden="true">‹</span>
+      </button>
+      <div class="slider__track" data-slider-track tabindex="0"
+           role="region" aria-label="العقائد">
+        {slides}
+      </div>
+      <button class="slider__arrow slider__arrow--next" type="button"
+              data-slide="next" aria-label="العقيدة اللي من بعد">
+        <span aria-hidden="true">›</span>
+      </button>
+      <p class="slider__count" data-slider-count aria-live="polite">1 / {total}</p>
+    </div>""".format(slides="\n        ".join(slides), total=len(doctrines))
+
+
 def petition_block(compact=False, level=3):
     """The petition card.
 
@@ -811,21 +950,115 @@ def petition_block(compact=False, level=3):
     the homepage the card sits under a section h2 so it is an h3; on the
     join page it is the first thing after the page h1, so it is an h2.
     """
-    paras = "" if compact else "\n    ".join(
-        "<p>{}</p>".format(esc(p)) for p in PETITION["body"])
-    return """<div class="petition" data-reveal>
-    <p class="petition__kicker">{kicker} · {host}</p>
-    <h{lvl} class="petition__title">{title}</h{lvl}>
-    <p class="petition__lead">{lead}</p>
-    {paras}
-    <div class="petition__actions">
-      <a class="btn btn--primary" href="{href}" rel="noopener noreferrer" target="_blank">{cta} \u2197</a>
-      <p class="petition__note">{note}</p>
+    # Same shape as every other section: a visual beside a panel, with the
+    # call to action living inside the panel rather than floating under it.
+    image = EDITOR_CONFIG.get("images", {}).get("petition", "") or DEFAULT_READER_IMAGE
+    paras = "\n          ".join("<p>{}</p>".format(esc(p)) for p in PETITION["body"])
+    return """<div class="policy-reader petition-reader" data-reveal>
+    <figure class="policy-reader__visual">
+      <img class="policy-reader__image" src="{image}" width="1000" height="1000"
+           alt="{title}" loading="lazy" decoding="async">
+    </figure>
+    <div class="policy-pane">
+      <div class="policy-pane__window policy-pane__window--free">
+        <div class="policy-pane__scroll policy-pane__scroll--free">
+          <p class="petition__kicker">{kicker} \u00b7 {host}</p>
+          <h{lvl} class="petition__title">{title}</h{lvl}>
+          <p class="petition__lead">{lead}</p>
+          {paras}
+          <p class="petition__cta">
+            <a class="btn btn--primary" href="{href}" rel="noopener noreferrer" target="_blank">{cta} \u2197</a>
+          </p>
+          <p class="petition__note">{note}</p>
+        </div>
+      </div>
     </div>
-  </div>""".format(lvl=level, kicker=esc(PETITION["kicker"]), host=esc(PETITION["host"]),
+  </div>""".format(lvl=level, image=asset(str(image)),
+                   kicker=esc(PETITION["kicker"]), host=esc(PETITION["host"]),
                    title=esc(PETITION["title"]), lead=esc(PETITION["lead"]),
                    paras=paras, href=SITE["petition"], cta=esc(PETITION["cta"]),
                    note=esc(PETITION["note"]))
+
+
+def z_page():
+    """Everything the site holds, in one place, for lifting into the page.
+
+    Reached only from a quiet link in the footer. It is a working surface,
+    not a public page: no navigation points at it, it asks not to be
+    indexed, and it stays out of the sitemap. Because it is generated from
+    the same content modules as the site, it cannot drift out of date.
+    """
+    blocks = []
+
+    def block(heading, paragraphs):
+        items = [p for p in paragraphs if str(p).strip()]
+        if not items:
+            return
+        blocks.append("""<article class="z-block">
+      <h2 class="z-block__title">{heading}</h2>
+      {body}
+    </article>""".format(
+            heading=esc(heading),
+            body="\n      ".join("<p>{}</p>".format(esc(p)) for p in items)))
+
+    block("الواجهة — الجمل", [CINEMA["line_1"], CINEMA["line_2"], CINEMA["slogan"]])
+    block(WHO["title"], [WHO["lead"]] +
+          ["{} — {}".format(t, b) for t, b in WHO["distinctions"]])
+    block(VISION["title"], [VISION["lead"]] +
+          ["{} — {}".format(t, b) for t, b in VISION["pillars"]])
+    block(VISION["plan_title"], [VISION["plan_lead"]] + list(VISION["plan_body"]))
+    block(VISION["example_title"], [VISION["example_body"]])
+    block(NEWS_FEATURED["title"],
+          [NEWS_FEATURED["standfirst"]] + list(NEWS_FEATURED["body"]) +
+          [NEWS_FEATURED["status_note"]])
+    block(BUS["title"], [BUS["lead"]] +
+          ["{} — {} — {}".format(s["role"], s["subtitle"], s["body"])
+           for s in BUS["stages"]] +
+          [BUS["note_body"]] + list(BUS["closing"]))
+    block(MONARCHY["title"], list(MONARCHY["body"]) +
+          [MONARCHY["questions_lead"]] + list(MONARCHY["questions"]) +
+          [MONARCHY["warning_lead"]] +
+          ["{}: {}".format(c, n) for c, n in MONARCHY["examples"]] +
+          [MONARCHY["warning_close"]])
+    block(ACCOUNTABILITY["title"],
+          [ACCOUNTABILITY["summary"], ACCOUNTABILITY["disclaimer"]] +
+          ["{}: {}".format(r, b) for r, b in ACCOUNTABILITY["ladder"]] +
+          list(ACCOUNTABILITY["body"]) +
+          [ACCOUNTABILITY["framework_lead"]] +
+          list(ACCOUNTABILITY["framework_questions"]) +
+          list(ACCOUNTABILITY["protection_body"]) +
+          [ACCOUNTABILITY["closing"]])
+    block(FOUNDER["title"], [FOUNDER["standfirst"]] + list(FOUNDER["message"]))
+    block(JOIN["title"], [JOIN["lead"]] +
+          ["{} — {}".format(t, b) for t, b in JOIN["paths"]] +
+          [JOIN["how_body"], JOIN["contact_note"]])
+    block(PETITION["title"], [PETITION["lead"]] + list(PETITION["body"]))
+    block("الإعلان الأخير", list(DECLARATION["lines"]))
+
+    for d in DOCTRINES:
+        block("{:02d}. {}".format(d["order"], d["name"]),
+              [d["declaration"], d["summary"], d["slogan"], d["intro"],
+               d["problem"], d["why_failed"], d["belief"]] +
+              list(d["solution"]) + list(d["measures"]) +
+              [d["citizens"], d["beyond"], d["commitment"]])
+
+    body = """<section class="bay bay--greenback" data-parallax-bg>
+  <div class="shell">
+    <p class="label">الأرشيف</p>
+    <h1 class="bay__title">كل النصوص فبلاصة وحدة</h1>
+    <p class="bay__lead">هاد الصفحة ماشي للزوار. فيها كل النصوص ديال الموقع باش
+      تقدر تقلب على شي حاجة وتنقلها للصفحة الرئيسية. ما كتبانش فحتى قائمة.</p>
+    <div class="z-list">
+    {blocks}
+    </div>
+  </div>
+</section>""".format(blocks="\n    ".join(blocks))
+
+    return (head("الأرشيف — كل النصوص", "أرشيف داخلي لنصوص الموقع.",
+                 url("z/"), noindex=True)
+            + masthead("")
+            + '<main id="main">\n' + body + "\n</main>\n"
+            + footer())
 
 
 def home():
@@ -924,21 +1157,12 @@ def home():
         classes=section_class("examples"),
         intro=section_intro("examples", "من الفكرة للمشروع", "ثلاثة أمثلة كيبينو كيفاش كنفكرو", "ماشي شعارات عامة: كل مثال كيبدا من مشكل باين، وكيقترح تصميم يمكن يتجرب ويتقاس."),
         reader=policy_reader(
-            "doctrine-bronx", "الأمثلة الثلاثة",
-            [
-                ("h3", "المثال اللول — " + bronx["name"]),
-                bronx["summary"], bronx["intro"],
-                ("h3", "المثال الثاني — " + lalla["name"]),
-                lalla["summary"], lalla["intro"],
-                ("h3", "المثال الثالث — " + VISION["example_title"]),
-                VISION["example_body"],
-            ],
-            aria="ثلاثة أمثلة كيبينو كيفاش كنفكرو",
-            actions=[
-                (url("doctrines/bronx/"), bronx["name"], False),
-                (url("doctrines/lalla-khadija/"), lalla["name"], False),
-                (url("vision/"), "خطة ألف وخطة باء", False),
-            ],
+            "section-bus", "حافلة المغرب",
+            [item for stage in BUS["stages"] for item in (
+                ("h3", stage["role"] + " — " + stage["subtitle"]),
+                stage["body"],
+            )] + [("h3", BUS["note_title"]), BUS["note_body"]],
+            aria=BUS["title"],
             tweet_id="examples")))
 
     parts.append("""<section class="{classes}" id="latest-news" data-parallax-bg>
@@ -948,19 +1172,8 @@ def home():
   </div>
 </section>""".format(
         classes=section_class("latest-news"),
-        intro=section_intro("latest-news", "آخر المستجدات", "شنو واقع دابا", "الخبر كيتنشر ملي يتأكد. دابا هادي مبادرة فمرحلة التحضير، ماشي لقاء وقع."),
-        reader=policy_reader(
-            "news-immigration-equality", "المساواة فالهجرة",
-            [
-                ("h3", NEWS_FEATURED["title"]),
-                NEWS_FEATURED["standfirst"],
-            ] + list(NEWS_FEATURED["body"]) + [
-                ("h3", "حالة الملف"),
-                NEWS_FEATURED["status_note"],
-            ],
-            aria=NEWS_FEATURED["title"],
-            actions=[(url("news/{}/".format(NEWS_FEATURED["slug"])), UI["more"], False)],
-            tweet_id="latest-news")))
+        intro=section_intro("latest-news", "آخر المستجدات", "شنو واقع دابا", "كل خبر مصمم بوحدو. زيد ولا بدّل الصور من المحرر."),
+        reader=_news_slider() + section_tweet("latest-news")))
 
     parts.append("""<section class="{classes}" id="about" data-parallax-bg>
   <div class="shell">
@@ -988,31 +1201,13 @@ def home():
     parts.append("""<section class="{classes}" id="doctrines" data-parallax-bg>
   <div class="shell">
     {intro}
-    <p class="doctrine-cards__hint">جرّ البطاقات باش تشوف الباقي</p>
-    <div class="doctrine-cards">
-      {cards}
-    </div>
+    {slider}
     {tweet}
   </div>
-</section>""".format(classes=section_class("doctrines"), intro=section_intro("doctrines", "باقي العقائد", "الفكرة فالخلاصة، والتفاصيل اختيارية", "شفتي البرونكس ولالة خديجة. هنا باقي العقائد فبطاقات قصيرة."), cards=_doctrine_cards(remaining_doctrines), tweet=section_tweet("doctrines")))
+</section>""".format(classes=section_class("doctrines"), intro=section_intro("doctrines", "باقي العقائد", "الفكرة فالخلاصة، والتفاصيل اختيارية", "شفتي البرونكس ولالة خديجة. هنا باقي العقائد وحدة وحدة."), slider=_doctrine_slider(remaining_doctrines), tweet=section_tweet("doctrines")))
 
-    parts.append("""<section class="{classes}" id="bus-summary" data-parallax-bg>
-  <div class="shell">
-    {intro}
-    {reader}
-  </div>
-</section>""".format(
-        classes=section_class("bus-summary"),
-        intro=section_intro("bus-summary", BUS["label"], BUS["title"], BUS["lead"]),
-        reader=policy_reader(
-            "section-bus", "حافلة المغرب",
-            [item for stage in BUS["stages"] for item in (
-                ("h3", stage["role"] + " — " + stage["subtitle"]),
-                stage["body"],
-            )] + [("h3", BUS["note_title"]), BUS["note_body"]],
-            aria=BUS["title"],
-            actions=[(url("bus/"), "شوف حافلة المغرب", False)],
-            tweet_id="bus-summary")))
+    # The Night/Day driver passage now lives in the examples section above,
+    # so this section would only repeat it.
 
     parts.append("""<section class="{classes}" id="accountability" data-parallax-bg>
   <div class="shell">
@@ -1048,14 +1243,22 @@ def home():
         intro=section_intro("join", JOIN["label"], JOIN["title"], JOIN["lead"]),
         reader=policy_reader(
             "section-join", "الحركة والبنّايين",
-            [("h3", "طرق المساهمة")] + [
+            [
+                ("h3", "طرق المساهمة"),
+                "الانضمام كيبدا من الخدمة، ماشي من الورق. هاك الطرق اللي يقدر أي مغربي "
+                "يساهم بيها من دابا.",
+            ] + [
                 "{} — {}".format(title, body) for title, body in JOIN["paths"]
             ] + [
+                ("h3", "المجموعة ديالنا فـ فيسبوك"),
+                "حتى فاش ما تحلاتش العضوية الرسمية، المجموعة فـ فيسبوك هي البلاصة اللي "
+                "كيتلاقاو فيها اللي باغين يساهمو: تطرح فكرة، تناقش مشكل، ولا تلقى ناس "
+                "خدامين على نفس الملف. هادي هي العضوية الافتراضية دابا.",
                 ("h3", JOIN["how_title"]), JOIN["how_body"],
                 ("h3", JOIN["contact_title"]), JOIN["contact_note"],
             ],
             aria=JOIN["title"],
-            actions=[(url("join/"), JOIN["label"], False)],
+            actions=[(SITE["facebook"], "دخل للمجموعة ديال فيسبوك", True)],
             tweet_id="join"),
         petition=petition_block(compact=True)))
 
@@ -1745,6 +1948,7 @@ def build():
         ("articles/index.html", articles_index()),
         ("bus/index.html", bus_page()),
         ("accountability/index.html", accountability_page()),
+        ("z/index.html", z_page()),
     ]
     for d in DOCTRINES:
         routes.append(("doctrines/{}/index.html".format(d["slug"]), doctrine_page(d)))

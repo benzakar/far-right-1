@@ -17,6 +17,11 @@
 SITE = {
     "domain": "fromparty.com",
     "youtube": "https://www.youtube.com/@BenZakarMinus",
+    "x": "https://x.com/benzakarMorocco",
+    "facebook": "https://www.facebook.com/profile.php?id=61590374113293",
+    "instagram": "https://www.instagram.com/benzakarmorocco/",
+    # الشعار اللي كيبان تحت اللوغو فراس الصفحة
+    "tagline": "حزب الابتكار و الخدمة",
     "founder": "عبدالله بن زكار",
     # العريضة مستضافة عند Change.org. الرابط مكتوب بترميز النسبة باش
     # يخدم فكل المتصفحات، حيت المسار فيه حروف عربية.

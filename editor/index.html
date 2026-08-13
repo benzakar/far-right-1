@@ -15,6 +15,7 @@
       <button class="active" data-view="click">اختار من المعاينة</button>
       <button data-view="sections">إعدادات مقاطع الرئيسية</button>
       <button data-view="blocks">النصوص والصور داخل المقاطع</button>
+      <button data-view="news">صور الأخبار</button>
       <button data-view="theme">ألوان الموقع والزوايا</button>
     </nav>
     <nav id="sections" hidden></nav>
@@ -94,6 +95,13 @@
           <button type="button" id="restore-element" hidden>رجّعو</button>
         </fieldset>
       </div>
+    </div>
+  </template>
+  <template id="news-template">
+    <div class="grid">
+      <p class="hint wide">صمّم الخبر بحالك بحال صورة، وزيدها هنا. كتبان فسلايدر فالصفحة الرئيسية.</p>
+      <div class="wide" id="news-list"></div>
+      <div class="wide"><button type="button" id="news-add">زيد صورة خبر</button></div>
     </div>
   </template>
   <template id="block-template">

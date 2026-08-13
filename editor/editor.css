@@ -16,3 +16,5 @@ button.danger:hover{background:#a03528}
 .tweet-item__head{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap;margin-block-end:.7rem}
 .tweet-item__head strong{margin-inline-end:auto}
 #tweet-add{margin-block-start:.3rem}
+.news-thumb{margin-block-start:.6rem;max-inline-size:220px;border-radius:10px;display:block}
+.tweet-item__head button[data-up],.tweet-item__head button[data-down]{padding:.2rem .5rem}
