@@ -340,7 +340,7 @@
       },
       "p-11": {
         "text": "صراع التطبيقات مع مهنيي الطاكسيات: بدات باعتداء جسدي على ديبلوماسي من روسيا، وسالات بقتل ياسين ولد سيدي الطيبي.",
-        "style": "--rise: 11.8; color: var(--ivory-0); font-weight: 700"
+        "style": "--rise: 11.8; color: var(--gold); font-weight: 700"
       },
       "p-12": {
         "style": "--rise:22.5; font-size:1em; color:var(--gold); font-weight:700",
@@ -350,7 +350,7 @@
       "h2-2": {
         "class": "bay__title editor-selected",
         "text": "مغرب الخطتين: عقيدة ياسين الطيبي- هي فقط واحد من الأ مثلة",
-        "style": "--rise: 23.9; font-size: 1.6em; color: var(--gold)"
+        "style": "--rise: 23.9; font-size: 1.6em; color: var(--ivory-0)"
       },
       "img-7": {
         "src": "/img/editor/home-img-7.png"
@@ -457,6 +457,11 @@
           {
             "tag": "p",
             "text": "5- بالنسبة للسائقين الجدد: نظام الأساطيل، مثل المعمول به في نيويورك."
+          },
+          {
+            "tag": "p",
+            "text": "اضغط الرابط اسفله لمشاهدة الفيديو ",
+            "style": "color: var(--madder)"
           }
         ]
       }
