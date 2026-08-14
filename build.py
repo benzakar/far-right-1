@@ -210,12 +210,32 @@ INSTAGRAM_ICON = (
     "</svg>")
 
 
+def social_links(cls="social"):
+    """The four accounts, in one place.
+
+    The header and the footer show the same set, so they read from the
+    same list — adding a fifth account should never mean remembering to
+    edit two templates.
+    """
+    accounts = [
+        (SITE["facebook"], "فيسبوك", FACEBOOK_ICON),
+        (SITE["instagram"], "إنستغرام", INSTAGRAM_ICON),
+        (SITE["x"], "إكس", X_ICON),
+        (SITE["youtube"], "يوتيوب", YOUTUBE_ICON),
+    ]
+    return "\n        ".join(
+        '<a class="{cls}" href="{href}" rel="noopener noreferrer" target="_blank" '
+        'aria-label="{label}">{icon}</a>'.format(
+            cls=cls, href=href, label=esc(label), icon=icon)
+        for href, label, icon in accounts)
+
+
 def masthead(active):
     """A landing page, not a site with a menu.
 
     Other pages are still built and reachable by URL, but nothing links to
     them yet, so a navigation bar would advertise unfinished work. The
-    header is reduced to the mark and the tagline.
+    header carries the mark, the two lines, and the four accounts.
     """
     return """<header class="masthead masthead--bare" data-masthead>
   <div class="shell masthead__inner">
@@ -226,10 +246,14 @@ def masthead(active):
         <span class="wordmark__sub">{tagline}</span>
       </span>
     </a>
+    <div class="masthead__socials">
+        {socials}
+    </div>
   </div>
 </header>
 """.format(home=url(), logo=versioned("/img/party-logo.png"),
-           name=esc(UI["party_name"]), tagline=esc(SITE["tagline"]))
+           name=esc(UI["party_name"]), tagline=esc(SITE["tagline"]),
+           socials=social_links("social social--sm"))
 
 
 def footer():
@@ -245,16 +269,7 @@ def footer():
     coming = "\n        ".join(
         "<li>{}</li>".format(esc(name)) for name in pages)
     legal = "\n        ".join("<li>{}</li>".format(esc(x)) for x in FOOTER["legal"])
-    socials = [
-        (SITE["facebook"], "فيسبوك", FACEBOOK_ICON),
-        (SITE["instagram"], "إنستغرام", INSTAGRAM_ICON),
-        (SITE["x"], "إكس", X_ICON),
-        (SITE["youtube"], "يوتيوب", YOUTUBE_ICON),
-    ]
-    social_html = "\n        ".join(
-        '<a class="social" href="{href}" rel="noopener noreferrer" target="_blank" '
-        'aria-label="{label}">{icon}</a>'.format(href=href, label=esc(label), icon=icon)
-        for href, label, icon in socials)
+    social_html = social_links()
 
     return """<footer class="footer">
   <div class="shell">
