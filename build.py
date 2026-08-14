@@ -785,7 +785,17 @@ def apply_page_overrides(page_key, markup):
         if isinstance(op, dict):
             for name in ("src", "href", "class", "style"):
                 if name in op:
-                    attrs = set_attr(attrs, name, str(op[name]))
+                    value = str(op[name])
+                    # The editor stores uploads as site-absolute paths
+                    # ("/img/editor/..."), which are only right when the
+                    # site is served from a domain root. Route them through
+                    # asset() like every other path so they survive a
+                    # BASE_PATH build. Anything already absolute — a full
+                    # URL, or protocol-relative — is left alone.
+                    if (name in ("src", "href") and value.startswith("/")
+                            and not value.startswith("//")):
+                        value = asset(value)
+                    attrs = set_attr(attrs, name, value)
         return '<{}{} data-edit-id="{}">'.format(tag, attrs, edit_id)
 
     # Ids are positional, so they are assigned once, before any structural
