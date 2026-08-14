@@ -1330,7 +1330,42 @@ body .masthead:not(.is-stuck) .burger {
 /* ---------- Landing header ----------
    No menu, so the mark is the header. Centred, stacked over the tagline. */
 
+/* A soft downward wedge behind the lockup. It does two jobs at once:
+   it darkens the busy carved image so the type stays readable wherever
+   the hero happens to sit, and its shape points at the content below, so
+   the header itself says "keep going" without adding another widget.
+
+   Rounded corners come from a thick round-joined stroke on the triangle
+   rather than a clip-path, which cannot round its own points. The blur
+   keeps it reading as light on stone instead of a pasted-on slab. */
+.masthead__scrim {
+  position: absolute;
+  inset-block-start: -14%;
+  /* Physical left, not inset-inline-start: translateX is physical too, and
+     in RTL the logical property would push the wedge off to one side. */
+  left: 50%;
+  transform: translateX(-50%);
+  inline-size: clamp(260px, 30vw, 440px);
+  block-size: clamp(190px, 22vw, 300px);
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(14px);
+}
+
+.masthead__scrim path {
+  fill: rgba(8, 6, 2, 0.42);
+  stroke: rgba(8, 6, 2, 0.42);
+}
+
+/* Once the header is a solid glass bar the scrim has nothing to do. */
+.masthead.is-stuck .masthead__scrim { opacity: 0; }
+
+/* The wedge is a sibling of the wordmark, so the lockup has to sit above
+   it explicitly. */
+.masthead--bare .wordmark { position: relative; z-index: 1; }
+
 .masthead--bare .masthead__inner {
+  position: relative;
   justify-content: center;
   padding-block: clamp(0.7rem, 2vw, 1.2rem);
 }

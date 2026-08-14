@@ -219,6 +219,10 @@ def masthead(active):
     """
     return """<header class="masthead masthead--bare" data-masthead>
   <div class="shell masthead__inner">
+    <svg class="masthead__scrim" viewBox="0 0 640 400" aria-hidden="true" focusable="false"
+         preserveAspectRatio="none">
+      <path d="M60 40 H580 L320 340 Z" stroke-linejoin="round" stroke-width="80"/>
+    </svg>
     <a class="wordmark" href="{home}">
       <img class="wordmark__mark" src="{logo}" alt="{name}" width="460" height="640" loading="eager">
       <span class="wordmark__lockup">
