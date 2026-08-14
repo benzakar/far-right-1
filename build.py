@@ -219,10 +219,6 @@ def masthead(active):
     """
     return """<header class="masthead masthead--bare" data-masthead>
   <div class="shell masthead__inner">
-    <svg class="masthead__scrim" viewBox="0 0 640 400" aria-hidden="true" focusable="false"
-         preserveAspectRatio="none">
-      <path d="M60 40 H580 L320 340 Z" stroke-linejoin="round" stroke-width="80"/>
-    </svg>
     <a class="wordmark" href="{home}">
       <img class="wordmark__mark" src="{logo}" alt="{name}" width="460" height="640" loading="eager">
       <span class="wordmark__lockup">
@@ -377,8 +373,13 @@ def cinema_block():
 
     <div class="cinema__scroll-hint" data-cine="hint" aria-hidden="true">
       <span class="cinema__scroll-word">Scroll Down</span>
-      <img class="cinema__scroll-arrow" src="{arrow}"
-           width="500" height="500" alt="" decoding="async">
+      <svg class="cinema__scroll-arrow" viewBox="0 0 32 36" fill="none"
+           aria-hidden="true" focusable="false">
+        <path d="M6 8 L16 18 L26 8" stroke="currentColor" stroke-width="2.4"
+              stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M6 19 L16 29 L26 19" stroke="currentColor" stroke-width="2.4"
+              stroke-linecap="round" stroke-linejoin="round" opacity=".42"/>
+      </svg>
     </div>
 
     <p class="cinema__line" data-cine="line1">{line1}</p>
@@ -397,7 +398,6 @@ def cinema_block():
 </section>
 """.format(page_h1=esc("{} — {}".format(UI["party_name"], CINEMA["line_2"])),
            src=asset("/img/hero9-1920.jpg"), ss=srcset("hero9"),
-           arrow=asset("/img/arrow.gif"),
            hero_alt=esc(CINEMA["hero_alt"]),
            line1=esc(CINEMA["line_1"]), line2=esc(CINEMA["line_2"]),
            parties=asset("/img/darklogos.png"),

@@ -848,19 +848,35 @@ body .masthead:not(.is-stuck) .burger {
 
   .cinema__scroll-word {
     font-family: var(--util);
-    font-size: 0.78rem;
+    font-size: 0.72rem;
     font-weight: 600;
-    letter-spacing: 0.18em;
+    /* The cue sits low in the stage, over ivory rather than over the
+       picture, so ink reads where the old ivory-on-glow did not. */
+    letter-spacing: 0.26em;
     text-transform: uppercase;
-    color: var(--ivory-0);
-    text-shadow: 0 2px 12px rgba(13, 53, 39, 0.55);
+    color: rgba(42, 36, 27, 0.62);
+    text-shadow: none;
     white-space: nowrap;
   }
 
+  /* A drawn chevron in the site's gold rather than a black bitmap. The
+     second stroke is faded so the pair reads as direction, not as a
+     button to press. */
   .cinema__scroll-arrow {
-    inline-size: clamp(70px, 21vw, 92px);
+    inline-size: clamp(26px, 7vw, 34px);
     block-size: auto;
-    filter: drop-shadow(0 10px 18px rgba(13, 53, 39, 0.18));
+    color: var(--gold);
+    filter: none;
+    animation: scrollNudge 2.6s var(--ease) infinite;
+  }
+
+  @keyframes scrollNudge {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(5px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cinema__scroll-arrow { animation: none; }
   }
 
   .cinema__line {
@@ -1330,39 +1346,57 @@ body .masthead:not(.is-stuck) .burger {
 /* ---------- Landing header ----------
    No menu, so the mark is the header. Centred, stacked over the tagline. */
 
-/* A soft downward wedge behind the lockup. It does two jobs at once:
-   it darkens the busy carved image so the type stays readable wherever
-   the hero happens to sit, and its shape points at the content below, so
-   the header itself says "keep going" without adding another widget.
+/* Legibility, where it is actually needed.
 
-   Rounded corners come from a thick round-joined stroke on the triangle
-   rather than a clip-path, which cannot round its own points. The blur
-   keeps it reading as light on stone instead of a pasted-on slab. */
-.masthead__scrim {
+   The header floats over the carved hero image on wide screens, so the
+   ivory type needs the picture darkened beneath it — but only there. A
+   soft top-down gradient does that without introducing a shape: nothing
+   to distort, nothing to look pasted on, and it reads as the image
+   falling into shadow rather than as a panel laid over it.
+
+   On narrow screens the header barely touches the image at all — it sits
+   on the ivory page — so there is nothing to darken, and a scrim would
+   only dirty a clean background. There the type takes ink instead. */
+.masthead--bare::before {
+  content: "";
   position: absolute;
-  inset-block-start: -14%;
-  /* Physical left, not inset-inline-start: translateX is physical too, and
-     in RTL the logical property would push the wedge off to one side. */
-  left: 50%;
-  transform: translateX(-50%);
-  inline-size: clamp(260px, 30vw, 440px);
-  block-size: clamp(190px, 22vw, 300px);
-  z-index: 0;
+  inset-block-start: 0;
+  inset-inline: 0;
+  block-size: 260px;
   pointer-events: none;
-  filter: blur(14px);
+  /* Weighted to where the type actually sits — roughly two thirds down
+     the band — rather than fading out before it gets there. The hero
+     image changes as the opening sequence plays, so the text needs
+     headroom above the 4.5:1 floor, not to sit exactly on it. */
+  background: linear-gradient(to bottom,
+    rgba(10, 8, 3, 0.62) 0%,
+    rgba(10, 8, 3, 0.52) 52%,
+    rgba(10, 8, 3, 0.30) 78%,
+    rgba(10, 8, 3, 0) 100%);
 }
 
-.masthead__scrim path {
-  fill: rgba(8, 6, 2, 0.42);
-  stroke: rgba(8, 6, 2, 0.42);
-}
+.masthead.is-stuck::before { opacity: 0; }
 
-/* Once the header is a solid glass bar the scrim has nothing to do. */
-.masthead.is-stuck .masthead__scrim { opacity: 0; }
-
-/* The wedge is a sibling of the wordmark, so the lockup has to sit above
-   it explicitly. */
 .masthead--bare .wordmark { position: relative; z-index: 1; }
+
+/* Narrow screens: the header sits on the ivory page, not on the picture,
+   so the scrim comes off and the type inverts to ink. The mark keeps its
+   own drop shadow, which is all it needs against cream. */
+@media (max-width: 820px) {
+  .masthead--bare::before { display: none; }
+
+  .masthead--bare .wordmark__lead {
+    color: var(--green-deep);
+    text-shadow: none;
+  }
+  .masthead--bare .wordmark__sub {
+    color: rgba(42, 36, 27, 0.72);
+    text-shadow: none;
+  }
+  .masthead--bare .wordmark__mark {
+    filter: drop-shadow(0 6px 16px rgba(13, 34, 24, 0.24));
+  }
+}
 
 .masthead--bare .masthead__inner {
   position: relative;
