@@ -1364,7 +1364,7 @@ body .masthead:not(.is-stuck) .burger {
   gap: 0.15em;
 }
 
-.wordmark__tagline {
+.wordmark__lead {
   font-family: var(--display);
   font-size: clamp(1.05rem, 0.85rem + 0.95vw, 1.6rem);
   font-weight: 700;
@@ -1374,7 +1374,7 @@ body .masthead:not(.is-stuck) .burger {
 }
 
 /* The formal name is the quieter half — the mark already carries it. */
-.wordmark__name {
+.wordmark__sub {
   font-family: var(--util);
   font-size: clamp(0.72rem, 0.64rem + 0.36vw, 0.92rem);
   font-weight: 600;
@@ -1384,11 +1384,11 @@ body .masthead:not(.is-stuck) .burger {
   text-shadow: 0 1px 10px rgba(13, 53, 39, 0.5);
 }
 
-.masthead.is-stuck .wordmark__tagline {
+.masthead.is-stuck .wordmark__lead {
   color: var(--green-deep);
   text-shadow: none;
 }
-.masthead.is-stuck .wordmark__name {
+.masthead.is-stuck .wordmark__sub {
   color: rgba(13, 53, 39, 0.68);
   text-shadow: none;
 }

@@ -222,8 +222,8 @@ def masthead(active):
     <a class="wordmark" href="{home}">
       <img class="wordmark__mark" src="{logo}" alt="{name}" width="460" height="640" loading="eager">
       <span class="wordmark__lockup">
-        <span class="wordmark__tagline">{tagline}</span>
-        <span class="wordmark__name">{name}</span>
+        <span class="wordmark__lead">{name}</span>
+        <span class="wordmark__sub">{tagline}</span>
       </span>
     </a>
   </div>
