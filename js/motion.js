@@ -104,23 +104,51 @@
     set(cine.parties, "--x", lerp(24, 0, ease(seg(p, 0.06, 0.15))).toFixed(2));
     set(cine.parties, "--y", lerp(24, -18, travel).toFixed(1));
 
-    /* line two has a clean, separate left-hand title slide */
+    /* ---- the conveyor ----
+     *
+     * From here the sequence stops being separate fades and becomes one
+     * strip of copy scrolling upward, each element carried by whatever
+     * arrives beneath it:
+     *
+     *   A  the mark appears below line two, and the pair rise together
+     *   B  the mark parks; line two carries on past it and leaves above
+     *   C  the slogan rises from below and pushes the mark up
+     *
+     * The phases are separate easings rather than one curve so each can
+     * start before the previous has finished, which is what makes the
+     * hand-off read as continuous rather than as three cues in a queue.
+     */
+    var vh = window.innerHeight || root.clientHeight;
+
+    /* A: the shared lift. Both elements take this exact displacement, so
+       the distance between them is fixed and they read as one object. */
+    var carry = ease(seg(p, 0.50, 0.68)) * 150;
+    /* B: line two breaks the coupling and clears the frame. */
+    var depart = ease(seg(p, 0.68, 0.78)) * 220;
+    /* C: about the slogan's own height, so it clears the mark rather than
+       crowding it. In px like the rest, measured off the viewport. */
+    var push = ease(seg(p, 0.82, 0.94)) * (vh * 0.10);
+
+    /* line two: its own entrance, then the shared lift, then the exit */
     var in2 = ease(seg(p, 0.36, 0.45));
-    var out2 = ease(seg(p, 0.61, 0.68));
+    var out2 = ease(seg(p, 0.70, 0.78));
     set(cine.line2, "--o", (in2 * (1 - out2)).toFixed(3));
     set(cine.line2, "--x", lerp(-28, 0, ease(seg(p, 0.36, 0.46))).toFixed(1));
-    set(cine.line2, "--y", lerp(34, -24, ease(seg(p, 0.36, 0.68))).toFixed(1));
+    set(cine.line2, "--y", (lerp(34, 0, in2) - carry - depart).toFixed(1));
 
-    /* the party mark rises from below the frame and settles in the middle */
-    var rise = ease(seg(p, 0.69, 0.79));
-    set(cine.logo, "--o", ease(seg(p, 0.69, 0.76)).toFixed(3));
-    set(cine.logo, "--y", lerp(62, 0, rise).toFixed(2));
-    set(cine.logo, "--s", lerp(0.92, 1, rise).toFixed(4));
+    /* the mark enters below the line, rides the shared lift at the same
+       rate, then settles the rest of the way on its own before the push */
+    var settle = ease(seg(p, 0.68, 0.79));
+    set(cine.logo, "--o", ease(seg(p, 0.46, 0.54)).toFixed(3));
+    set(cine.logo, "--y", (230 - carry - settle * 80 - push).toFixed(1));
+    /* Held at full size through the push: the mark stays the anchor the
+       slogan arrives under, rather than shrinking away from it. */
+    set(cine.logo, "--s", lerp(0.92, 1, ease(seg(p, 0.46, 0.68))).toFixed(4));
 
-    /* and only then, the slogan */
-    var sl = ease(seg(p, 0.88, 0.97));
+    /* the slogan: the thing doing the pushing */
+    var sl = ease(seg(p, 0.82, 0.94));
     set(cine.slogan, "--o", sl.toFixed(3));
-    set(cine.slogan, "--y", lerp(26, 0, sl).toFixed(1));
+    set(cine.slogan, "--y", lerp(90, 0, sl).toFixed(1));
   }
 
   /* ---- bounded reading panes ----

@@ -764,7 +764,10 @@ body .masthead:not(.is-stuck) .burger {
   opacity: var(--o, 0);
   filter: drop-shadow(0 22px 46px rgba(18, 12, 3, 0.55));
   will-change: transform, opacity;
-  transform: translate3d(0, calc(-50% + var(--y, 0) * 1vh), 0) scale(var(--s, 1));
+  /* px, not vh: the logo is locked to the second line's travel through the
+     middle of the sequence, and the two can only share a distance if they
+     are measured in the same unit. */
+  transform: translate3d(0, calc(-50% + var(--y, 0) * 1px), 0) scale(var(--s, 1));
 }
 
 .cinema__slogan {
@@ -1424,12 +1427,19 @@ body .masthead:not(.is-stuck) .burger {
   padding-block: clamp(0.7rem, 2vw, 1.2rem);
 }
 
+/* The two lines sit beside the mark, not beneath it. Stacked, the lockup
+   cost the header the mark's height plus two lines plus their gaps, and
+   all of that was dead space above the opening frame. Set as a row the
+   header is only as tall as the mark. The page is RTL, so `row` puts the
+   mark (first in the DOM) on the right and the text to its left. */
 .masthead--bare .wordmark {
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 0.4rem;
-  text-align: center;
+  gap: clamp(0.6rem, 1.4vw, 1rem);
+  text-align: start;
 }
+
+.masthead--bare .wordmark__lockup { align-items: flex-start; }
 
 /* The mark leads. It is the one saturated object on an ivory and leather
    page, and the artwork carries a lot of internal air, so it needs real
