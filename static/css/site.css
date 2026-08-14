@@ -1113,6 +1113,26 @@ body .masthead:not(.is-stuck) .burger {
     rgba(10, 5, 3, 0.34));
 }
 
+/* The same gold seal the footer wears, repeated at every join between
+   sections on the home page. The first bay is deliberately left bare: it
+   shares one flush boundary with the hero (see .cinema + .bay--greenback
+   above), and a rule there would cut the opening sequence in half. The
+   sibling combinator states that — only a bay that follows another bay is
+   a join. The line rides the ::after layer because ::before already carries
+   the parallax leather and would paint over anything on the element itself. */
+[data-hero-page] .bay ~ .bay::after {
+  background-image:
+    linear-gradient(to left, transparent,
+      color-mix(in srgb, var(--gold) 55%, transparent) 12%,
+      color-mix(in srgb, var(--gold) 55%, transparent) 88%, transparent),
+    linear-gradient(135deg,
+      rgba(5, 10, 7, 0.18),
+      rgba(10, 5, 3, 0.34));
+  background-repeat: no-repeat, repeat;
+  background-size: 100% 1px, auto;
+  background-position: top center, center;
+}
+
 .bay--greenback > .shell,
 .bay--redback > .shell {
   position: relative;
