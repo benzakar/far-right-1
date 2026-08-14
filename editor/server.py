@@ -27,6 +27,36 @@ def run(*args):
     return subprocess.run(args, cwd=ROOT, text=True, capture_output=True)
 
 
+def site_base():
+    """The prefix the current build puts on every absolute path.
+
+    This mirrors publish.sh exactly: with a CNAME the site is served from
+    a domain root and there is no prefix; without one it is served from
+    USER.github.io/REPO/ and every path carries "/REPO". The preview has
+    to answer on whichever set the build actually emitted, otherwise the
+    editor shows a page with no stylesheet — which is the site's real
+    behaviour on that URL, but not something you want to debug through
+    the editor.
+    """
+    try:
+        with open(os.path.join(ROOT, "CNAME"), "r", encoding="utf-8") as fh:
+            if fh.read().strip():
+                return ""
+    except OSError:
+        pass
+    remote = run("git", "config", "--get", "remote.origin.url").stdout.strip()
+    if not remote:
+        return ""
+    slug = remote.rsplit("github.com", 1)[-1].lstrip(":/")
+    if slug.endswith(".git"):
+        slug = slug[:-len(".git")]
+    repo = slug.rstrip("/").split("/")[-1]
+    return "/" + repo if repo else ""
+
+
+SITE_BASE = site_base()
+
+
 def editable_blocks():
     blocks = {
         "section-vision": {"name": "خطة ألف وخطة باء", "eyebrow": VISION["label"], "title": VISION["plan_title"], "body": [VISION["plan_lead"]]},
@@ -82,8 +112,19 @@ class Handler(SimpleHTTPRequestHandler):
     def authorized(self):
         return self.headers.get("X-Editor-Token", "") == TOKEN
 
+    def strip_base(self):
+        """Serve the build's prefixed paths from the same files as before."""
+        if not SITE_BASE:
+            return urlparse(self.path).path
+        parts = urlparse(self.path)
+        path = parts.path
+        if path == SITE_BASE or path.startswith(SITE_BASE + "/"):
+            path = path[len(SITE_BASE):] or "/"
+            self.path = path + (("?" + parts.query) if parts.query else "")
+        return path
+
     def do_GET(self):
-        path = urlparse(self.path).path
+        path = self.strip_base()
         if path == "/":
             self.path = "/editor/index.html"
             return super().do_GET()

@@ -512,5 +512,16 @@
         "removed": true
       }
     }
-  }
+  },
+  "section_order": [
+    "two-speeds-plans",
+    "plan-a-b",
+    "examples",
+    "latest-news",
+    "about",
+    "doctrines",
+    "accountability",
+    "join",
+    "declaration"
+  ]
 }

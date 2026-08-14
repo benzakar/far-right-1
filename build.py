@@ -45,6 +45,46 @@ def _load_editor_config():
 EDITOR_CONFIG = _load_editor_config()
 EDITOR_SECTIONS = EDITOR_CONFIG.get("sections", {})
 
+_SECTION_ID_RE = re.compile(r'<section\b[^>]*\bid="([^"]+)"')
+
+
+def ordered_sections(parts):
+    """Emit the home page's sections in the editor's chosen order.
+
+    `section_order` in editor.json lists section ids. It is treated as a
+    preference, not as the source of truth: ids it does not mention keep
+    their natural position, and ids it mentions that no longer exist are
+    ignored. That way reordering in the editor never has to be kept in
+    step with adding or removing a section in this file — a stale entry
+    costs nothing and a missing one is not a hole.
+
+    Anything without an id — the opening sequence — is fixed. It is the
+    frame the rest of the page is read through, not a section in the run.
+    """
+    order = EDITOR_CONFIG.get("section_order")
+    if not isinstance(order, list) or not order:
+        return parts
+
+    slots = []          # index in `parts` of each movable section
+    by_id = {}
+    for i, part in enumerate(parts):
+        match = _SECTION_ID_RE.search(part)
+        if match:
+            slots.append(i)
+            by_id[match.group(1)] = part
+
+    # Requested ids first, in the order given; then whatever was left, in
+    # the order this file built them, so an unlisted section does not jump.
+    wanted = [sid for sid in order if sid in by_id]
+    rest = [sid for sid in
+            (_SECTION_ID_RE.search(parts[i]).group(1) for i in slots)
+            if sid not in wanted]
+
+    out = list(parts)
+    for slot, sid in zip(slots, wanted + rest):
+        out[slot] = by_id[sid]
+    return out
+
 
 def section_config(section_id):
     data = EDITOR_SECTIONS.get(section_id, {})
@@ -1306,7 +1346,7 @@ def home():
 </section>""".format(classes=section_class("declaration", "bay--deep"), intro=section_intro("declaration", "", "", ""), lines=dec_lines, href=url("join/"),
                      cta=esc(DECLARATION["cta"]), tweet=section_tweet("declaration")))
 
-    return page("home", "", clean_markup("\n".join(parts)), hero=True)
+    return page("home", "", clean_markup("\n".join(ordered_sections(parts))), hero=True)
 
 
 # ------------------------------------------------------------ باقي الصفحات

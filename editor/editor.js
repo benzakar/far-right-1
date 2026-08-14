@@ -137,6 +137,79 @@
     return el.frame.contentDocument;
   }
 
+  /* The movable run: the sections the home page is built from, in the
+     order the preview currently shows them. The opening sequence has no
+     id and is deliberately excluded — it is the frame the rest is read
+     through, not an entry in the run. */
+  function movableSections(doc) {
+    var main = doc && doc.getElementById("main");
+    if (!main) return [];
+    return Array.prototype.filter.call(main.children, function (node) {
+      return node.tagName === "SECTION" && node.id;
+    });
+  }
+
+  /* The order controls answer for whichever section the selection sits
+     inside, not only for a selected section — clicking a paragraph is how
+     anyone actually reaches a section, so requiring the box itself to be
+     selected would have hidden this behind a step nobody would guess. */
+  function selectedSection() {
+    if (!selected || pageKey() !== "home") return null;
+    var section = selected.el.closest("section[id]");
+    if (!section) return null;
+    return movableSections(previewDoc()).indexOf(section) < 0 ? null : section;
+  }
+
+  function drawOrder() {
+    var section = selectedSection();
+    show("order-tools", !!section);
+    if (!section) return;
+    var list = movableSections(previewDoc());
+    var at = list.indexOf(section);
+    var name = (config.sections[section.id] || {}).name || section.id;
+    document.getElementById("order-place").textContent =
+      name + " — " + (at + 1) + " من " + list.length;
+    document.querySelector('[data-section-move="up"]').disabled = at === 0;
+    document.querySelector('[data-section-move="down"]').disabled = at === list.length - 1;
+  }
+
+  /* Reorder in the preview first, then read the order back out of it.
+     While editing, the preview DOM is the only place the true order
+     lives — it already carries every earlier move — so deriving
+     section_order from it after the fact cannot drift from what is on
+     screen. Recording the move and then separately mutating an array
+     could. */
+  function moveSection(direction) {
+    if (!selected) return say("ختار شي حاجة من المقطع اللي بغيتي تحرك", true);
+    if (pageKey() !== "home") {
+      return say("ترتيب المقاطع كيخدم غير فالصفحة الرئيسية", true);
+    }
+    var doc = previewDoc();
+    var section = selected.el.closest("section[id]");
+    if (!section) return say("هاد العنصر ما تابع حتى لمقطع", true);
+
+    var list = movableSections(doc);
+    var at = list.indexOf(section);
+    if (at < 0) return say("هاد المقطع ما كيتحركش", true);
+
+    var to = direction === "up" ? at - 1 : at + 1;
+    if (to < 0 || to >= list.length) {
+      return say(direction === "up" ? "هادا هو أول مقطع" : "هادا هو آخر مقطع", true);
+    }
+
+    if (direction === "up") list[to].before(section);
+    else list[to].after(section);
+
+    config.section_order = movableSections(doc).map(function (node) {
+      return node.id;
+    });
+
+    section.scrollIntoView({ block: "center" });
+    drawOrder();
+    mark();
+    say("تحرك المقطع من " + (at + 1) + " ل " + (to + 1));
+  }
+
   function select(node) {
     var doc = previewDoc();
     if (doc) {
@@ -223,6 +296,7 @@
     show("shape-tools", /^(p|h3)$/.test(tag));
     show("insert-tools", textual);
     show("box-tools", /^(section|article|div)$/.test(tag));
+    drawOrder();
     show("image-tools", tag === "img");
     show("link-tools", tag === "a");
     show("quote-tool", tag === "p");
@@ -406,6 +480,10 @@
         section.classList.toggle("bay--redback", tone === "red");
         mark();
       };
+    });
+
+    document.querySelectorAll("[data-section-move]").forEach(function (button) {
+      button.onclick = function () { moveSection(button.dataset.sectionMove); };
     });
 
     document.getElementById("selected-src").onchange = function () {
