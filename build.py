@@ -402,7 +402,9 @@ def cinema_block():
            line1=esc(CINEMA["line_1"]), line2=esc(CINEMA["line_2"]),
            parties=asset("/img/darklogos.png"),
            parties_alt=esc(CINEMA["parties_alt"]),
-           logo=versioned("/img/party-logo.png"), logo_alt=esc(CINEMA["logo_alt"]),
+           # The stage sizes the whole 16:9 canvas, so it needs the uncropped
+           # original — the cropped mark the header uses lands at the wrong scale.
+           logo=versioned("/img/party-logo-cinema.png"), logo_alt=esc(CINEMA["logo_alt"]),
            slogan=esc(CINEMA["slogan"]))
 
 
