@@ -220,12 +220,15 @@ def masthead(active):
     return """<header class="masthead masthead--bare" data-masthead>
   <div class="shell masthead__inner">
     <a class="wordmark" href="{home}">
-      <img class="wordmark__mark" src="{logo}" alt="{name}" width="120" height="166" loading="eager">
-      <span class="wordmark__tagline">{tagline}</span>
+      <img class="wordmark__mark" src="{logo}" alt="{name}" width="460" height="640" loading="eager">
+      <span class="wordmark__lockup">
+        <span class="wordmark__tagline">{tagline}</span>
+        <span class="wordmark__name">{name}</span>
+      </span>
     </a>
   </div>
 </header>
-""".format(home=url(), logo=asset("/img/party-logo.png"),
+""".format(home=url(), logo=versioned("/img/party-logo.png"),
            name=esc(UI["party_name"]), tagline=esc(SITE["tagline"]))
 
 
@@ -289,7 +292,7 @@ def footer():
 <script src="{motionjs}" defer></script>
 </body>
 </html>
-""".format(logo=asset("/img/party-logo.svg"), logo_alt=esc(UI["logo_alt"]),
+""".format(logo=versioned("/img/party-logo.svg"), logo_alt=esc(UI["logo_alt"]),
            tagline=esc(FOOTER["tagline"]), coming=coming, socials=social_html,
            legal_title=esc(FOOTER["legal_title"]), legal=legal,
            rights=esc(FOOTER["rights"]), z=url("z/"),
@@ -395,7 +398,7 @@ def cinema_block():
            line1=esc(CINEMA["line_1"]), line2=esc(CINEMA["line_2"]),
            parties=asset("/img/darklogos.png"),
            parties_alt=esc(CINEMA["parties_alt"]),
-           logo=asset("/img/party-logo.png"), logo_alt=esc(CINEMA["logo_alt"]),
+           logo=versioned("/img/party-logo.png"), logo_alt=esc(CINEMA["logo_alt"]),
            slogan=esc(CINEMA["slogan"]))
 
 

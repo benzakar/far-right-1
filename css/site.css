@@ -1342,25 +1342,62 @@ body .masthead:not(.is-stuck) .burger {
   text-align: center;
 }
 
+/* The mark leads. It is the one saturated object on an ivory and leather
+   page, and the artwork carries a lot of internal air, so it needs real
+   size before it reads as dominant over type sitting beneath it. */
 .masthead--bare .wordmark__mark {
-  inline-size: clamp(46px, 7vw, 74px);
-  block-size: auto;
+  /* Sized by height, not width. The artwork is portrait, so height is
+     what decides how large the mark actually reads in a header row. */
+  block-size: clamp(76px, 9vw, 132px);
+  inline-size: auto;
   object-fit: contain;
+  filter: drop-shadow(0 10px 26px rgba(13, 34, 24, 0.42));
+}
+
+/* Two lines under the mark: what the party is for, then what it is
+   called. Set as one lockup so the gap between them stays tight relative
+   to the space under the logo. */
+.wordmark__lockup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15em;
 }
 
 .wordmark__tagline {
   font-family: var(--display);
-  font-size: clamp(0.95rem, 0.8rem + 0.7vw, 1.35rem);
+  font-size: clamp(1.05rem, 0.85rem + 0.95vw, 1.6rem);
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 1.25;
   color: var(--ivory-0);
   text-shadow: 0 2px 14px rgba(13, 53, 39, 0.5);
+}
+
+/* The formal name is the quieter half — the mark already carries it. */
+.wordmark__name {
+  font-family: var(--util);
+  font-size: clamp(0.72rem, 0.64rem + 0.36vw, 0.92rem);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  line-height: 1.3;
+  color: rgba(243, 237, 225, 0.74);
+  text-shadow: 0 1px 10px rgba(13, 53, 39, 0.5);
 }
 
 .masthead.is-stuck .wordmark__tagline {
   color: var(--green-deep);
   text-shadow: none;
 }
+.masthead.is-stuck .wordmark__name {
+  color: rgba(13, 53, 39, 0.68);
+  text-shadow: none;
+}
+
+/* Scrolled, the header becomes a slim glass bar: the lockup turns back
+   into a row and the mark stands down so it never crowds the content. */
+.masthead.is-stuck .wordmark { flex-direction: row; gap: 0.7rem; }
+.masthead.is-stuck .wordmark__lockup { align-items: flex-start; }
+.masthead.is-stuck .wordmark__mark { block-size: clamp(38px, 4.4vw, 52px); inline-size: auto; }
 
 /* ---------- Footer socials ---------- */
 

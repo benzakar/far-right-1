@@ -156,6 +156,15 @@
     style.textContent = PREVIEW_CSS;
     doc.head.appendChild(style);
     doc.addEventListener("click", function (event) {
+      /* The preview is a surface to edit, not a site to browse. Any link
+         followed in here would navigate the frame away from the page being
+         edited — and because the editor server answers "/" with the editor
+         itself, following the header logo loaded the whole editor inside
+         its own preview, nesting a new one on every click. Navigation is
+         cancelled first, before anything else is decided. */
+      var link = event.target.closest("a, button, [type=submit]");
+      if (link) event.preventDefault();
+
       var node = event.target.closest("[data-edit-id]");
       if (!node) return;
       event.preventDefault();
@@ -163,6 +172,16 @@
       select(node);
       el.form.scrollIntoView({ behavior: "smooth", block: "start" });
     }, true);
+
+    /* Belt and braces: a middle-click, a keyboard activation, or a script
+       in the page can still start a navigation the click handler never
+       sees. Anything that would replace the frame is refused. */
+    doc.addEventListener("submit", function (event) { event.preventDefault(); }, true);
+    if (doc.defaultView) {
+      doc.defaultView.addEventListener("beforeunload", function (event) {
+        event.preventDefault();
+      });
+    }
   }
 
   /* ---------------------------------------------------------------- panel */
