@@ -143,6 +143,17 @@ def esc(s):
     return html.escape(str(s), quote=True)
 
 
+def esc_lines(s):
+    """Escape, then honour the line breaks someone typed in the editor.
+
+    HTML collapses newlines into spaces, so pressing Enter inside a text
+    box did nothing to the published page: the edit saved, published, and
+    then read as one unbroken line. Escaping each part first means <br> is
+    the only markup that can ever come out of editor text.
+    """
+    return "<br>".join(esc(part) for part in str(s).split("\n"))
+
+
 def asset(path):
     """مسار مطلق لملف ثابت، مع احترام BASE_PATH."""
     return BASE + path
@@ -872,7 +883,7 @@ def apply_page_overrides(page_key, markup):
                 continue
             if text:
                 pieces.append("{}{}</{}>".format(
-                    _retag(open_tag, tag, new_tag), esc(text), new_tag))
+                    _retag(open_tag, tag, new_tag), esc_lines(text), new_tag))
         elif new_tag != tag:
             pieces.append(_retag(open_tag, tag, new_tag) + inner + "</{}>".format(new_tag))
         elif op.get("after"):
@@ -895,7 +906,7 @@ def apply_page_overrides(page_key, markup):
             style = str(block.get("style", "")).strip()
             pieces.append('<{tag}{style} data-edit-id="{eid}-add{n}">{text}</{tag}>'.format(
                 tag=btag, style=' style="{}"'.format(esc(style)) if style else "",
-                eid=edit_id, n=i + 1, text=esc(body)))
+                eid=edit_id, n=i + 1, text=esc_lines(body)))
 
         markup = markup[:start] + "\n".join(pieces) + markup[end:]
 
