@@ -19,6 +19,10 @@ SITE = {
     "youtube": "https://www.youtube.com/@BenZakarMinus",
     "x": "https://x.com/benzakarMorocco",
     "facebook": "https://www.facebook.com/profile.php?id=61590374113293",
+    # المجموعة ماشي هي الصفحة: الصفحة كتنشر، المجموعة هي البلاصة اللي
+    # كيتلاقاو فيها الناس. الانضمام كيدوز من المجموعة.
+    "facebook_group": "https://www.facebook.com/groups/1069053385663059",
+    "email": "benzakarmorocco@gmail.com",
     "instagram": "https://www.instagram.com/benzakarmorocco/",
     # الشعار اللي كيبان تحت اللوغو فراس الصفحة
     "tagline": "حزب الابتكار و الخدمة",

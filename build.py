@@ -339,7 +339,6 @@ def footer():
     </div>
     <div class="footer__base">
       <span>{rights}</span>
-      <a class="footer__z" href="{z}" aria-label="أرشيف النصوص">Z</a>
     </div>
   </div>
 </footer>
@@ -350,7 +349,10 @@ def footer():
 """.format(logo=versioned("/img/party-logo.svg"), logo_alt=esc(UI["logo_alt"]),
            tagline=esc(FOOTER["tagline"]), coming=coming, socials=social_html,
            legal_title=esc(FOOTER["legal_title"]), legal=legal,
-           rights=esc(FOOTER["rights"]), z=url("z/"),
+           # /z/ is still built and still on GitHub, but nothing links to
+           # it any more — it is a working surface, reached by typing the
+           # URL, not something the site offers a visitor.
+           rights=esc(FOOTER["rights"]),
            navjs=versioned("/js/nav.js"), motionjs=versioned("/js/motion.js"))
 
 
@@ -1218,36 +1220,8 @@ def home():
             actions=[(url("vision/"), "شوف الرؤية كاملة", False)],
             tweet_id="plan-a-b")))
 
-    parts.append("""<section class="{classes}" id="examples" data-parallax-bg>
-  <div class="shell">
-    {intro}
-    {reader}
-    <div class="status" data-reveal>
-      <span class="status__tag">اللي جاي</span>
-      <p>وهادي غير البداية. عقائد ومشاريع أخرى كيبانو لتحت، وأخرى غادي تزيد من بعد.</p>
-    </div>
-  </div>
-</section>""".format(
-        classes=section_class("examples"),
-        intro=section_intro("examples", "من الفكرة للمشروع", "ثلاثة أمثلة كيبينو كيفاش كنفكرو", "ماشي شعارات عامة: كل مثال كيبدا من مشكل باين، وكيقترح تصميم يمكن يتجرب ويتقاس."),
-        reader=policy_reader(
-            "section-bus", "حافلة المغرب",
-            [item for stage in BUS["stages"] for item in (
-                ("h3", stage["role"] + " — " + stage["subtitle"]),
-                stage["body"],
-            )] + [("h3", BUS["note_title"]), BUS["note_body"]],
-            aria=BUS["title"],
-            tweet_id="examples")))
-
-    parts.append("""<section class="{classes}" id="latest-news" data-parallax-bg>
-  <div class="shell">
-    {intro}
-    {reader}
-  </div>
-</section>""".format(
-        classes=section_class("latest-news"),
-        intro=section_intro("latest-news", "آخر المستجدات", "شنو واقع دابا", "كل خبر مصمم بوحدو. زيد ولا بدّل الصور من المحرر."),
-        reader=_news_slider() + section_tweet("latest-news")))
+    # Examples and the news slider are written and still in /z/, but the
+    # front page stays short while the project is being set up.
 
     parts.append("""<section class="{classes}" id="about" data-parallax-bg>
   <div class="shell">
@@ -1272,79 +1246,62 @@ def home():
             ],
             tweet_id="about")))
 
-    parts.append("""<section class="{classes}" id="doctrines" data-parallax-bg>
+    # The page is deliberately short while the project is being set up.
+    # Doctrines, examples, news and accountability are written and still
+    # built into /z/ — they are simply not on the front page yet, so a
+    # visitor meets the argument, the petition and one way in, and nothing
+    # else. Restoring any of them is a matter of appending it here again.
+
+    parts.append("""<section class="{classes}" id="petition" data-parallax-bg>
   <div class="shell">
     {intro}
-    {slider}
-    {tweet}
-  </div>
-</section>""".format(classes=section_class("doctrines"), intro=section_intro("doctrines", "باقي العقائد", "الفكرة فالخلاصة، والتفاصيل اختيارية", "شفتي البرونكس ولالة خديجة. هنا باقي العقائد وحدة وحدة."), slider=_doctrine_slider(remaining_doctrines), tweet=section_tweet("doctrines")))
-
-    # The Night/Day driver passage now lives in the examples section above,
-    # so this section would only repeat it.
-
-    parts.append("""<section class="{classes}" id="accountability" data-parallax-bg>
-  <div class="shell">
-    {intro}
-    {reader}
-  </div>
-</section>""".format(
-        classes=section_class("accountability"),
-        intro=section_intro("accountability", "كيفاش غادي تحاسبونا", "القياس قبل الثقة", "الفرق ماشي فالنوايا. الفرق فالحل، والتجربة، والنتيجة اللي كتتنشر."),
-        reader=policy_reader(
-            "section-accountability", "المساءلة والنتائج",
-            [
-                ("h3", ACCOUNTABILITY["title"]), ACCOUNTABILITY["summary"],
-                ("h3", "شنو كيميزنا"),
-            ] + [t for t, _ in WHO["distinctions"]] + [
-                ("h3", ACCOUNTABILITY["ladder_title"]),
-            ] + ["{}: {}".format(rank, body)
-                 for rank, body in ACCOUNTABILITY["ladder"]] + [
-                ACCOUNTABILITY["disclaimer"],
-            ],
-            aria=ACCOUNTABILITY["title"],
-            actions=[(url("accountability/"), UI["more"], False)],
-            tweet_id="accountability")))
-
-    parts.append("""<section class="{classes}" id="join" data-parallax-bg>
-  <div class="shell">
-    {intro}
-    {reader}
     {petition}
   </div>
 </section>""".format(
-        classes=section_class("join"),
-        intro=section_intro("join", JOIN["label"], JOIN["title"], JOIN["lead"]),
-        reader=policy_reader(
-            "section-join", "الحركة والبنّايين",
-            [
-                ("h3", "طرق المساهمة"),
-                "الانضمام كيبدا من الخدمة، ماشي من الورق. هاك الطرق اللي يقدر أي مغربي "
-                "يساهم بيها من دابا.",
-            ] + [
-                "{} — {}".format(title, body) for title, body in JOIN["paths"]
-            ] + [
-                ("h3", "المجموعة ديالنا فـ فيسبوك"),
-                "حتى فاش ما تحلاتش العضوية الرسمية، المجموعة فـ فيسبوك هي البلاصة اللي "
-                "كيتلاقاو فيها اللي باغين يساهمو: تطرح فكرة، تناقش مشكل، ولا تلقى ناس "
-                "خدامين على نفس الملف. هادي هي العضوية الافتراضية دابا.",
-                ("h3", JOIN["how_title"]), JOIN["how_body"],
-                ("h3", JOIN["contact_title"]), JOIN["contact_note"],
-            ],
-            aria=JOIN["title"],
-            actions=[(SITE["facebook"], "دخل للمجموعة ديال فيسبوك", True)],
-            tweet_id="join"),
+        classes=section_class("petition", "bay--redback"),
+        intro=section_intro(
+            "petition", "الخطوة الأولى", "وقّع العريضة",
+            "قبل أي عضوية وأي ورقة، الباب اللي كيتحل بالتوقيع: عريضة كتطالب "
+            "بتمكين الحزب من المشاركة فالمشهد السياسي المغربي."),
         petition=petition_block(compact=True)))
+
+    parts.append("""<section class="{classes}" id="facebook" data-parallax-bg>
+  <div class="shell">
+    {intro}
+    <p class="bay__lead">{body}</p>
+    <p class="declaration__cta">
+      <a class="btn btn--primary" href="{group}" rel="noopener noreferrer" target="_blank">{cta} \u2197</a>
+    </p>
+    {tweet}
+  </div>
+</section>""".format(
+        classes=section_class("facebook", "bay--greenback"),
+        intro=section_intro(
+            "facebook", "كيفاش تنضم", "المجموعة ديال فيسبوك هي باب الدخول",
+            "العضوية الرسمية مازال ما تحلاتش، والمجموعة هي العضوية الافتراضية دابا."),
+        body=esc("دخل للمجموعة، طرح فكرة، ناقش مشكل، ولا لقا ناس خدامين على نفس "
+                 "الملف. هادي هي الطريقة الوحيدة باش تساهم من دابا."),
+        group=SITE["facebook_group"],
+        cta=esc("دخل للمجموعة ديال فيسبوك"),
+        tweet=section_tweet("facebook")))
 
     parts.append("""<section class="{classes}" id="declaration" data-parallax-bg>
   <div class="shell declaration">
     {intro}
     {lines}
-    <a class="btn btn--primary" href="{href}">{cta}</a>
+    <p class="declaration__contact">{contact}</p>
+    <p class="declaration__cta">
+      <a class="btn btn--primary" href="mailto:{email}">{email}</a>
+    </p>
     {tweet}
   </div>
-</section>""".format(classes=section_class("declaration", "bay--deep"), intro=section_intro("declaration", "", "", ""), lines=dec_lines, href=url("join/"),
-                     cta=esc(DECLARATION["cta"]), tweet=section_tweet("declaration")))
+</section>""".format(
+        classes=section_class("declaration", "bay--deep"),
+        intro=section_intro("declaration", "", "", ""),
+        lines=dec_lines,
+        contact=esc("لأي سؤال آخر — اقتراح، تعاون، ولا استفسار — كتب لينا مباشرة:"),
+        email=esc(SITE["email"]),
+        tweet=section_tweet("declaration")))
 
     return page("home", "", clean_markup("\n".join(ordered_sections(parts))), hero=True)
 
