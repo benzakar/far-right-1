@@ -3174,9 +3174,14 @@ html[dir="rtl"] .road__bus { transform: scaleX(-1); }
    relying on inheriting alignment — the paragraph reset upstream sets
    text-align: start, which was leaving the email button hard against the
    inline edge inside an otherwise centred section. */
+/* text-align alone was not enough: these paragraphs inherit a reading
+   measure, so the box itself was 749px inside a 1240px shell and pinned to
+   the inline edge — the contents were centred inside a block that was not.
+   Centring the block is what actually centres the button. */
 .declaration__cta,
 .declaration__contact {
   text-align: center;
+  margin-inline: auto;
 }
 
 @media (max-width: 820px) { .footer__top { grid-template-columns: 1fr; } }

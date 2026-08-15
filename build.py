@@ -1277,8 +1277,8 @@ def home():
         classes=section_class("petition", "bay--redback"),
         intro=section_intro(
             "petition", "الخطوة الأولى", "وقّع العريضة",
-            "قبل أي عضوية وأي ورقة، الباب اللي كيتحل بالتوقيع: عريضة كتطالب "
-            "بتمكين الحزب من المشاركة فالمشهد السياسي المغربي."),
+            "عريضة كتطالب بتمكين حزب اليمين المغربي من المشاركة "
+            "فالمشهد السياسي"),
         petition=petition_block(compact=True)))
 
     parts.append("""<section class="{classes}" id="facebook" data-parallax-bg>
@@ -1289,8 +1289,8 @@ def home():
 </section>""".format(
         classes=section_class("facebook", "bay--greenback"),
         intro=section_intro(
-            "facebook", "كيفاش تنضم", "المجموعة ديال فيسبوك هي باب الدخول",
-            "العضوية الرسمية مازال ما تحلاتش، والمجموعة هي العضوية الافتراضية دابا."),
+            "facebook", "كيفاش تنضم", "في انتظار الموافقة، دخل لفيسبوك",
+            "العضوية الرسمية مازالا، فيسبوك هو العضوية الافتراضية دابا."),
         # Built as a reader like every other section, so the copy is editable
         # block by block and the artwork is replaceable from the editor,
         # instead of being a lead paragraph and a button with nothing to edit.
