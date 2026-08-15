@@ -1459,6 +1459,32 @@ body .masthead:not(.is-stuck) .burger {
   background: color-mix(in oklab, var(--ivory-1) 86%, var(--section-red));
 }
 
+/* ---------- Per-section pane colour ----------
+   Set on --pane-bg rather than on `background`, because everything the
+   pane owns downstream — the bottom fade, the scrollbar's inset border,
+   the foot strip — reads that variable. Setting the background alone
+   would leave the fade blending into a colour the pane no longer has.
+
+   Keyed by section id, not by position: "the third section" moves the
+   moment the order changes in the editor, an id does not. */
+#two-speeds-plans .policy-pane,
+#two-speeds-plans .prose,
+#two-speeds-plans .ledger,
+#two-speeds-plans .marks { --pane-bg: #A0A0A2; }
+#two-speeds-plans .policy-pane__foot { background: #8E8E90; }
+
+#plan-a-b .policy-pane,
+#plan-a-b .prose,
+#plan-a-b .ledger,
+#plan-a-b .marks { --pane-bg: #8285B0; }
+#plan-a-b .policy-pane__foot { background: #71749C; }
+
+#about .policy-pane,
+#about .prose,
+#about .ledger,
+#about .marks { --pane-bg: #73F559; }
+#about .policy-pane__foot { background: #5FD449; }
+
 /* ---------- Landing header ----------
    No menu, so the mark is the header. Centred, stacked over the tagline. */
 
