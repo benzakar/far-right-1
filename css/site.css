@@ -1476,14 +1476,14 @@ body .masthead:not(.is-stuck) .burger {
 #plan-a-b .policy-pane,
 #plan-a-b .prose,
 #plan-a-b .ledger,
-#plan-a-b .marks { --pane-bg: #C68F68; }
-#plan-a-b .policy-pane__foot { background: #B27B55; }
+#plan-a-b .marks { --pane-bg: #BAC0C7; }
+#plan-a-b .policy-pane__foot { background: #A3AAB3; }
 
 #about .policy-pane,
 #about .prose,
 #about .ledger,
-#about .marks { --pane-bg: #BAC0C7; }
-#about .policy-pane__foot { background: #A3AAB3; }
+#about .marks { --pane-bg: #C68F68; }
+#about .policy-pane__foot { background: #B27B55; }
 
 /* The paper is now metal, so the body ink has to darken with it. The
    default --ink-soft was set for cream and lands at 2.85:1 on the copper
