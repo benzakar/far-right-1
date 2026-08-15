@@ -1485,6 +1485,16 @@ body .masthead:not(.is-stuck) .burger {
 #about .marks { --pane-bg: #C68F68; }
 #about .policy-pane__foot { background: #B27B55; }
 
+/* The petition and the way in are the two things a visitor can act on, so
+   they share one paper rather than continuing the metal run — the metals
+   mark the three sections of the argument, and these are not part of it. */
+#petition .policy-pane,
+#petition .prose,
+#facebook .policy-pane,
+#facebook .prose { --pane-bg: #EFE7D8; }
+#petition .policy-pane__foot,
+#facebook .policy-pane__foot { background: #DED3BF; }
+
 /* The paper is now metal, so the body ink has to darken with it. The
    default --ink-soft was set for cream and lands at 2.85:1 on the copper
    pane; --ink clears 5.5:1 on the worst of the three. */
@@ -3112,6 +3122,15 @@ html[dir="rtl"] .road__bus { transform: scaleX(-1); }
 
 .declaration .btn { margin-block-start: 2.2rem; }
 
+/* The call to action is its own line, and it centres itself rather than
+   relying on inheriting alignment — the paragraph reset upstream sets
+   text-align: start, which was leaving the email button hard against the
+   inline edge inside an otherwise centred section. */
+.declaration__cta,
+.declaration__contact {
+  text-align: center;
+}
+
 @media (max-width: 820px) { .footer__top { grid-template-columns: 1fr; } }
 
 /* ---------- Motion layers ----------
@@ -3200,7 +3219,9 @@ html[dir="rtl"] .road__bus { transform: scaleX(-1); }
   margin: 0.35rem 0 0;
   font-size: var(--step--1);
   color: rgba(243, 237, 225, 0.62);
-  max-inline-size: 34ch;
+  /* The line is 45 characters; the old 34ch cap split it after «حزب
+     اليمين المغربي —», parting the party's name from what it is. */
+  max-inline-size: 48ch;
 }
 
 .footer__nav {

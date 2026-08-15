@@ -335,7 +335,7 @@ def footer():
       <div>
         <div class="footer__coming">
           <h2>صفحات فطور التطوير</h2>
-          <p class="footer__hint">هاد الصفحات مازال كنخدمو عليها، غادي تتحل وحدة بوحدة.</p>
+          <p class="footer__hint">هاد الصفحات مازال كنخدمو عليها</p>
           <ul class="footer__pages">
         {coming}
           </ul>
@@ -1279,22 +1279,32 @@ def home():
     parts.append("""<section class="{classes}" id="facebook" data-parallax-bg>
   <div class="shell">
     {intro}
-    <p class="bay__lead">{body}</p>
-    <p class="declaration__cta">
-      <a class="btn btn--primary" href="{group}" rel="noopener noreferrer" target="_blank">{cta} \u2197</a>
-    </p>
-    {tweet}
+    {reader}
   </div>
 </section>""".format(
         classes=section_class("facebook", "bay--greenback"),
         intro=section_intro(
             "facebook", "كيفاش تنضم", "المجموعة ديال فيسبوك هي باب الدخول",
             "العضوية الرسمية مازال ما تحلاتش، والمجموعة هي العضوية الافتراضية دابا."),
-        body=esc("دخل للمجموعة، طرح فكرة، ناقش مشكل، ولا لقا ناس خدامين على نفس "
-                 "الملف. هادي هي الطريقة الوحيدة باش تساهم من دابا."),
-        group=SITE["facebook_group"],
-        cta=esc("دخل للمجموعة ديال فيسبوك"),
-        tweet=section_tweet("facebook")))
+        # Built as a reader like every other section, so the copy is editable
+        # block by block and the artwork is replaceable from the editor,
+        # instead of being a lead paragraph and a button with nothing to edit.
+        reader=policy_reader(
+            "section-facebook", "المجموعة ديال فيسبوك",
+            [
+                ("h3", "المجموعة هي العضوية دابا"),
+                "دخل للمجموعة، طرح فكرة، ناقش مشكل، ولا لقا ناس خدامين على نفس "
+                "الملف. هادي هي الطريقة الوحيدة باش تساهم من دابا.",
+                ("h3", "شنو كتلقى فيها"),
+                "نقاش على العقائد والمشاريع، أسئلة على المواقف، وناس من مدن "
+                "مختلفة كيخدمو على نفس الملفات.",
+                ("h3", "كيفاش تبدا"),
+                "دخل، قرا شنو كاين، ومن بعد شارك بفكرة ولا بمشكل شفتيه بعينيك "
+                "فالمدينة ديالك.",
+            ],
+            aria="المجموعة ديال فيسبوك",
+            actions=[(SITE["facebook_group"], "دخل للمجموعة ديال فيسبوك", True)],
+            tweet_id="facebook")))
 
     parts.append("""<section class="{classes}" id="declaration" data-parallax-bg>
   <div class="shell declaration">
