@@ -1310,27 +1310,40 @@ body .masthead:not(.is-stuck) .burger {
    the heading belongs to what follows rather than floating between.
    The band is contained rather than full-bleed: a bleed would need
    negative margins inside a scroll container and buy a horizontal
-   scrollbar for the trouble. */
+   scrollbar for the trouble.
+
+   Each subject is struck on its own metal leaf, and the three cycle:
+   gold, copper, silver. The cycle is what does the work — a reader
+   scrolling a long passage sees the metal change and knows a new subject
+   has started, without having to read the heading to find out. The sheen
+   is a real gradient rather than a flat tint, because a flat pastel band
+   reads as a highlighter and metal does not.
+
+   The leaf is independent of the section's ground: metal is metal on
+   green paper or red. */
 .policy-pane__scroll h3 {
-  margin-block: 2.6rem 0.9rem;
-  padding: 0.7rem 0.95rem 0.75rem;
+  margin-block: 2.8rem 1rem;
+  padding: 0.75rem 1rem 0.8rem;
   border-radius: 10px;
-  border-inline-start: 3px solid var(--gold);
-  background: #D3D6C8;
+  border-inline-start: 4px solid rgba(90, 68, 24, 0.55);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55),
+              0 1px 2px rgba(60, 45, 20, 0.18);
   color: var(--green-deep);
-  font-family: var(--gold-display);
-  font-size: var(--step-1);
-  line-height: 1.5;
+  font-size: var(--step-2);
+  line-height: 1.45;
+  background: linear-gradient(100deg, #E7D2A0 0%, #F5E9CB 40%, #D6B87E 100%);
 }
 
-/* Each ground tints its own sheets, same mix the pane foot already uses. */
-.bay--greenback .policy-pane__scroll h3 {
-  background: color-mix(in oklab, var(--ivory-1) 86%, var(--green));
+/* copper */
+.policy-pane__scroll h3:nth-of-type(3n + 2) {
+  border-inline-start-color: rgba(120, 62, 32, 0.5);
+  background: linear-gradient(100deg, #DFB393 0%, #F3D9C3 40%, #C68F68 100%);
 }
-.bay--redback .policy-pane__scroll h3 {
-  background: #DFCDC1;
-  background: color-mix(in oklab, var(--ivory-1) 86%, var(--section-red));
-  border-inline-start-color: var(--madder);
+
+/* silver */
+.policy-pane__scroll h3:nth-of-type(3n) {
+  border-inline-start-color: rgba(70, 78, 86, 0.45);
+  background: linear-gradient(100deg, #D2D6DA 0%, #EFF1F3 40%, #BAC0C7 100%);
 }
 
 /* The opening subject has nothing above it to be divided from. */
