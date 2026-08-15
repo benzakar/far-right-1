@@ -224,7 +224,10 @@ class Handler(SimpleHTTPRequestHandler):
                 return self.send_json(400, {"ok": False, "error": str(exc)})
 
         if path == "/api/upload":
-            original = self.headers.get("X-Filename", "image")
+            # percent-decoded: headers are Latin-1, so the browser sends the
+            # filename encoded. Older clients sent it raw; unquote leaves a
+            # plain ASCII name untouched, so both still work.
+            original = unquote(self.headers.get("X-Filename", "image"))
             slot = re.sub(r"[^a-z0-9-]+", "-", self.headers.get("X-Slot", "image").lower()).strip("-")
             ext = os.path.splitext(original)[1].lower()
             if ext not in (".png", ".jpg", ".jpeg", ".webp", ".gif"):

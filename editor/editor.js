@@ -766,11 +766,16 @@
     if (!file) return;
     try {
       say("كنرفع الصورة…");
+      /* percent-encoded, because HTTP headers are Latin-1 only: an Arabic
+         filename made fetch() throw before the request left the browser,
+         so the upload failed with a browser error and no request to show
+         for it. The server decodes this back. */
       var response = await fetch("/api/upload", {
         method: "POST",
         headers: {
           "X-Editor-Token": token, "X-Slot": slot,
-          "X-Filename": file.name, "Content-Type": file.type || "application/octet-stream"
+          "X-Filename": encodeURIComponent(file.name),
+          "Content-Type": file.type || "application/octet-stream"
         },
         body: file
       });
