@@ -1262,10 +1262,14 @@ body .masthead:not(.is-stuck) .burger {
   overflow: hidden;
   display: grid;
   grid-template-rows: 1fr auto;
-  border: 1px solid rgba(196, 179, 147, 0.82);
+  /* The pane is a frame, not a sheet. The metal is the border and the foot
+     strip; the passage itself is open, so the leather of the section shows
+     through and the reader is looking at the page rather than at a card
+     laid on top of it. */
+  border: clamp(7px, 0.9vw, 11px) solid var(--pane-bg, var(--ivory-0));
   border-radius: clamp(18px, 2vw, 28px);
-  background: var(--pane-bg, var(--ivory-0));
-  color: var(--ink-soft);
+  background: transparent;
+  color: rgba(251, 247, 239, 0.92);
   box-shadow: var(--lift);
 }
 
@@ -1279,8 +1283,9 @@ body .masthead:not(.is-stuck) .burger {
   inset: 0;
   overflow-y: auto;
   padding: clamp(1.25rem, 3vw, 2rem);
-  font-size: var(--step-0);
-  line-height: 1.75;
+  /* A step down: at --step-0 the passage ran long on an open ground. */
+  font-size: var(--step--1);
+  line-height: 1.8;
   scrollbar-width: thin;
   scrollbar-color: var(--green) transparent;
 }
@@ -1296,6 +1301,20 @@ body .masthead:not(.is-stuck) .burger {
 .policy-pane__scroll:focus-visible {
   outline: 3px solid var(--gold);
   outline-offset: -3px;
+}
+
+/* Seventeen paragraphs carry a colour chosen in the editor back when the
+   pane was cream: --madder for emphasis, --green-deep for the calmer
+   voice. Both are inks for paper and neither survives on leather. Rather
+   than strip the choices out of the content, the tokens are re-pointed
+   for the inside of an open pane, so the same two voices keep the same
+   two roles at the brightness this ground needs. */
+.policy-pane__scroll {
+  --madder: #F0A990;
+  --green-deep: #FBF7EF;
+  --ink: rgba(251, 247, 239, 0.92);
+  --ink-soft: rgba(251, 247, 239, 0.86);
+  --ivory-0: #FBF7EF;
 }
 
 .policy-pane__scroll > * { margin-block: 0; }
@@ -1329,34 +1348,35 @@ body .masthead:not(.is-stuck) .burger {
    would have run the full width of the pane and looked like a bar with a
    heading parked in it. */
 .policy-pane__scroll h3 {
-  display: inline;
-  -webkit-box-decoration-break: clone;
-          box-decoration-break: clone;
-  padding: 0.24em 0.62em 0.3em;
-  border-radius: 10px;
-  box-shadow: 0 1px 2px rgba(20, 14, 6, 0.28);
-  font-size: var(--step-2);
-  /* The bands are painted boxes, so the lines need room or they collide. */
-  line-height: 2.05;
-  /* Inverted, now that the paper itself is metal. A light leaf on a metal
-     pane measured 1.00:1 — the same colour as the ground it sat on. The
-     plate is dark and the metal is struck into it instead, which keeps
-     each subject's metal identity and gets contrast back: gold 7.08:1,
-     copper 4.84:1, silver 7.36:1 against this plate. */
-  background: var(--green-deep);
-  color: #D6B87E;
+  /* No plate. On an open pane the heading is the metal itself, set on the
+     leather, and a hairline under it does the separating a filled band used
+     to do — quieter, and it cannot collide with the line above. */
+  display: block;
+  margin-block: 2.6rem 1rem;
+  padding-block-end: 0.55rem;
+  border-block-end: 1px solid currentColor;
+  font-size: var(--step-1);
+  line-height: 1.5;
+  color: #E7D2A0;
+  text-shadow: 0 1px 10px rgba(10, 20, 14, 0.55);
 }
 
 /* copper */
-.policy-pane__scroll h3:nth-of-type(3n + 2) { color: #C68F68; }
+.policy-pane__scroll h3:nth-of-type(3n + 2) { color: #E3B79A; }
 
 /* silver */
-.policy-pane__scroll h3:nth-of-type(3n) { color: #BAC0C7; }
+.policy-pane__scroll h3:nth-of-type(3n) { color: #DCE0E4; }
 
-/* An inline box takes no vertical margin, so the air around a subject has
-   to come from the paragraphs on either side of it. */
-.policy-pane__scroll p:has(+ h3) { margin-block-end: 2.5rem; }
-.policy-pane__scroll h3 + p { margin-block-start: 1.7rem; }
+/* The rule is the separator, so it carries the metal at low weight rather
+   than the full stroke of the type above it. */
+.policy-pane__scroll h3 { border-block-end-color: rgba(231, 210, 160, 0.45); }
+.policy-pane__scroll h3:nth-of-type(3n + 2) { border-block-end-color: rgba(227, 183, 154, 0.45); }
+.policy-pane__scroll h3:nth-of-type(3n) { border-block-end-color: rgba(220, 224, 228, 0.45); }
+
+.policy-pane__scroll > h3:first-child { margin-block-start: 0; }
+
+/* The heading is a block again, so it carries its own margins. */
+.policy-pane__scroll h3 + p { margin-block-start: 0; }
 
 .policy-pane__fade {
   position: absolute;
@@ -1364,7 +1384,9 @@ body .masthead:not(.is-stuck) .burger {
   inset-block-end: 0;
   block-size: 60px;
   pointer-events: none;
-  background: linear-gradient(transparent, var(--pane-bg, var(--ivory-0)));
+  /* Fades into the section's own ground now that the pane is open, not
+     into the metal, which is only the frame. */
+  background: linear-gradient(transparent, var(--pane-fade, var(--green-deep)));
   transition: opacity 0.25s ease;
 }
 
@@ -1415,16 +1437,26 @@ body .masthead:not(.is-stuck) .burger {
 .bay--greenback .ledger,
 .bay--greenback .marks {
   --pane-bg: #E8E9DF;
-  background: var(--pane-bg);
 }
+
+/* The pane no longer paints itself — --pane-bg is the frame and the foot.
+   Surfaces that are still sheets keep the fill. */
+.bay--greenback .prose,
+.bay--greenback .ledger,
+.bay--greenback .marks { background: var(--pane-bg); }
 
 .bay--redback .policy-pane,
 .bay--redback .prose,
 .bay--redback .ledger,
 .bay--redback .marks {
   --pane-bg: #EFE4DB;
-  background: var(--pane-bg);
 }
+
+/* The pane no longer paints itself — --pane-bg is the frame and the foot.
+   Surfaces that are still sheets keep the fill. */
+.bay--redback .prose,
+.bay--redback .ledger,
+.bay--redback .marks { background: var(--pane-bg); }
 
 /* The mix is applied through @supports rather than as a second plain
    declaration. A custom property accepts any token stream — it is not
@@ -1484,6 +1516,10 @@ body .masthead:not(.is-stuck) .burger {
 #about .ledger,
 #about .marks { --pane-bg: #C68F68; }
 #about .policy-pane__foot { background: #B27B55; }
+
+/* Each ground tells its own fade where to land. */
+.bay--greenback { --pane-fade: var(--green-deep); }
+.bay--redback { --pane-fade: var(--section-red); }
 
 /* The petition and the way in are the two things a visitor can act on, so
    they share one paper rather than continuing the metal run — the metals
@@ -3055,6 +3091,16 @@ html[dir="rtl"] .road__bus { transform: scaleX(-1); }
 }
 
 .petition .btn--primary { font-size: var(--step-1); padding: 1rem 2rem; }
+
+/* The petition card sits in an open pane like every other passage, so its
+   own scale — kicker, title, lead, note — comes off the paper inks and
+   onto the ivory scale. --green on leather measured 1.63:1. */
+.policy-pane__scroll .petition__kicker { color: var(--gold-pale); }
+.policy-pane__scroll .petition__kicker::after { background: rgba(231, 210, 160, 0.35); }
+.policy-pane__scroll .petition__title { color: var(--ivory-0); }
+.policy-pane__scroll .petition__lead,
+.policy-pane__scroll .petition p { color: rgba(251, 247, 239, 0.9); }
+.policy-pane__scroll .petition__note { color: rgba(251, 247, 239, 0.72); }
 
 /* The emblem, shown at a size where it is actually legible */
 .emblem {
