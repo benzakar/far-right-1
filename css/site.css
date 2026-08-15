@@ -3240,9 +3240,16 @@ html[dir="rtl"] .road__bus { transform: scaleX(-1); }
   background: rgba(95, 23, 19, 0.88);
 }
 
+/* Fine print, set as fine print: the notes are there to be found and read
+   once, not to compete with the imprint above them. Small, but nowhere
+   near the floor — 0.8rem still clears AA comfortably on the red ground. */
 .footer__legal ul {
   color: rgba(251, 247, 239, 0.88);
+  font-size: 0.8rem;
+  line-height: 1.75;
 }
+
+.footer__legal li + li { margin-block-start: 0.5rem; }
 
 .footer__legal-title {
   margin: 0 0 1rem;
