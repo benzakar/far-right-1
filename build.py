@@ -624,7 +624,7 @@ def _story_panel(key, image_label, eyebrow, title, body, actions=(), flip=False,
 
 
 def policy_reader(key, image_label, blocks, aria, actions=(), tweet_id=None,
-                  image=None):
+                  image=None, foot=True):
     """The reading treatment used by the second section, made reusable.
 
     A framed visual beside a bounded, independently scrollable passage with a
@@ -683,15 +683,19 @@ def policy_reader(key, image_label, blocks, aria, actions=(), tweet_id=None,
         </div>
         <div class="policy-pane__fade" aria-hidden="true"></div>
       </div>
-      <footer class="policy-pane__foot">
-        <span>قرا النص</span>
-        <span class="policy-pane__progress" aria-hidden="true"><i></i></span>
-        <span data-pane-progress>0%</span>
-      </footer>
+      {foot}
     </div>{actions}
     {tweet}
   </div>""".format(visual=visual, aria=esc(aria), body=body_html,
                    actions=actions_html,
+                   # The progress strip belongs to a passage someone reads
+                   # through. On the shorter action panes it was reporting
+                   # progress through a paragraph and a button.
+                   foot=("""<footer class="policy-pane__foot">
+        <span>قرا النص</span>
+        <span class="policy-pane__progress" aria-hidden="true"><i></i></span>
+        <span data-pane-progress>0%</span>
+      </footer>""" if foot else ""),
                    tweet=section_tweet(tweet_id) if tweet_id else "")
 
 
@@ -1046,18 +1050,19 @@ def petition_block(compact=False, level=3):
       <img class="policy-reader__image" src="{image}" width="1000" height="1000"
            alt="{title}" loading="lazy" decoding="async">
     </figure>
-    <div class="policy-pane">
-      <div class="policy-pane__window policy-pane__window--free">
-        <div class="policy-pane__scroll policy-pane__scroll--free">
+    <div class="policy-pane" data-text-pane>
+      <p class="petition__cta petition__cta--top">
+        <a class="btn btn--primary" href="{href}" rel="noopener noreferrer" target="_blank">{cta} \u2197</a>
+      </p>
+      <div class="policy-pane__window">
+        <div class="policy-pane__scroll" aria-label="{title}">
           <p class="petition__kicker">{kicker} \u00b7 {host}</p>
           <h{lvl} class="petition__title">{title}</h{lvl}>
           <p class="petition__lead">{lead}</p>
           {paras}
-          <p class="petition__cta">
-            <a class="btn btn--primary" href="{href}" rel="noopener noreferrer" target="_blank">{cta} \u2197</a>
-          </p>
           <p class="petition__note">{note}</p>
         </div>
+        <div class="policy-pane__fade" aria-hidden="true"></div>
       </div>
     </div>
   </div>""".format(lvl=level, image=asset(str(image)),
@@ -1304,7 +1309,7 @@ def home():
             ],
             aria="المجموعة ديال فيسبوك",
             actions=[(SITE["facebook_group"], "دخل للمجموعة ديال فيسبوك", True)],
-            tweet_id="facebook")))
+            tweet_id="facebook", foot=False)))
 
     parts.append("""<section class="{classes}" id="declaration" data-parallax-bg>
   <div class="shell declaration">
