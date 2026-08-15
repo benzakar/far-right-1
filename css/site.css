@@ -1320,38 +1320,43 @@ body .masthead:not(.is-stuck) .burger {
    reads as a highlighter and metal does not.
 
    The leaf is independent of the section's ground: metal is metal on
-   green paper or red. */
+   green paper or red.
+
+   The leaf is struck on the words, not on the column: `display: inline`
+   plus `box-decoration-break: clone` makes the background follow the text
+   and start a fresh band on each wrapped line, with its own rounded ends
+   — the treatment the Plan A / Plan B artwork already uses. A block band
+   would have run the full width of the pane and looked like a bar with a
+   heading parked in it. */
 .policy-pane__scroll h3 {
-  margin-block: 2.8rem 1rem;
-  padding: 0.75rem 1rem 0.8rem;
+  display: inline;
+  -webkit-box-decoration-break: clone;
+          box-decoration-break: clone;
+  padding: 0.24em 0.62em 0.3em;
   border-radius: 10px;
-  border-inline-start: 4px solid rgba(90, 68, 24, 0.55);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55),
-              0 1px 2px rgba(60, 45, 20, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5),
+              0 1px 2px rgba(60, 45, 20, 0.2);
   color: var(--green-deep);
   font-size: var(--step-2);
-  line-height: 1.45;
+  /* The bands are painted boxes, so the lines need room or they collide. */
+  line-height: 2.05;
   background: linear-gradient(100deg, #E7D2A0 0%, #F5E9CB 40%, #D6B87E 100%);
 }
 
 /* copper */
 .policy-pane__scroll h3:nth-of-type(3n + 2) {
-  border-inline-start-color: rgba(120, 62, 32, 0.5);
   background: linear-gradient(100deg, #DFB393 0%, #F3D9C3 40%, #C68F68 100%);
 }
 
 /* silver */
 .policy-pane__scroll h3:nth-of-type(3n) {
-  border-inline-start-color: rgba(70, 78, 86, 0.45);
   background: linear-gradient(100deg, #D2D6DA 0%, #EFF1F3 40%, #BAC0C7 100%);
 }
 
-/* The opening subject has nothing above it to be divided from. */
-.policy-pane__scroll > h3:first-child { margin-block-start: 0; }
-
-/* A paragraph directly under a subject head is that subject's opening
-   line, so it sits closer than the paragraph rhythm would otherwise put it. */
-.policy-pane__scroll h3 + p { margin-block-start: 0; }
+/* An inline box takes no vertical margin, so the air around a subject has
+   to come from the paragraphs on either side of it. */
+.policy-pane__scroll p:has(+ h3) { margin-block-end: 2.5rem; }
+.policy-pane__scroll h3 + p { margin-block-start: 1.7rem; }
 
 .policy-pane__fade {
   position: absolute;
