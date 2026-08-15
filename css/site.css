@@ -1623,7 +1623,10 @@ body .masthead:not(.is-stuck) .burger {
 .footer__socials {
   display: flex;
   gap: 0.7rem;
-  margin-block-start: 1.1rem;
+  /* The row had no bottom margin at all: stacked, the icons sat flush
+     against the heading under them (0px on mobile, 20px on desktop). A
+     42px target needs its own air on both sides. */
+  margin-block: 1.1rem 2.4rem;
 }
 
 .footer__socials .social {
@@ -1632,20 +1635,29 @@ body .masthead:not(.is-stuck) .burger {
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  /* The footer is leather, not a cream sheet. These four were carrying the
-     ink scale meant for paper — --ink-soft on --green-deep is 1.7:1, so the
-     marks read as empty rings. The whole footer runs on the ivory scale. */
-  border: 1px solid rgba(243, 237, 225, 0.32);
+  /* These are the only things in the footer a visitor can act on, so they
+     are the only filled objects: ivory discs on leather, reading as
+     buttons rather than as the outlines everything else here is drawn
+     with. Inverting them is also what stops the footer being one warm
+     wash — the brightness does the work a second hue would have done. */
+  border: 0;
   border-radius: 50%;
-  color: rgba(243, 237, 225, 0.86);
-  transition: color 0.25s var(--ease), border-color 0.25s var(--ease),
-              background-color 0.25s var(--ease);
+  background: rgba(243, 237, 225, 0.92);
+  color: var(--green-deep);
+  transition: color 0.2s var(--ease), background-color 0.2s var(--ease),
+              transform 0.2s var(--ease);
 }
 
-.footer__socials .social:hover {
-  color: var(--ivory-0);
-  background: var(--green);
-  border-color: var(--green);
+.footer__socials .social:hover,
+.footer__socials .social:focus-visible {
+  background: var(--gold-pale);
+  color: var(--green-deep);
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer__socials .social { transition: background-color 0.2s var(--ease); }
+  .footer__socials .social:hover { transform: none; }
 }
 
 .footer__coming { margin-block-end: 2rem; }
@@ -1678,11 +1690,14 @@ body .masthead:not(.is-stuck) .burger {
   gap: 0.45rem 0.6rem;
 }
 
+/* Pages that do not exist yet. They should read as dormant — quieter than
+   the live channels above and the caveats below — so they stay dashed and
+   sit at the bottom of the legible range rather than competing. */
 .footer__pages li {
   font-family: var(--util);
   font-size: var(--step--1);
-  color: rgba(243, 237, 225, 0.74);
-  border: 1px dashed rgba(243, 237, 225, 0.34);
+  color: rgba(243, 237, 225, 0.66);
+  border: 1px dashed rgba(243, 237, 225, 0.26);
   border-radius: 999px;
   padding: 0.28rem 0.8rem;
 }
@@ -3158,9 +3173,31 @@ html[dir="rtl"] .road__bus { transform: scaleX(-1); }
 /* The fine print, treated as fine print: three narrow measures, numerals
    in gold, and a rule above so it reads as a distinct register rather than
    more body copy. */
+/* The caveats get their own ground. They are a different kind of statement
+   from everything above them — not what the party says, but what it is
+   careful to say it has not done yet — and rendering them in the same warm
+   wash as the rest buried that. The wash is the site's own second ground,
+   so it reads as the red section arriving in the footer rather than as a
+   new colour. Red as the surface, never as the type: as type on leather it
+   sits at 1.85:1, as a ground under ivory it carries 13.4:1. */
 .footer__legal {
   border-block-start: 1px solid rgba(201, 164, 94, 0.26);
   padding-block: clamp(1.4rem, 3vw, 2rem);
+}
+
+.footer__legal {
+  margin-block-start: clamp(1.4rem, 3vw, 2rem);
+  padding-inline: clamp(1.1rem, 2.6vw, 1.8rem);
+  border-radius: 16px;
+  border-block-start: 2px solid rgba(168, 129, 60, 0.55);
+  /* High enough that the leather underneath stops greening it: at 0.55 the
+     panel mixed to a muddy brown, at 0.88 it lands on the same red the
+     sections use. */
+  background: rgba(95, 23, 19, 0.88);
+}
+
+.footer__legal ul {
+  color: rgba(251, 247, 239, 0.88);
 }
 
 .footer__legal-title {
