@@ -360,9 +360,9 @@
         "removed": true
       },
       "h2-2": {
-        "class": "bay__title editor-selected",
+        "class": "bay__title",
         "text": "هذا فقط مثال لمغرب الخطتين",
-        "style": "--rise: 23.9; font-size: 1.6em; color: var(--ivory-0)"
+        "style": "--rise: 23.9; color: var(--ivory-0)"
       },
       "img-6": {
         "src": "/img/editor/home-img-7.png"
@@ -493,7 +493,7 @@
       },
       "h2-3": {
         "text": " مغرب المخربين VS  مغرب المصلحين",
-        "style": "--rise: 24.8; font-size: 1.6em; font-weight: 700"
+        "style": "--rise: 24.8; font-weight: 700"
       },
       "p-18": {
         "text": "فصل فلسفة (ت)عياشت عن فلسفة (ت)براركيت هو اللبنة الأولى لمشروع مستقبلي، ماشي ضحك ولا بسالة.",
