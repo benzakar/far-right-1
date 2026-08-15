@@ -1334,24 +1334,24 @@ body .masthead:not(.is-stuck) .burger {
           box-decoration-break: clone;
   padding: 0.24em 0.62em 0.3em;
   border-radius: 10px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5),
-              0 1px 2px rgba(60, 45, 20, 0.2);
-  color: var(--green-deep);
+  box-shadow: 0 1px 2px rgba(20, 14, 6, 0.28);
   font-size: var(--step-2);
   /* The bands are painted boxes, so the lines need room or they collide. */
   line-height: 2.05;
-  background: linear-gradient(100deg, #E7D2A0 0%, #F5E9CB 40%, #D6B87E 100%);
+  /* Inverted, now that the paper itself is metal. A light leaf on a metal
+     pane measured 1.00:1 — the same colour as the ground it sat on. The
+     plate is dark and the metal is struck into it instead, which keeps
+     each subject's metal identity and gets contrast back: gold 7.08:1,
+     copper 4.84:1, silver 7.36:1 against this plate. */
+  background: var(--green-deep);
+  color: #D6B87E;
 }
 
 /* copper */
-.policy-pane__scroll h3:nth-of-type(3n + 2) {
-  background: linear-gradient(100deg, #DFB393 0%, #F3D9C3 40%, #C68F68 100%);
-}
+.policy-pane__scroll h3:nth-of-type(3n + 2) { color: #C68F68; }
 
 /* silver */
-.policy-pane__scroll h3:nth-of-type(3n) {
-  background: linear-gradient(100deg, #D2D6DA 0%, #EFF1F3 40%, #BAC0C7 100%);
-}
+.policy-pane__scroll h3:nth-of-type(3n) { color: #BAC0C7; }
 
 /* An inline box takes no vertical margin, so the air around a subject has
    to come from the paragraphs on either side of it. */
@@ -1470,20 +1470,27 @@ body .masthead:not(.is-stuck) .burger {
 #two-speeds-plans .policy-pane,
 #two-speeds-plans .prose,
 #two-speeds-plans .ledger,
-#two-speeds-plans .marks { --pane-bg: #A0A0A2; }
-#two-speeds-plans .policy-pane__foot { background: #8E8E90; }
+#two-speeds-plans .marks { --pane-bg: #D6B87E; }
+#two-speeds-plans .policy-pane__foot { background: #C3A268; }
 
 #plan-a-b .policy-pane,
 #plan-a-b .prose,
 #plan-a-b .ledger,
-#plan-a-b .marks { --pane-bg: #8285B0; }
-#plan-a-b .policy-pane__foot { background: #71749C; }
+#plan-a-b .marks { --pane-bg: #C68F68; }
+#plan-a-b .policy-pane__foot { background: #B27B55; }
 
 #about .policy-pane,
 #about .prose,
 #about .ledger,
-#about .marks { --pane-bg: #73F559; }
-#about .policy-pane__foot { background: #5FD449; }
+#about .marks { --pane-bg: #BAC0C7; }
+#about .policy-pane__foot { background: #A3AAB3; }
+
+/* The paper is now metal, so the body ink has to darken with it. The
+   default --ink-soft was set for cream and lands at 2.85:1 on the copper
+   pane; --ink clears 5.5:1 on the worst of the three. */
+#two-speeds-plans .policy-pane__scroll,
+#plan-a-b .policy-pane__scroll,
+#about .policy-pane__scroll { color: var(--ink); }
 
 /* ---------- Landing header ----------
    No menu, so the mark is the header. Centred, stacked over the tagline. */
