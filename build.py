@@ -624,7 +624,7 @@ def _story_panel(key, image_label, eyebrow, title, body, actions=(), flip=False,
 
 
 def policy_reader(key, image_label, blocks, aria, actions=(), tweet_id=None,
-                  image=None, foot=True):
+                  image=None, foot=True, image_href=None):
     """The reading treatment used by the second section, made reusable.
 
     A framed visual beside a bounded, independently scrollable passage with a
@@ -660,10 +660,19 @@ def policy_reader(key, image_label, blocks, aria, actions=(), tweet_id=None,
     configured = (image
                   or EDITOR_CONFIG.get("images", {}).get(key, "")
                   or DEFAULT_READER_IMAGE)
+    # When the artwork is the section's call to action, the picture itself
+    # is the link. The anchor carries the accessible name, so the image is
+    # marked decorative rather than repeating it to a screen reader.
+    img = """<img class="policy-reader__image" src="{src}" width="1000" height="1000"
+           alt="{label}" loading="lazy" decoding="async">""".format(
+        src=asset(str(configured)), label="" if image_href else esc(image_label))
+    if image_href:
+        img = ('<a class="policy-reader__link" href="{href}" rel="noopener noreferrer" '
+               'target="_blank" aria-label="{label}">{img}</a>').format(
+            href=image_href, label=esc(image_label), img=img)
     visual = """<figure class="policy-reader__visual">
-      <img class="policy-reader__image" src="{src}" width="1000" height="1000"
-           alt="{label}" loading="lazy" decoding="async">
-    </figure>""".format(src=asset(str(configured)), label=esc(image_label))
+      {img}
+    </figure>""".format(img=img)
 
     links = []
     for href, label, external in actions:
@@ -1047,8 +1056,11 @@ def petition_block(compact=False, level=3):
     paras = "\n          ".join("<p>{}</p>".format(esc(p)) for p in PETITION["body"])
     return """<div class="policy-reader petition-reader" data-reveal>
     <figure class="policy-reader__visual">
-      <img class="policy-reader__image" src="{image}" width="1000" height="1000"
-           alt="{title}" loading="lazy" decoding="async">
+      <a class="policy-reader__link" href="{href}" rel="noopener noreferrer"
+         target="_blank" aria-label="{cta}">
+        <img class="policy-reader__image" src="{image}" width="1000" height="1000"
+             alt="" loading="lazy" decoding="async">
+      </a>
     </figure>
     <div class="policy-pane" data-text-pane>
       <p class="petition__cta petition__cta--top">
@@ -1309,7 +1321,8 @@ def home():
             ],
             aria="المجموعة ديال فيسبوك",
             actions=[(SITE["facebook_group"], "دخل للمجموعة ديال فيسبوك", True)],
-            tweet_id="facebook", foot=False)))
+            tweet_id="facebook", foot=False,
+            image_href=SITE["facebook_group"])))
 
     parts.append("""<section class="{classes}" id="declaration" data-parallax-bg>
   <div class="shell declaration">

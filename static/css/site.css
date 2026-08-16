@@ -1938,6 +1938,22 @@ body .masthead:not(.is-stuck) .burger {
 
 .petition__cta { margin-block-start: 1.4rem; }
 
+/* A picture that is a link says so: it lifts on hover and takes a real
+   focus ring, so it is reachable and legible from the keyboard too. */
+.policy-reader__link {
+  display: block;
+  border-radius: inherit;
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+.policy-reader__link:hover { transform: translateY(-3px); }
+.policy-reader__link:focus-visible {
+  outline: 3px solid var(--gold-lit);
+  outline-offset: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .policy-reader__link, .policy-reader__link:hover { transition: none; transform: none; }
+}
+
 /* The call to action leads, so it sits above the passage with the frame's
    own padding around it rather than floating in the scroll. */
 .petition__cta--top {
