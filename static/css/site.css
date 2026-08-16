@@ -2622,7 +2622,7 @@ a.video-card__link:focus-visible {
 .register__num,
 .bus .label,
 .stage__sub,
-.declaration__line:nth-child(2) {
+.declaration__line--lit {
   font-family: var(--gold-display);
   font-weight: 400;
 }
@@ -3247,7 +3247,7 @@ html[dir="rtl"] .road__bus { transform: scaleX(-1); }
   color: var(--ivory-0);
 }
 .declaration__line { font-weight: 700; line-height: 1.5; }
-.declaration__line:nth-child(2) { color: var(--gold-lit); }
+.declaration__line--lit { color: var(--gold-lit); }
 
 .declaration .btn { margin-block-start: 2.2rem; }
 

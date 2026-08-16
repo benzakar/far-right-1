@@ -1051,7 +1051,7 @@ VIDEOS = [
      "href": "https://youtu.be/7P7A3hG6QY4?si=o_kpVKN18nEfALpV"},
     {"image": "/img/editor/video-04.png",
      "title": "عقيدة ياسين الطيبي — المشروع 444",
-     "cta": "قريباً إن شاء الله",
+     "cta": "قريباً على القناة",
      "href": ""},
 ]
 
@@ -1210,9 +1210,14 @@ def z_page():
 
 
 def home():
+    # The middle line is the gold one. It used to be found with
+    # :nth-child(2), which quietly meant "the second child of .declaration"
+    # — so the moment the tweet moved to the top of the section, the gold
+    # landed on the first line instead. The line says which one it is.
     dec_lines = "\n      ".join(
-        '<p class="declaration__line">{}</p>'.format(esc(l))
-        for l in DECLARATION["lines"])
+        '<p class="declaration__line{}">{}</p>'.format(
+            " declaration__line--lit" if i == 1 else "", esc(l))
+        for i, l in enumerate(DECLARATION["lines"]))
 
     bronx = next(d for d in DOCTRINES if d["slug"] == "bronx")
     lalla = next(d for d in DOCTRINES if d["slug"] == "lalla-khadija")
