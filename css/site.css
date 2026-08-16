@@ -3249,6 +3249,17 @@ html[dir="rtl"] .road__bus { transform: scaleX(-1); }
 .declaration__line { font-weight: 700; line-height: 1.5; }
 .declaration__line--lit { color: var(--gold-lit); }
 
+/* In the closing section the tweet is a quotation standing on its own, not
+   a panel filling the width. It ran the full 1369px of the shell while
+   everything under it sat centred and narrow, so it read as misaligned
+   even though its centre was exact — and it carried no bottom margin at
+   all, leaving the declaration crowded against the card. */
+.declaration .policy-tweet {
+  max-inline-size: min(100%, 46rem);
+  margin-inline: auto;
+  margin-block-end: clamp(2rem, 4vw, 3rem);
+}
+
 .declaration .btn { margin-block-start: 2.2rem; }
 
 /* The call to action is its own line, and it centres itself rather than
