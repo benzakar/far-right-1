@@ -1043,6 +1043,50 @@ def _doctrine_slider(doctrines):
     </div>""".format(slides="\n        ".join(slides), total=len(doctrines))
 
 
+
+VIDEOS = [
+    {"image": "/img/editor/video-03.png",
+     "title": "الرد على إهانة حفل الولاء",
+     "cta": "شوف الفيديو",
+     "href": "https://youtu.be/7P7A3hG6QY4?si=o_kpVKN18nEfALpV"},
+    {"image": "/img/editor/video-04.png",
+     "title": "عقيدة ياسين الطيبي — المشروع 444",
+     "cta": "قريباً إن شاء الله",
+     "href": ""},
+]
+
+
+def video_cards():
+    """Two thumbnails, each its own link, with the call to action under it.
+
+    A card without a link yet is not a link: it renders the label as a
+    disabled button rather than an anchor that goes nowhere, so nothing on
+    the page can be clicked to no effect.
+    """
+    cards = []
+    for v in VIDEOS:
+        img = ('<img class="video-card__image" src="{src}" width="1280" '
+               'height="720" alt="{alt}" loading="lazy" decoding="async">').format(
+            src=asset(v["image"]), alt="" if v["href"] else esc(v["title"]))
+        if v["href"]:
+            frame = ('<a class="video-card__link" href="{href}" rel="noopener '
+                     'noreferrer" target="_blank" aria-label="{label}">{img}</a>').format(
+                href=v["href"], label=esc(v["title"]), img=img)
+            action = ('<a class="btn btn--primary" href="{href}" rel="noopener '
+                      'noreferrer" target="_blank">{cta} \u2197</a>').format(
+                href=v["href"], cta=esc(v["cta"]))
+        else:
+            frame = '<span class="video-card__link video-card__link--soon">{}</span>'.format(img)
+            action = '<span class="btn btn--primary is-soon" aria-disabled="true">{}</span>'.format(
+                esc(v["cta"]))
+        cards.append("""<figure class="video-card">
+        {frame}
+        <figcaption class="video-card__caption">{title}</figcaption>
+        <p class="video-card__cta">{action}</p>
+      </figure>""".format(frame=frame, title=esc(v["title"]), action=action))
+    return "\n      ".join(cards)
+
+
 def petition_block(compact=False, level=3):
     """The petition card.
 
@@ -1288,7 +1332,7 @@ def home():
 </section>""".format(
         classes=section_class("petition", "bay--redback"),
         intro=section_intro(
-            "petition", "الخطوة الأولى", "وقّع العريضة",
+            "petition", "", "وقّع العريضة",
             "عريضة كتطالب بتمكين حزب اليمين المغربي من المشاركة "
             "فالمشهد السياسي"),
         petition=petition_block(compact=True)))
@@ -1324,15 +1368,28 @@ def home():
             tweet_id="facebook", foot=False,
             image_href=SITE["facebook_group"])))
 
+    parts.append("""<section class="{classes}" id="videos" data-parallax-bg>
+  <div class="shell">
+    {intro}
+    <div class="videos">
+      {cards}
+    </div>
+  </div>
+</section>""".format(
+        classes=section_class("videos", "bay--redback"),
+        intro=section_intro("videos", "القناة", "الفيديوهات",
+                            "كل فيديو كيشرح عقيدة ولا مشروع بالتفصيل."),
+        cards=video_cards()))
+
     parts.append("""<section class="{classes}" id="declaration" data-parallax-bg>
   <div class="shell declaration">
+    {tweet}
     {intro}
     {lines}
     <p class="declaration__contact">{contact}</p>
     <p class="declaration__cta">
       <a class="btn btn--primary" href="mailto:{email}">{email}</a>
     </p>
-    {tweet}
   </div>
 </section>""".format(
         classes=section_class("declaration", "bay--deep"),
