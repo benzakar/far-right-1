@@ -199,7 +199,10 @@
       "tweets": []
     }
   },
-  "images": {},
+  "images": {
+    "section-facebook": "/img/editor/section-facebook.png",
+    "petition": "/img/editor/section-petition.png"
+  },
   "content_overrides": {
     "section-vision": {
       "eyebrow": "رؤيتنا",
